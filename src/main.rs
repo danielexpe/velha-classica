@@ -69,7 +69,10 @@ fn run(cli: Cli) -> Result<(), RunError> {
         term: term.as_deref(),
     };
     let color_mode = detect_color(ColorChoice::Auto, color_env);
-    let mut app = App::new(cli.language(), color_mode);
+    let mut app = match cli.seed {
+        Some(seed) => App::with_seed(cli.language(), color_mode, seed),
+        None => App::new(cli.language(), color_mode),
+    };
 
     app.run()?;
 

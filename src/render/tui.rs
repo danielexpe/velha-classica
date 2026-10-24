@@ -831,6 +831,8 @@ fn turn_label(app: &App, game: &Game) -> &'static str {
         Mode::OnePlayer(_) => {
             if game.turn() == Mark::X {
                 strings.game_turn_you
+            } else if app.ai_pending() {
+                strings.game_ai_thinking
             } else {
                 strings.game_turn_ai
             }
@@ -1144,9 +1146,8 @@ mod tests {
     }
 
     #[test]
-    fn renders_difficulty_placeholder_notice() {
+    fn renders_difficulty_descriptions() {
         let mut app = app();
-        app.handle(Action::Confirm);
         app.handle(Action::Confirm);
 
         let text = render(&app, 192, 54);
@@ -1154,7 +1155,20 @@ mod tests {
         assert!(text.contains("Escolha a dificuldade"));
         assert!(text.contains("Fácil"));
         assert!(text.contains("Impossível"));
-        assert!(text.contains("A IA chega na Fase 3"));
+        assert!(text.contains("Nunca perde"));
+    }
+
+    #[test]
+    fn renders_one_player_thinking_turn() {
+        let mut app = App::with_seed(Language::PtBr, ColorMode::TrueColor, 7);
+        app.handle(Action::Confirm);
+        app.handle(Action::Confirm);
+        app.play_for_test(4);
+
+        let text = render(&app, 192, 54);
+
+        assert!(text.contains("IA PENSANDO"));
+        assert_eq!(app.game().unwrap().board().marks_count(), 1);
     }
 
     #[test]

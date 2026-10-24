@@ -82,12 +82,11 @@ Critérios de saída:
 
 **Objetivo:** entregar uma partida 2P local completa, sem arte final.
 
-**Estado:** concluída em 2026-10-24 (modo 1P permanece como placeholder até a
-Fase 3).
+**Estado:** concluída em 2026-10-24.
 
 Entregáveis:
 
-- Home, seleção de dificuldade (placeholder), partida, pausa, fim de rodada.
+- Home, seleção de dificuldade, partida, pausa, fim de rodada.
 - Tabuleiro navegável por teclado.
 - Detecção de vitória/empate e linha vencedora.
 - Placar da sessão e revanche.
@@ -111,6 +110,8 @@ Critérios de saída:
 
 **Objetivo:** implementar os três níveis e integrar o modo 1P.
 
+**Estado:** concluída em 2026-10-24.
+
 Entregáveis:
 
 - IA Fácil, Médio e Impossível.
@@ -122,11 +123,11 @@ Entregáveis:
 
 Critérios de saída:
 
-- [ ] IA Impossível nunca perde no teste exaustivo.
-- [ ] Médio vence jogadas ingênuas e bloqueia ameaças imediatas.
-- [ ] Fácil é vencível com frequência.
-- [ ] Modo 1P completo e sem travar durante o atraso.
-- [ ] Pausa durante o turno da IA funciona.
+- [x] IA Impossível nunca perde no teste exaustivo.
+- [x] Médio vence jogadas ingênuas e bloqueia ameaças imediatas.
+- [x] Fácil é vencível com frequência.
+- [x] Modo 1P completo e sem travar durante o atraso.
+- [x] Pausa durante o turno da IA funciona.
 
 ## 7. Fase 4 — Arte, som e i18n
 

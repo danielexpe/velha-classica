@@ -257,8 +257,8 @@ Questões abertas e riscos ficam no final.
 | Q-005 | Preferência de volume padrão do áudio | UX | Fase 4 |
 | Q-006 | Manter a marca "Velha Clássica" também na UI em inglês? | i18n | Fase 4 |
 | Q-007 | Deseja persistência futura de placar/idioma? | Backlog | Pós-v1.1 |
-| Q-008 | O modo Impossível deve ter atraso de "pensamento" ou ser instantâneo? | UX | Fase 3 |
-| Q-009 | Limite mínimo de terminal: 80 × 24 é aceitável? | Layout | Fase 2 |
+| Q-008 | O modo Impossível deve ter atraso de "pensamento" ou ser instantâneo? | UX | Resolvida: atraso de 450–800 ms |
+| Q-009 | Limite mínimo de terminal: 80 × 24 é aceitável? | Layout | Resolvida: sim |
 | Q-010 | Capturas de frame devem entrar no repositório ou ser artefato de release? | QA/repo | Fase 4 |
 
 Recomendações iniciais:

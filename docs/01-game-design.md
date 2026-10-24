@@ -134,7 +134,7 @@ Algoritmo:
 3. Caso contrário, pontue cada casa vazia:
    - jogada que cria duas ou mais ameaças de vitória: +800;
    - centro: +300;
-   - canto oposto ao último canto do oponente: +200;
+   - canto cujo oposto está ocupado pelo oponente: +200;
    - canto: +100;
    - borda: +50;
    - jitter aleatório de 0–49 para variar o jogo.
@@ -148,14 +148,15 @@ Objetivo: nunca perder. Empate é o melhor resultado possível para o humano.
 
 Algoritmo:
 
-- Minimax completo com poda alfa-beta.
+- Minimax completo com memoização das posições avaliadas.
 - A IA (O) maximiza; o humano (X) minimiza.
 - Vitória da IA vale `+10 - profundidade`.
 - Vitória do humano vale `-10 + profundidade`.
 - Empate vale `0`.
 - Entre jogadas com a mesma pontuação ótima, escolha aleatoriamente para variar
   aberturas, sem comprometer a otimalidade.
-- O espaço de estados é pequeno; memoização é opcional.
+- O espaço de estados é pequeno; a memoização mantém a resposta em poucos
+  milissegundos.
 
 Critério de aceite: em simulação exaustiva de todas as respostas humanas a partir
 do tabuleiro vazio, a IA Impossível nunca perde.

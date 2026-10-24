@@ -6,16 +6,20 @@ use ratatui::backend::CrosstermBackend;
 use ratatui::style::Color;
 use ratatui::Terminal;
 
-use crate::core::BoardError;
+use crate::ai::{choose_move, AI_MARK};
+use crate::core::{BoardError, Difficulty};
 use crate::i18n::{Language, Strings};
 use crate::input::{map_key, Action};
 use crate::render;
 use crate::state::{Game, Mode, MoveError, Screen, Settings};
 use crate::theme::{ColorMode, Token};
+use crate::util::rng::Rng;
 use crate::util::tty::{install_panic_hook, TerminalGuard};
 
 const STATUS_DURATION: Duration = Duration::from_millis(900);
 const CONFIRM_DEBOUNCE: Duration = Duration::from_millis(150);
+const AI_THINK_MIN_MS: u64 = 450;
+const AI_THINK_MAX_MS: u64 = 800;
 const HOME_ITEMS: usize = 3;
 const DIFFICULTY_ITEMS: usize = 4;
 const PAUSE_ITEMS: usize = 4;
@@ -24,7 +28,6 @@ const RESULT_ITEMS: usize = 3;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StatusKind {
     Occupied,
-    DifficultyPlaceholder,
 }
 
 impl StatusKind {
@@ -52,10 +55,16 @@ pub struct App {
     result_selection: usize,
     status: Option<Status>,
     last_confirm: Option<Instant>,
+    rng: Rng,
+    ai_pending: Option<Instant>,
 }
 
 impl App {
     pub fn new(language: Language, color_mode: ColorMode) -> Self {
+        Self::with_seed(language, color_mode, crate::util::rng::entropy_seed())
+    }
+
+    pub fn with_seed(language: Language, color_mode: ColorMode, seed: u64) -> Self {
         Self {
             screen: Screen::Home,
             settings: Settings::new(language),
@@ -69,6 +78,8 @@ impl App {
             result_selection: 0,
             status: None,
             last_confirm: None,
+            rng: Rng::new(seed),
+            ai_pending: None,
         }
     }
 
@@ -133,10 +144,12 @@ impl App {
     pub fn status_text(&self) -> Option<&'static str> {
         let strings = self.strings();
 
-        self.status().map(|kind| match kind {
-            StatusKind::Occupied => strings.game_occupied,
-            StatusKind::DifficultyPlaceholder => strings.difficulty_placeholder,
-        })
+        self.status()
+            .map(|StatusKind::Occupied| strings.game_occupied)
+    }
+
+    pub fn ai_pending(&self) -> bool {
+        self.ai_pending.is_some()
     }
 
     pub fn color(&self, token: Token) -> Color {
@@ -194,8 +207,8 @@ impl App {
             Action::Up => self.shift_selection(Selection::Difficulty, -1, DIFFICULTY_ITEMS),
             Action::Down => self.shift_selection(Selection::Difficulty, 1, DIFFICULTY_ITEMS),
             Action::Confirm => {
-                if self.difficulty_selection < DIFFICULTY_ITEMS - 1 {
-                    self.set_status(StatusKind::DifficultyPlaceholder);
+                if let Some(&difficulty) = Difficulty::ALL.get(self.difficulty_selection) {
+                    self.start_game(Mode::OnePlayer(difficulty));
                 } else {
                     self.go_home();
                 }
@@ -214,12 +227,13 @@ impl App {
             Action::Left => self.move_cursor(0, -1),
             Action::Right => self.move_cursor(0, 1),
             Action::Confirm => {
-                if self.confirm_allowed() {
+                if !self.ai_pending() && self.confirm_allowed() {
                     self.play_selected();
                 }
             }
             Action::Back => {
                 self.pause_selection = 0;
+                self.ai_pending = None;
                 self.screen = Screen::Paused;
             }
             _ => return false,
@@ -324,6 +338,8 @@ impl App {
             }
             Err(MoveError::Board(BoardError::OutOfBounds(_))) => {}
         }
+
+        self.sync_ai();
     }
 
     fn start_game(&mut self, mode: Mode) {
@@ -332,13 +348,74 @@ impl App {
         self.result_selection = 0;
         self.status = None;
         self.last_confirm = None;
+        self.ai_pending = None;
         self.screen = Screen::Playing;
+        self.sync_ai();
     }
 
     fn resume(&mut self) {
         self.status = None;
         self.last_confirm = None;
         self.screen = Screen::Playing;
+        self.sync_ai();
+    }
+
+    fn sync_ai(&mut self) {
+        self.ai_pending = None;
+
+        if self.screen != Screen::Playing {
+            return;
+        }
+
+        let Some(game) = self.game.as_ref() else {
+            return;
+        };
+
+        if game.is_over() || game.turn() != AI_MARK {
+            return;
+        }
+
+        if !matches!(game.mode(), Mode::OnePlayer(_)) {
+            return;
+        }
+
+        let delay = self.rng.range_inclusive(AI_THINK_MIN_MS, AI_THINK_MAX_MS);
+
+        self.ai_pending = Some(Instant::now() + Duration::from_millis(delay));
+    }
+
+    pub fn update_ai(&mut self, now: Instant) {
+        let Some(deadline) = self.ai_pending else {
+            return;
+        };
+
+        if now < deadline {
+            return;
+        }
+
+        self.ai_pending = None;
+
+        if self.screen != Screen::Playing {
+            return;
+        }
+
+        let Some(difficulty) = self.game.as_ref().and_then(|game| match game.mode() {
+            Mode::OnePlayer(difficulty) if game.turn() == AI_MARK => Some(difficulty),
+            _ => None,
+        }) else {
+            return;
+        };
+
+        let cell = match self.game.as_ref() {
+            Some(game) => choose_move(game.board(), difficulty, &mut self.rng),
+            None => None,
+        };
+
+        if let Some(cell) = cell {
+            self.play_cell(cell);
+        }
+
+        self.sync_ai();
     }
 
     fn restart_round(&mut self) {
@@ -362,6 +439,7 @@ impl App {
         self.game = None;
         self.home_selection = 0;
         self.status = None;
+        self.ai_pending = None;
         self.screen = Screen::Home;
     }
 
@@ -388,6 +466,7 @@ impl App {
 
     fn event_loop(&mut self, terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<()> {
         while !self.quit {
+            self.update_ai(Instant::now());
             terminal.draw(|frame| render::tui::draw(frame, self))?;
 
             if event::poll(Duration::from_millis(100))? {
@@ -438,6 +517,11 @@ mod tests {
         for cell in [0, 3, 1, 4, 2] {
             app.play_for_test(cell);
         }
+    }
+
+    fn force_ai(app: &mut App) {
+        app.ai_pending = Some(Instant::now());
+        app.update_ai(Instant::now());
     }
 
     #[test]
@@ -493,16 +577,25 @@ mod tests {
     }
 
     #[test]
-    fn difficulty_enter_shows_phase_three_notice() {
-        let mut app = app();
-        app.handle(Action::Confirm);
-        app.handle(Action::Down);
+    fn difficulty_enter_starts_one_player_game_with_selected_level() {
+        for (index, difficulty) in Difficulty::ALL.into_iter().enumerate() {
+            let mut app = app();
+            app.handle(Action::Confirm);
 
-        app.handle(Action::Confirm);
+            for _ in 0..index {
+                app.handle(Action::Down);
+            }
 
-        assert_eq!(app.screen(), Screen::Difficulty);
-        assert_eq!(app.status(), Some(StatusKind::DifficultyPlaceholder));
-        assert!(app.game().is_none());
+            app.handle(Action::Confirm);
+
+            assert_eq!(app.screen(), Screen::Playing);
+            assert_eq!(
+                app.game().map(Game::mode),
+                Some(Mode::OnePlayer(difficulty))
+            );
+            assert_eq!(app.game().map(Game::turn), Some(Mark::X));
+            assert!(!app.ai_pending());
+        }
     }
 
     #[test]
@@ -702,6 +795,97 @@ mod tests {
 
         assert_eq!(app.game().unwrap().turn(), turn);
         assert_eq!(app.game().unwrap().board().marks_count(), marks);
+    }
+
+    #[test]
+    fn one_player_human_turn_schedules_ai_and_blocks_board_input() {
+        let mut app = app();
+        app.handle(Action::Confirm);
+        app.handle(Action::Confirm);
+        app.play_for_test(4);
+
+        assert_eq!(app.game().unwrap().turn(), Mark::O);
+        assert!(app.ai_pending());
+
+        app.handle(Action::Confirm);
+
+        assert_eq!(app.game().unwrap().board().marks_count(), 1);
+        assert!(app.ai_pending());
+    }
+
+    #[test]
+    fn ai_thinking_delay_stays_within_range() {
+        let mut app = App::with_seed(Language::PtBr, ColorMode::TrueColor, 5);
+        app.handle(Action::Confirm);
+        app.handle(Action::Confirm);
+        app.play_for_test(4);
+
+        let remaining = app
+            .ai_pending
+            .expect("AI should be scheduled")
+            .saturating_duration_since(Instant::now());
+
+        assert!(remaining >= Duration::from_millis(449));
+        assert!(remaining <= Duration::from_millis(800));
+    }
+
+    #[test]
+    fn ai_plays_after_deadline_and_returns_turn_to_human() {
+        let mut app = app();
+        app.handle(Action::Confirm);
+        app.handle(Action::Confirm);
+        app.play_for_test(4);
+
+        force_ai(&mut app);
+
+        assert_eq!(app.game().unwrap().board().marks_count(), 2);
+        assert_eq!(app.game().unwrap().turn(), Mark::X);
+        assert!(!app.ai_pending());
+    }
+
+    #[test]
+    fn pause_cancels_ai_pending_and_resume_reschedules() {
+        let mut app = app();
+        app.handle(Action::Confirm);
+        app.handle(Action::Confirm);
+        app.play_for_test(4);
+
+        app.handle(Action::Back);
+        assert_eq!(app.screen(), Screen::Paused);
+        assert!(!app.ai_pending());
+
+        app.update_ai(Instant::now() + Duration::from_secs(10));
+        assert_eq!(app.game().unwrap().board().marks_count(), 1);
+
+        app.handle(Action::Confirm);
+        assert_eq!(app.screen(), Screen::Playing);
+        assert!(app.ai_pending());
+
+        force_ai(&mut app);
+        assert_eq!(app.game().unwrap().board().marks_count(), 2);
+    }
+
+    #[test]
+    fn one_player_rematch_keeps_human_starting() {
+        let mut app = app();
+        app.handle(Action::Confirm);
+        app.handle(Action::Confirm);
+        app.play_for_test(4);
+        force_ai(&mut app);
+
+        if app.screen() == Screen::Playing {
+            app.handle(Action::Back);
+            app.handle(Action::Down);
+            app.handle(Action::Confirm);
+        }
+
+        app.game.as_mut().unwrap().rematch();
+        app.screen = Screen::Playing;
+        app.sync_ai();
+
+        assert_eq!(app.game().unwrap().starter(), Mark::X);
+        assert_eq!(app.game().unwrap().turn(), Mark::X);
+        assert!(!app.ai_pending());
     }
 
     #[test]

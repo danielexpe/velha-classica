@@ -79,7 +79,6 @@ truncar. Testar todas as strings nos breakpoints Wide, Compact e Minimal.
 | `difficulty.impossible` | Impossível | Impossible | 12 | |
 | `difficulty.impossible.desc` | Nunca perde. Empate já é vitória. | Never loses. A draw is a win. | 38 | |
 | `difficulty.human_starts` | Você começa com X. | You start as X. | 22 | Apoio na tela de dificuldade |
-| `difficulty.placeholder` | A IA chega na Fase 3. Jogue em 2 Jogadores. | AI arrives in Phase 3. Play with 2 Players. | 48 | Temporário até a Fase 3 |
 | `difficulty.footer` | Enter iniciar · Esc voltar | Enter start · Esc back | 30 | Pode ser montado com chaves de rodapé |
 
 ### 4.4 Partida
@@ -88,6 +87,7 @@ truncar. Testar todas as strings nos breakpoints Wide, Compact e Minimal.
 | --- | --- | --- | --- | --- |
 | `game.turn.you` | Sua vez | Your turn | 16 | Humano |
 | `game.turn.ai` | Vez da IA | AI's turn | 16 | Modo 1P |
+| `game.ai_thinking` | IA pensando… | AI is thinking… | 18 | Atraso de pensamento da IA |
 | `game.turn.player1` | Vez do Jogador 1 | Player 1's turn | 20 | Modo 2P |
 | `game.turn.player2` | Vez do Jogador 2 | Player 2's turn | 20 | Modo 2P |
 | `game.you` | Você | You | 8 | Rótulo de placar |
@@ -104,7 +104,6 @@ truncar. Testar todas as strings nos breakpoints Wide, Compact e Minimal.
 | `game.round` | Rodada {n} | Round {n} | 14 | Opcional no cabeçalho |
 | `game.mark.x` | X | X | 1 | Não traduzir |
 | `game.mark.o` | O | O | 1 | Não traduzir |
-| `game.ai_thinking` | IA pensando | AI thinking | 16 | Animação de pontos é separada |
 
 ### 4.5 Resultado da rodada
 
@@ -184,8 +183,8 @@ truncar. Testar todas as strings nos breakpoints Wide, Compact e Minimal.
 
 ### 4.11 Placeholder da Fase 1 (removido)
 
-As chaves `placeholder.title` e `placeholder.body` foram removidas ao concluir a
-Fase 2. A tela de dificuldade usa `difficulty.placeholder` até a Fase 3.
+As chaves `placeholder.title`, `placeholder.body` e `difficulty.placeholder`
+foram removidas ao concluir as Fases 2 e 3.
 
 ## 5. Placeholders
 

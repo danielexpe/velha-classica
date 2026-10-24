@@ -51,6 +51,9 @@ pub struct Cli {
         help = "Video backend"
     )]
     pub backend: Backend,
+
+    #[arg(long, value_name = "N", help = "Seed for reproducible AI moves")]
+    pub seed: Option<u64>,
 }
 
 impl Cli {
@@ -72,6 +75,7 @@ mod tests {
 
         assert_eq!(cli.language(), Language::PtBr);
         assert_eq!(cli.backend, Backend::Auto);
+        assert_eq!(cli.seed, None);
     }
 
     #[test]
@@ -81,6 +85,14 @@ mod tests {
 
         assert_eq!(cli.language(), Language::En);
         assert_eq!(cli.backend, Backend::Fb);
+        assert_eq!(cli.seed, None);
+    }
+
+    #[test]
+    fn parses_seed() {
+        let cli = Cli::try_parse_from(["velha-classica", "--seed", "42"]).unwrap();
+
+        assert_eq!(cli.seed, Some(42));
     }
 
     #[test]

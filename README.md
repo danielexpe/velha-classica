@@ -2,19 +2,21 @@
 
 Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
-> **Fase 2:** já é possível jogar **2 jogadores no mesmo teclado**. O modo
-> 1 jogador contra a IA ainda é um placeholder e chega na Fase 3.
+> **Fase 3:** o modo **1 jogador** está completo, com IA Fácil, Médio e
+> Impossível, e o modo 2 jogadores continua disponível no mesmo teclado.
 
 ## O que já funciona
 
 - Partida local de 2 jogadores com tabuleiro navegável por teclado.
-- Home, seleção de dificuldade (placeholder), pausa e fim de rodada.
+- Partida 1 jogador contra IA em três níveis: Fácil, Médio e Impossível.
+- IA Impossível com minimax: nunca perde; empate já é resultado positivo.
+- Home, seleção de dificuldade, pausa e fim de rodada.
 - Detecção de vitória/empate, linha vencedora e placar da sessão.
-- Revanche mantendo o placar e alternando o jogador que inicia.
+- Revanche mantendo o placar; no 2P o iniciante alterna, no 1P o humano começa.
 - Layouts Wide, Compact e Minimal, com adaptação ao redimensionar.
 - Interface em pt-BR e inglês, alternada com `F2`.
 - Núcleo de tabuleiro, regras, placar e estado de partida implementado e testado.
-- CLI com ajuda, versão, idioma e escolha de backend.
+- CLI com ajuda, versão, idioma, backend e semente da IA (`--seed`).
 - Restauração do terminal ao sair, inclusive com `Esc`, `Q` e `Ctrl+C`.
 
 ## Requisitos
@@ -49,6 +51,9 @@ cargo run -- --lang en
 
 # Forçar o backend de terminal
 cargo run -- --backend tui
+
+# Reproduzir as escolhas da IA (útil para depuração)
+cargo run -- --seed 42
 ```
 
 Outras opções:
@@ -93,7 +98,7 @@ Rodar a suíte automatizada:
 cargo test
 ```
 
-Resultado esperado nesta versão: **108 testes passando**, incluindo snapshots de TUI.
+Resultado esperado nesta versão: **138 testes passando**, incluindo snapshots de TUI.
 
 Rodar os portões de qualidade:
 
@@ -107,13 +112,16 @@ cargo build --release --no-default-features
 Teste manual rápido:
 
 1. Execute `cargo run` em um terminal local.
-2. Escolha **2 Jogadores**, mova o cursor com as setas ou `WASD` e marque casas
-   com `Enter`.
-3. Complete uma rodada e confira o resultado, o placar e a revanche com `R`.
-4. Abra a pausa com `Esc` e teste continuar, reiniciar e voltar ao menu.
-5. Redimensione o terminal e confirme que a partida continua no mesmo estado.
-6. Pressione `F2` e verifique os textos em inglês.
-7. Pressione `Q` ou `Ctrl+C` e confirme que o cursor e a tela normal voltaram.
+2. Escolha **1 Jogador**, selecione **Impossível** e confirme que a IA nunca
+   perde; observe o aviso "IA pensando…" durante o turno dela.
+3. Teste **Fácil** e **Médio** para comparar o comportamento.
+4. Escolha **2 Jogadores**, mova o cursor com as setas ou `WASD` e marque casas
+   com `Enter`; complete uma rodada e confira o placar e a revanche com `R`.
+5. Abra a pausa com `Esc` durante o turno da IA e confirme que ela não joga até
+   você continuar; teste também reiniciar e voltar ao menu.
+6. Redimensione o terminal e confirme que a partida continua no mesmo estado.
+7. Pressione `F2` e verifique os textos em inglês.
+8. Pressione `Q` ou `Ctrl+C` e confirme que o cursor e a tela normal voltaram.
 
 ## Problemas comuns
 
@@ -132,7 +140,6 @@ use `NO_COLOR=1 cargo run`.
 
 ## Limitações desta versão
 
-- O modo 1 jogador ainda não inicia uma partida; a IA chega na Fase 3.
 - Sem imagens finais, animações ou áudio.
 - Sem backend de framebuffer.
 - Sem persistência de idioma, placar ou configurações.

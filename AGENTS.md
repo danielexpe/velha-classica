@@ -4,11 +4,12 @@
 > Leia-o inteiro no início de cada sessão antes de qualquer alteração.
 > Ele deve ser atualizado ao final de cada tarefa relevante.
 >
-> **Última atualização:** 2026-10-24 (após a Fase 2)
-> **Status atual:** Fases 0, 1 e 2 concluídas. A TUI tem partida 2P completa,
-> pausa, revanche, placar e layouts adaptativos. Próxima: Fase 3 (IA).
+> **Última atualização:** 2026-10-24 (após a Fase 3)
+> **Status atual:** Fases 0, 1, 2 e 3 concluídas. A TUI tem partidas 1P contra
+> IA (Fácil/Médio/Impossível) e 2P, pausa, revanche, placar e layouts
+> adaptativos. Próxima: Fase 4 (arte, som e i18n completo).
 > **Branch:** `main`
-> **Último commit:** `9ea8530 feat: conclui fase 2 com partida 2P e TUI jogável`
+> **Último commit:** `3daf3b7 docs: registra hash do commit da fase 2`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -30,7 +31,8 @@ Se você é uma IA abrindo uma nova sessão, faça nesta ordem:
 
 A Fase 1 criou o projeto Rust, o núcleo puro, o catálogo i18n inicial e o
 placeholder TUI. A Fase 2 entregou a partida 2P jogável, menus, pausa, fim de
-rodada, placar e snapshots. Ainda não há IA, arte final nem framebuffer.
+rodada, placar e snapshots. A Fase 3 entregou a IA em três níveis, o modo 1P,
+o atraso de pensamento e `--seed`. Ainda não há arte final nem framebuffer.
 
 ## 2. Status atual
 
@@ -39,43 +41,40 @@ rodada, placar e snapshots. Ainda não há IA, arte final nem framebuffer.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `9ea8530` |
+| Repositório Git | Inicializado em `main`; último commit `3daf3b7` |
 | Remote | Nenhum; não configurar sem pedido explícito |
-| Código Rust | Presente; `cargo test` com 108 testes verdes |
+| Código Rust | Presente; `cargo test` com 138 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | Criados; crate `velha-classica` 0.1.0 |
 | Toolchain | rustup stable 1.99.1; MSRV declarada 1.88 |
 | Dependências | `clap`, `crossterm`, `ratatui`, `thiserror` |
 | CLI | `--help`, `--version`, `--lang`, `--backend` funcionam |
 | Núcleo | `board`, `rules`, `score` e `state::game` com testes |
-| TUI | Jogável em 2P; Home, dificuldade placeholder, pausa e fim de rodada |
+| TUI | Jogável em 1P e 2P; dificuldade inicia partida, IA pensa sem travar |
 | Layout | Wide/Compact/Minimal; resize preserva o estado |
 | Snapshots | 10 arquivos em `tests/snapshots/` (comparador próprio, sem `insta`) |
 | Restauração | Guards de raw mode/alternate screen/cursor + panic hook |
 | Assets PNG/fontes | Planejados, ainda não produzidos |
 | Framebuffer | Planejado para v1.1; não iniciado |
-| Bloqueios | Nenhum para a Fase 3 |
-| Working tree | Alterações da Fase 2 ainda não commitadas |
+| Bloqueios | Nenhum para a Fase 4 |
+| Working tree | Alterações da Fase 3 ainda não commitadas |
 
 ### Próxima tarefa recomendada
 
-**Iniciar a Fase 3 — Inteligência artificial**, conforme
-[docs/06-roadmap.md](docs/06-roadmap.md), sem começar arte final nem backend
-framebuffer.
+**Iniciar a Fase 4 — Arte, som e i18n**, conforme
+[docs/06-roadmap.md](docs/06-roadmap.md), somente após o usuário confirmar.
+Não começar framebuffer antes da v1.0 estável.
 
-Escopo principal da Fase 3:
+Escopo principal da Fase 4 (ver roadmap):
 
-- [ ] IA Fácil, Médio e Impossível como função pura testável.
-- [ ] Tela de dificuldade inicia a partida 1P com o nível escolhido.
-- [ ] Humano é X e sempre começa; IA é O.
-- [ ] Atraso de "pensamento" de 450–800 ms sem travar a TUI.
-- [ ] Bloquear marcações durante o turno da IA; pausa deve funcionar.
-- [ ] `--seed` para reprodutibilidade (conforme roadmap).
-- [ ] Testes de legalidade, bloqueio, níveis e prova exaustiva do Impossível.
-- [ ] `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`,
-      `cargo test` verdes.
+- [ ] SVGs originais e pipeline `xtask` de geração de assets.
+- [ ] PNGs otimizados, manifesto e checksums.
+- [ ] Fontes OFL embutidas e licenças.
+- [ ] Cena do tabuleiro e fallbacks de imagem.
+- [ ] Áudio sintetizado e controle de mudo.
+- [ ] Revisão completa de i18n e snapshots visuais.
 
-Critérios de saída da Fase 3 estão em
-[docs/06-roadmap.md](docs/06-roadmap.md#6-fase-3--inteligência-artificial).
+Portões: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`,
+`cargo test`, `cargo build --release`.
 
 ## 3. Resumo do produto
 
@@ -139,7 +138,7 @@ correspondente e registre a decisão em `docs/07-decisions-and-risks.md`.
 
 ## 6. Pendências e questões abertas
 
-Não bloqueiam a Fase 3, mas precisam ser resolvidas antes das fases indicadas:
+Não bloqueiam a Fase 4, mas precisam ser resolvidas antes das fases indicadas:
 
 | ID | Pendência | Prazo | Observação |
 | --- | --- | --- | --- |
@@ -150,12 +149,12 @@ Não bloqueiam a Fase 3, mas precisam ser resolvidas antes das fases indicadas:
 | Q-005 | Volume padrão do áudio | Fase 4 | Sugestão: 0,32 |
 | Q-006 | Manter a marca em inglês? | Fase 4 | Sugestão: sim |
 | Q-007 | Persistência futura? | Pós-v1.1 | Fora do escopo atual |
-| Q-008 | Atraso da IA Impossível? | Fase 3 | Sugestão: 450–800 ms |
+| Q-008 | Atraso da IA Impossível? | Fase 3 | Resolvida: 450–800 ms |
 | Q-009 | Mínimo de 80 × 24 é aceitável? | Fase 2 | Resolvida: sim; testado em 80 × 24 |
 | Q-010 | Capturas de frame versionadas? | Fase 4 | Sugestão: só referências pequenas |
 
 O usuário aprovou as especificações em escopo. As pendências acima são
-operacionais/legais e não bloquearam as Fases 1 e 2.
+operacionais/legais e não bloquearam as Fases 1, 2 e 3.
 
 ## 7. Comandos e qualidade
 
@@ -251,6 +250,7 @@ Regras de escrita:
 | 2026-10-24 | Commit local da Fase 1 | `ea9ad52 feat: conclui fundação com núcleo testado e placeholder TUI`; 26 arquivos | `README.md`, `AGENTS.md`, `Cargo.toml`, `Cargo.lock`, `src/**`, `docs/06-roadmap.md`, `docs/08-i18n-catalog.md` |
 | 2026-10-24 | Fase 2 — TUI jogável implementada | Home, dificuldade placeholder, partida 2P, pausa, fim de rodada, placar, revanche, layouts e 10 snapshots; 108 testes e portões verdes | `src/app.rs`, `src/input.rs`, `src/i18n/mod.rs`, `src/state/game.rs`, `src/render/tui.rs`, `tests/snapshots/**`, `README.md`, `docs/06-roadmap.md`, `docs/07-decisions-and-risks.md`, `docs/08-i18n-catalog.md`, `AGENTS.md` |
 | 2026-10-24 | Commit local da Fase 2 | `9ea8530 feat: conclui fase 2 com partida 2P e TUI jogável`; 21 arquivos | `src/**`, `tests/snapshots/**`, `README.md`, `docs/**`, `AGENTS.md` |
+| 2026-10-24 | Fase 3 — IA implementada | `src/ai` com Fácil/Médio/Impossível, RNG próprio, modo 1P, atraso 450–800 ms, `--seed`, pausa segura e 138 testes verdes | `src/ai/mod.rs`, `src/util/rng.rs`, `src/app.rs`, `src/cli.rs`, `src/main.rs`, `src/i18n/mod.rs`, `src/render/tui.rs`, `README.md`, `docs/01-game-design.md`, `docs/06-roadmap.md`, `docs/08-i18n-catalog.md`, `AGENTS.md` |
 
 ## 11. Fases
 
@@ -259,8 +259,8 @@ Regras de escrita:
 | 0 — Planejamento | Concluída | Aprovação do usuário |
 | 1 — Fundação | Concluída | Placeholder TUI + núcleo testado |
 | 2 — TUI jogável | Concluída | Partida 2P completa |
-| 3 — IA | Próxima | Impossível nunca perde |
-| 4 — Arte/som/i18n | Pendente | Tier A/B/C + áudio + traduções |
+| 3 — IA | Concluída | Impossível nunca perde |
+| 4 — Arte/som/i18n | Próxima | Tier A/B/C + áudio + traduções |
 | 5 — v1.0 desktop | Pendente | Release desktop |
 | 6 — v1.1 framebuffer | Pendente | Console local do servidor |
 | 7 — Backlog | Não iniciada | Itens pós-v1.1 |
@@ -268,10 +268,13 @@ Regras de escrita:
 ## 12. Notas para a próxima sessão
 
 - Na nova sessão, comece lendo este arquivo e confirmando o `git status`.
-- As Fases 1 e 2 estão concluídas; **não as reimplemente** e não comece arte
-  final, áudio nem framebuffer. O próximo passo é a Fase 3 (IA).
-- A TUI jogável cobre 2P: Home, dificuldade placeholder, partida, pausa, fim de
-  rodada, placar e revanche. O modo 1P ainda não inicia partida.
+- As Fases 1, 2 e 3 estão concluídas; **não as reimplemente**. Não comece arte
+  final, áudio nem framebuffer sem confirmação do usuário.
+- A TUI cobre 1P (IA Fácil/Médio/Impossível) e 2P: Home, dificuldade, partida,
+  pausa, fim de rodada, placar e revanche.
+- A IA é função pura em `src/ai/mod.rs`; o atraso fica no `App` e não bloqueia
+  o loop de eventos. `--seed` controla o RNG e os atrasos.
+- A pausa cancela o turno pendente da IA e o reagenda ao continuar.
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
 - `--backend fb` retorna código 3 de propósito até a v1.1.
