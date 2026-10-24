@@ -9,7 +9,7 @@
 > IA (Fácil/Médio/Impossível) e 2P, pausa, revanche, placar e layouts
 > adaptativos. Próxima: Fase 4 (arte, som e i18n completo).
 > **Branch:** `main`
-> **Último commit:** `3daf3b7 docs: registra hash do commit da fase 2`
+> **Último commit:** `dd591d6 feat: conclui fase 3 com IA em três níveis e modo 1P`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -41,7 +41,7 @@ o atraso de pensamento e `--seed`. Ainda não há arte final nem framebuffer.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `3daf3b7` |
+| Repositório Git | Inicializado em `main`; último commit `dd591d6` |
 | Remote | Nenhum; não configurar sem pedido explícito |
 | Código Rust | Presente; `cargo test` com 138 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | Criados; crate `velha-classica` 0.1.0 |
@@ -251,6 +251,8 @@ Regras de escrita:
 | 2026-10-24 | Fase 2 — TUI jogável implementada | Home, dificuldade placeholder, partida 2P, pausa, fim de rodada, placar, revanche, layouts e 10 snapshots; 108 testes e portões verdes | `src/app.rs`, `src/input.rs`, `src/i18n/mod.rs`, `src/state/game.rs`, `src/render/tui.rs`, `tests/snapshots/**`, `README.md`, `docs/06-roadmap.md`, `docs/07-decisions-and-risks.md`, `docs/08-i18n-catalog.md`, `AGENTS.md` |
 | 2026-10-24 | Commit local da Fase 2 | `9ea8530 feat: conclui fase 2 com partida 2P e TUI jogável`; 21 arquivos | `src/**`, `tests/snapshots/**`, `README.md`, `docs/**`, `AGENTS.md` |
 | 2026-10-24 | Fase 3 — IA implementada | `src/ai` com Fácil/Médio/Impossível, RNG próprio, modo 1P, atraso 450–800 ms, `--seed`, pausa segura e 138 testes verdes | `src/ai/mod.rs`, `src/util/rng.rs`, `src/app.rs`, `src/cli.rs`, `src/main.rs`, `src/i18n/mod.rs`, `src/render/tui.rs`, `README.md`, `docs/01-game-design.md`, `docs/06-roadmap.md`, `docs/08-i18n-catalog.md`, `AGENTS.md` |
+| 2026-10-24 | Commit local da Fase 3 | `dd591d6 feat: conclui fase 3 com IA em três níveis e modo 1P`; 15 arquivos | `src/ai/**`, `src/util/rng.rs`, `src/**`, `README.md`, `docs/**`, `AGENTS.md` |
+| 2026-10-24 | Smoke 1P em PTY | Home → dificuldade → partida → IA pensando → pausa/retomada → saída limpa com restauração do terminal | — |
 
 ## 11. Fases
 
