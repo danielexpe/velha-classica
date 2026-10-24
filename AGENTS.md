@@ -8,7 +8,7 @@
 > **Status atual:** Fases 0, 1 e 2 concluídas. A TUI tem partida 2P completa,
 > pausa, revanche, placar e layouts adaptativos. Próxima: Fase 3 (IA).
 > **Branch:** `main`
-> **Último commit:** `cb93e34 docs: registra hash do commit da fundação`
+> **Último commit:** `9ea8530 feat: conclui fase 2 com partida 2P e TUI jogável`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -39,7 +39,7 @@ rodada, placar e snapshots. Ainda não há IA, arte final nem framebuffer.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `cb93e34` |
+| Repositório Git | Inicializado em `main`; último commit `9ea8530` |
 | Remote | Nenhum; não configurar sem pedido explícito |
 | Código Rust | Presente; `cargo test` com 108 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | Criados; crate `velha-classica` 0.1.0 |
@@ -250,6 +250,7 @@ Regras de escrita:
 | 2026-10-24 | README reescrito para usuário final | Como instalar Rust, rodar, controlar, testar, limitações e diagnóstico | `README.md` |
 | 2026-10-24 | Commit local da Fase 1 | `ea9ad52 feat: conclui fundação com núcleo testado e placeholder TUI`; 26 arquivos | `README.md`, `AGENTS.md`, `Cargo.toml`, `Cargo.lock`, `src/**`, `docs/06-roadmap.md`, `docs/08-i18n-catalog.md` |
 | 2026-10-24 | Fase 2 — TUI jogável implementada | Home, dificuldade placeholder, partida 2P, pausa, fim de rodada, placar, revanche, layouts e 10 snapshots; 108 testes e portões verdes | `src/app.rs`, `src/input.rs`, `src/i18n/mod.rs`, `src/state/game.rs`, `src/render/tui.rs`, `tests/snapshots/**`, `README.md`, `docs/06-roadmap.md`, `docs/07-decisions-and-risks.md`, `docs/08-i18n-catalog.md`, `AGENTS.md` |
+| 2026-10-24 | Commit local da Fase 2 | `9ea8530 feat: conclui fase 2 com partida 2P e TUI jogável`; 21 arquivos | `src/**`, `tests/snapshots/**`, `README.md`, `docs/**`, `AGENTS.md` |
 
 ## 11. Fases
 
