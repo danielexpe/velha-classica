@@ -8,7 +8,7 @@
 > **Status atual:** Fases 0 e 1 concluídas. Projeto Rust compilando, núcleo
 > testado e placeholder TUI funcional. Próxima: Fase 2 (TUI jogável).
 > **Branch:** `main`
-> **Último commit:** `335be01 chore: inicializa projeto com especificações do jogo`
+> **Último commit:** `ea9ad52 feat: conclui fundação com núcleo testado e placeholder TUI`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -38,7 +38,7 @@ placeholder TUI. Ainda não há partida jogável, arte final nem framebuffer.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`, commit `335be01` |
+| Repositório Git | Inicializado em `main`; último commit `ea9ad52` |
 | Remote | Nenhum; não configurar sem pedido explícito |
 | Código Rust | Presente; `cargo test` com 67 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | Criados; crate `velha-classica` 0.1.0 |
@@ -51,7 +51,7 @@ placeholder TUI. Ainda não há partida jogável, arte final nem framebuffer.
 | Assets PNG/fontes | Planejados, ainda não produzidos |
 | Framebuffer | Planejado para v1.1; não iniciado |
 | Bloqueios | Nenhum para a Fase 2 |
-| Working tree | Código e docs da Fase 1 não commitados; `AGENTS.md` não rastreado |
+| Working tree | Limpa após o commit `ea9ad52` |
 
 ### Próxima tarefa recomendada
 
@@ -243,6 +243,7 @@ Regras de escrita:
 | 2026-10-24 | Memória operacional criada | Este arquivo; ainda não commitado | `AGENTS.md` |
 | 2026-10-24 | Fase 1 — Fundação implementada | Crate Rust, núcleo testado, i18n, tema/layout, guards, CLI e placeholder TUI; 67 testes e portões verdes | `Cargo.toml`, `Cargo.lock`, `src/**`, `README.md`, `docs/06-roadmap.md`, `docs/08-i18n-catalog.md` |
 | 2026-10-24 | README reescrito para usuário final | Como instalar Rust, rodar, controlar, testar, limitações e diagnóstico | `README.md` |
+| 2026-10-24 | Commit local da Fase 1 | `ea9ad52 feat: conclui fundação com núcleo testado e placeholder TUI`; 26 arquivos | `README.md`, `AGENTS.md`, `Cargo.toml`, `Cargo.lock`, `src/**`, `docs/06-roadmap.md`, `docs/08-i18n-catalog.md` |
 
 ## 11. Fases
 
