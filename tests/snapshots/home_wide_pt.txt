@@ -1,0 +1,54 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                ✦  V E L H A   C L Á S S I C A ✦
+                                                                                 Jogo da Velha · Mesa de Madeira
+
+                                                                              ─────────────────────────────────────
+
+                                                                                           ▸ 1 Jogador
+                                                                                           2 Jogadores
+                                                                                              Sair
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                             Idioma: Português  ·  Som ligado  ·  F2 idioma  ·  M som  ·  Q sair                                                             v0.1.0
+
+
+
+
+
+
+
+

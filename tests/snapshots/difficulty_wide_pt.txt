@@ -1,0 +1,54 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                                ✦  V E L H A   C L Á S S I C A ✦
+
+                                                                                      Escolha a dificuldade
+                                                                                       Você começa com X.
+
+                                                                                             ▸ Fácil
+                                                                                   Joga sem muita estratégia.
+                                                                                              Médio
+                                                                               Aproveita erros e bloqueia ameaças.
+                                                                                           Impossível
+                                                                                Nunca perde. Empate já é vitória.
+                                                                                             Voltar
+
+
+
+
+
+
+
+
+
+
+
+
+                             Setas/WASD navegar  ·  Enter selecionar  ·  Esc voltar                                                                          v0.1.0
+
+
+
+
+
+
+
+

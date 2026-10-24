@@ -1,0 +1,24 @@
+
+
+
+
+
+
+
+
+
+                        ✦  V E L H A   C L Á S S I C A ✦
+                           Tic-Tac-Toe · Wood & Paper
+
+                                   ▸ 1 Player
+                                    2 Players
+                                      Quit
+
+
+
+
+
+
+
+
+Language: English  ·  Sound on  ·  F2 language  ·  M sound  ·  Q quit     v0.1.0

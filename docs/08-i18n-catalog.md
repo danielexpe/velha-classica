@@ -79,6 +79,7 @@ truncar. Testar todas as strings nos breakpoints Wide, Compact e Minimal.
 | `difficulty.impossible` | Impossível | Impossible | 12 | |
 | `difficulty.impossible.desc` | Nunca perde. Empate já é vitória. | Never loses. A draw is a win. | 38 | |
 | `difficulty.human_starts` | Você começa com X. | You start as X. | 22 | Apoio na tela de dificuldade |
+| `difficulty.placeholder` | A IA chega na Fase 3. Jogue em 2 Jogadores. | AI arrives in Phase 3. Play with 2 Players. | 48 | Temporário até a Fase 3 |
 | `difficulty.footer` | Enter iniciar · Esc voltar | Enter start · Esc back | 30 | Pode ser montado com chaves de rodapé |
 
 ### 4.4 Partida
@@ -181,12 +182,10 @@ truncar. Testar todas as strings nos breakpoints Wide, Compact e Minimal.
 | `error.invalid_cli` | Opção inválida: {option}. | Invalid option: {option}. | 48 | CLI |
 | `error.capture_frame` | Não foi possível gravar o frame em {path}. | Could not write frame to {path}. | 58 | QA |
 
-### 4.11 Placeholder da Fase 1 (temporário)
+### 4.11 Placeholder da Fase 1 (removido)
 
-| Chave | pt-BR | English | Limite | Notas |
-| --- | --- | --- | --- | --- |
-| `placeholder.title` | Fundação pronta | Foundation ready | 20 | Remover ao concluir a Fase 2 |
-| `placeholder.body` | Fase 1 · esqueleto visual | Phase 1 · visual skeleton | 30 | Remover ao concluir a Fase 2 |
+As chaves `placeholder.title` e `placeholder.body` foram removidas ao concluir a
+Fase 2. A tela de dificuldade usa `difficulty.placeholder` até a Fase 3.
 
 ## 5. Placeholders
 

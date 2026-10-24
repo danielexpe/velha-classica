@@ -82,6 +82,9 @@ Critérios de saída:
 
 **Objetivo:** entregar uma partida 2P local completa, sem arte final.
 
+**Estado:** concluída em 2026-10-24 (modo 1P permanece como placeholder até a
+Fase 3).
+
 Entregáveis:
 
 - Home, seleção de dificuldade (placeholder), partida, pausa, fim de rodada.
@@ -96,11 +99,11 @@ Entregáveis:
 
 Critérios de saída:
 
-- [ ] Partida 2P completa em 80 × 24 e em 1920 × 1080.
-- [ ] Revanche alterna o iniciante.
-- [ ] Nenhuma ação de UI altera o terminal de forma permanente.
-- [ ] Testes de fluxo e snapshots aprovados.
-- [ ] `Esc`/`Ctrl+C` restauram o terminal.
+- [x] Partida 2P completa em 80 × 24 e em 1920 × 1080.
+- [x] Revanche alterna o iniciante.
+- [x] Nenhuma ação de UI altera o terminal de forma permanente.
+- [x] Testes de fluxo e snapshots aprovados.
+- [x] `Esc`/`Ctrl+C` restauram o terminal.
 
 ## 6. Fase 3 — Inteligência artificial
 

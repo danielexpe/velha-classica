@@ -2,13 +2,16 @@
 
 Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
-> **Versão inicial (Fase 1):** ainda **não é possível jogar**. Esta versão abre
-> um placeholder da interface para validar o terminal, o layout e o núcleo de
-> regras. A partida jogável chega na Fase 2.
+> **Fase 2:** já é possível jogar **2 jogadores no mesmo teclado**. O modo
+> 1 jogador contra a IA ainda é um placeholder e chega na Fase 3.
 
 ## O que já funciona
 
-- Placeholder da TUI nos layouts Wide, Compact e Minimal.
+- Partida local de 2 jogadores com tabuleiro navegável por teclado.
+- Home, seleção de dificuldade (placeholder), pausa e fim de rodada.
+- Detecção de vitória/empate, linha vencedora e placar da sessão.
+- Revanche mantendo o placar e alternando o jogador que inicia.
+- Layouts Wide, Compact e Minimal, com adaptação ao redimensionar.
 - Interface em pt-BR e inglês, alternada com `F2`.
 - Núcleo de tabuleiro, regras, placar e estado de partida implementado e testado.
 - CLI com ajuda, versão, idioma e escolha de backend.
@@ -66,11 +69,21 @@ NO_COLOR=1 cargo run
 
 ## Controles desta versão
 
-| Tecla | Ação |
-| --- | --- |
-| `F2` | Alterna pt-BR/inglês |
-| `M` | Alterna o indicador de som (o áudio ainda não existe) |
-| `Q`, `Esc`, `Ctrl+C` | Sair e restaurar o terminal |
+| Contexto | Tecla | Ação |
+| --- | --- | --- |
+| Menus | `↑`/`↓`, `W`/`S` | Mover seleção |
+| Menus | `Enter`, `Espaço` | Confirmar |
+| Menus | `Esc` | Voltar |
+| Partida | `↑`/`↓`/`←`/`→`, `WASD` | Mover cursor pelo tabuleiro |
+| Partida | `Enter`, `Espaço` | Marcar a casa selecionada |
+| Partida | `Esc` | Abrir a pausa |
+| Pausa | `↑`/`↓`, `Enter` | Escolher ação; `Esc` continua |
+| Fim da rodada | `↑`/`↓`, `Enter` | Escolher ação; `R` inicia revanche |
+| Global | `F2` | Alterna pt-BR/inglês |
+| Global | `M` | Liga/desliga o indicador de som (o áudio ainda não existe) |
+| Home | `Q` | Sair |
+| Pausa | `Q` | Sair do jogo |
+| Global | `Ctrl+C` | Sair e restaurar o terminal |
 
 ## Como testar
 
@@ -80,7 +93,7 @@ Rodar a suíte automatizada:
 cargo test
 ```
 
-Resultado esperado nesta versão: **67 testes passando**.
+Resultado esperado nesta versão: **108 testes passando**, incluindo snapshots de TUI.
 
 Rodar os portões de qualidade:
 
@@ -94,11 +107,13 @@ cargo build --release --no-default-features
 Teste manual rápido:
 
 1. Execute `cargo run` em um terminal local.
-2. Confirme que o placeholder aparece e que o layout se adapta ao redimensionar.
-3. Pressione `F2` e verifique os textos em inglês.
-4. Pressione `Q` ou `Ctrl+C`.
-5. Confirme que o cursor reapareceu, que a tela normal voltou e que não restou
-   nenhum conteúdo do jogo no terminal.
+2. Escolha **2 Jogadores**, mova o cursor com as setas ou `WASD` e marque casas
+   com `Enter`.
+3. Complete uma rodada e confira o resultado, o placar e a revanche com `R`.
+4. Abra a pausa com `Esc` e teste continuar, reiniciar e voltar ao menu.
+5. Redimensione o terminal e confirme que a partida continua no mesmo estado.
+6. Pressione `F2` e verifique os textos em inglês.
+7. Pressione `Q` ou `Ctrl+C` e confirme que o cursor e a tela normal voltaram.
 
 ## Problemas comuns
 
@@ -117,11 +132,11 @@ use `NO_COLOR=1 cargo run`.
 
 ## Limitações desta versão
 
-- Sem partida, menu, dificuldade, IA, placar em tela ou revanche.
-- Sem imagens, animações ou áudio.
+- O modo 1 jogador ainda não inicia uma partida; a IA chega na Fase 3.
+- Sem imagens finais, animações ou áudio.
 - Sem backend de framebuffer.
-- Sem persistência de idioma ou configurações.
-- A TUI é apenas um esqueleto visual; o próximo passo é a Fase 2.
+- Sem persistência de idioma, placar ou configurações.
+- A arte ainda usa a composição tipográfica da TUI, sem PNGs.
 
 ## Documentação do projeto
 

@@ -1,5 +1,7 @@
 use std::str::FromStr;
 
+use crate::core::Difficulty;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum Language {
     #[default]
@@ -49,14 +51,60 @@ pub struct Strings {
     pub menu_one_player: &'static str,
     pub menu_two_players: &'static str,
     pub menu_quit: &'static str,
+    pub menu_choose_difficulty: &'static str,
+    pub menu_back: &'static str,
+    pub difficulty_easy: &'static str,
+    pub difficulty_easy_desc: &'static str,
+    pub difficulty_medium: &'static str,
+    pub difficulty_medium_desc: &'static str,
+    pub difficulty_impossible: &'static str,
+    pub difficulty_impossible_desc: &'static str,
+    pub difficulty_human_starts: &'static str,
+    pub difficulty_placeholder: &'static str,
+    pub game_turn_you: &'static str,
+    pub game_turn_ai: &'static str,
+    pub game_turn_player1: &'static str,
+    pub game_turn_player2: &'static str,
+    pub game_you: &'static str,
+    pub game_ai: &'static str,
+    pub game_player1: &'static str,
+    pub game_player2: &'static str,
+    pub game_draws: &'static str,
+    pub game_session_score: &'static str,
+    pub game_you_play_x: &'static str,
+    pub game_occupied: &'static str,
+    pub game_mode_one: &'static str,
+    pub game_mode_two: &'static str,
+    pub game_difficulty: &'static str,
+    pub game_round: &'static str,
+    pub result_win_you: &'static str,
+    pub result_win_ai: &'static str,
+    pub result_win_player1: &'static str,
+    pub result_win_player2: &'static str,
+    pub result_draw: &'static str,
+    pub result_stamp_win: &'static str,
+    pub result_stamp_draw: &'static str,
+    pub action_resume: &'static str,
+    pub action_restart: &'static str,
+    pub action_rematch: &'static str,
+    pub action_main_menu: &'static str,
+    pub action_quit_game: &'static str,
+    pub action_back: &'static str,
+    pub pause_title: &'static str,
+    pub footer_move: &'static str,
+    pub footer_select_square: &'static str,
+    pub footer_select_menu: &'static str,
+    pub footer_navigate: &'static str,
+    pub footer_pause: &'static str,
+    pub footer_back: &'static str,
+    pub footer_rematch: &'static str,
+    pub footer_menu: &'static str,
     pub footer_language: &'static str,
     pub footer_sound: &'static str,
     pub footer_quit: &'static str,
     pub language_label: &'static str,
     pub language_pt_br: &'static str,
     pub language_en: &'static str,
-    pub placeholder_title: &'static str,
-    pub placeholder_body: &'static str,
     pub sound_on: &'static str,
     pub sound_off: &'static str,
     pub terminal_too_small_prefix: &'static str,
@@ -95,22 +143,93 @@ impl Strings {
         )
     }
 
-    pub fn all(&self) -> [&'static str; 19] {
-        [
+    pub const fn difficulty_name(&self, difficulty: Difficulty) -> &'static str {
+        match difficulty {
+            Difficulty::Easy => self.difficulty_easy,
+            Difficulty::Medium => self.difficulty_medium,
+            Difficulty::Impossible => self.difficulty_impossible,
+        }
+    }
+
+    pub const fn difficulty_description(&self, difficulty: Difficulty) -> &'static str {
+        match difficulty {
+            Difficulty::Easy => self.difficulty_easy_desc,
+            Difficulty::Medium => self.difficulty_medium_desc,
+            Difficulty::Impossible => self.difficulty_impossible_desc,
+        }
+    }
+
+    pub fn difficulty_status(&self, difficulty: Difficulty) -> String {
+        self.game_difficulty
+            .replace("{difficulty}", self.difficulty_name(difficulty))
+    }
+
+    pub fn round_text(&self, round: u16) -> String {
+        self.game_round.replace("{n}", &round.to_string())
+    }
+
+    pub fn all(&self) -> Vec<&'static str> {
+        vec![
             self.app_title,
             self.app_subtitle,
             self.app_tagline,
             self.menu_one_player,
             self.menu_two_players,
             self.menu_quit,
+            self.menu_choose_difficulty,
+            self.menu_back,
+            self.difficulty_easy,
+            self.difficulty_easy_desc,
+            self.difficulty_medium,
+            self.difficulty_medium_desc,
+            self.difficulty_impossible,
+            self.difficulty_impossible_desc,
+            self.difficulty_human_starts,
+            self.difficulty_placeholder,
+            self.game_turn_you,
+            self.game_turn_ai,
+            self.game_turn_player1,
+            self.game_turn_player2,
+            self.game_you,
+            self.game_ai,
+            self.game_player1,
+            self.game_player2,
+            self.game_draws,
+            self.game_session_score,
+            self.game_you_play_x,
+            self.game_occupied,
+            self.game_mode_one,
+            self.game_mode_two,
+            self.game_difficulty,
+            self.game_round,
+            self.result_win_you,
+            self.result_win_ai,
+            self.result_win_player1,
+            self.result_win_player2,
+            self.result_draw,
+            self.result_stamp_win,
+            self.result_stamp_draw,
+            self.action_resume,
+            self.action_restart,
+            self.action_rematch,
+            self.action_main_menu,
+            self.action_quit_game,
+            self.action_back,
+            self.pause_title,
+            self.footer_move,
+            self.footer_select_square,
+            self.footer_select_menu,
+            self.footer_navigate,
+            self.footer_pause,
+            self.footer_back,
+            self.footer_rematch,
+            self.footer_menu,
             self.footer_language,
             self.footer_sound,
             self.footer_quit,
             self.language_label,
             self.language_pt_br,
             self.language_en,
-            self.placeholder_title,
-            self.placeholder_body,
             self.sound_on,
             self.sound_off,
             self.terminal_too_small_prefix,
@@ -127,14 +246,60 @@ pub static PT_BR: Strings = Strings {
     menu_one_player: "1 Jogador",
     menu_two_players: "2 Jogadores",
     menu_quit: "Sair",
+    menu_choose_difficulty: "Escolha a dificuldade",
+    menu_back: "Voltar",
+    difficulty_easy: "Fácil",
+    difficulty_easy_desc: "Joga sem muita estratégia.",
+    difficulty_medium: "Médio",
+    difficulty_medium_desc: "Aproveita erros e bloqueia ameaças.",
+    difficulty_impossible: "Impossível",
+    difficulty_impossible_desc: "Nunca perde. Empate já é vitória.",
+    difficulty_human_starts: "Você começa com X.",
+    difficulty_placeholder: "A IA chega na Fase 3. Jogue em 2 Jogadores.",
+    game_turn_you: "Sua vez",
+    game_turn_ai: "Vez da IA",
+    game_turn_player1: "Vez do Jogador 1",
+    game_turn_player2: "Vez do Jogador 2",
+    game_you: "Você",
+    game_ai: "IA",
+    game_player1: "Jogador 1",
+    game_player2: "Jogador 2",
+    game_draws: "Empates",
+    game_session_score: "Placar da sessão",
+    game_you_play_x: "Você joga com X",
+    game_occupied: "Casa ocupada",
+    game_mode_one: "1 Jogador",
+    game_mode_two: "2 Jogadores",
+    game_difficulty: "Dificuldade: {difficulty}",
+    game_round: "Rodada {n}",
+    result_win_you: "Você venceu!",
+    result_win_ai: "A IA venceu!",
+    result_win_player1: "Jogador 1 venceu!",
+    result_win_player2: "Jogador 2 venceu!",
+    result_draw: "Empate!",
+    result_stamp_win: "VITÓRIA",
+    result_stamp_draw: "EMPATE",
+    action_resume: "Continuar",
+    action_restart: "Reiniciar rodada",
+    action_rematch: "Revanche",
+    action_main_menu: "Menu principal",
+    action_quit_game: "Sair do jogo",
+    action_back: "Voltar",
+    pause_title: "Pausado",
+    footer_move: "Setas/WASD mover",
+    footer_select_square: "Enter marcar",
+    footer_select_menu: "Enter selecionar",
+    footer_navigate: "Setas/WASD navegar",
+    footer_pause: "Esc pausar",
+    footer_back: "Esc voltar",
+    footer_rematch: "R revanche",
+    footer_menu: "Esc menu",
     footer_language: "F2 idioma",
     footer_sound: "M som",
     footer_quit: "Q sair",
     language_label: "Idioma",
     language_pt_br: "Português",
     language_en: "Inglês",
-    placeholder_title: "Fundação pronta",
-    placeholder_body: "Fase 1 · esqueleto visual",
     sound_on: "Som ligado",
     sound_off: "Som desligado",
     terminal_too_small_prefix: "Terminal muito pequeno. Mínimo: ",
@@ -149,14 +314,60 @@ pub static EN: Strings = Strings {
     menu_one_player: "1 Player",
     menu_two_players: "2 Players",
     menu_quit: "Quit",
+    menu_choose_difficulty: "Choose difficulty",
+    menu_back: "Back",
+    difficulty_easy: "Easy",
+    difficulty_easy_desc: "Plays without much strategy.",
+    difficulty_medium: "Medium",
+    difficulty_medium_desc: "Punishes mistakes and blocks threats.",
+    difficulty_impossible: "Impossible",
+    difficulty_impossible_desc: "Never loses. A draw is a win.",
+    difficulty_human_starts: "You start as X.",
+    difficulty_placeholder: "AI arrives in Phase 3. Play with 2 Players.",
+    game_turn_you: "Your turn",
+    game_turn_ai: "AI's turn",
+    game_turn_player1: "Player 1's turn",
+    game_turn_player2: "Player 2's turn",
+    game_you: "You",
+    game_ai: "AI",
+    game_player1: "Player 1",
+    game_player2: "Player 2",
+    game_draws: "Draws",
+    game_session_score: "Session score",
+    game_you_play_x: "You play as X",
+    game_occupied: "Square occupied",
+    game_mode_one: "1 Player",
+    game_mode_two: "2 Players",
+    game_difficulty: "Difficulty: {difficulty}",
+    game_round: "Round {n}",
+    result_win_you: "You win!",
+    result_win_ai: "The AI wins!",
+    result_win_player1: "Player 1 wins!",
+    result_win_player2: "Player 2 wins!",
+    result_draw: "Draw!",
+    result_stamp_win: "WIN",
+    result_stamp_draw: "DRAW",
+    action_resume: "Resume",
+    action_restart: "Restart round",
+    action_rematch: "Rematch",
+    action_main_menu: "Main menu",
+    action_quit_game: "Quit game",
+    action_back: "Back",
+    pause_title: "Paused",
+    footer_move: "Arrows/WASD move",
+    footer_select_square: "Enter mark",
+    footer_select_menu: "Enter select",
+    footer_navigate: "Arrows/WASD navigate",
+    footer_pause: "Esc pause",
+    footer_back: "Esc back",
+    footer_rematch: "R rematch",
+    footer_menu: "Esc menu",
     footer_language: "F2 language",
     footer_sound: "M sound",
     footer_quit: "Q quit",
     language_label: "Language",
     language_pt_br: "Portuguese",
     language_en: "English",
-    placeholder_title: "Foundation ready",
-    placeholder_body: "Phase 1 · visual skeleton",
     sound_on: "Sound on",
     sound_off: "Sound off",
     terminal_too_small_prefix: "Terminal too small. Minimum: ",
@@ -215,6 +426,28 @@ mod tests {
         assert_eq!(strings.language_status(Language::En), "Idioma: Inglês");
         assert_eq!(strings.version_text("1.0.0"), "v1.0.0");
         assert_eq!(strings.sound_status(false), "Som desligado");
+        assert_eq!(
+            strings.difficulty_status(Difficulty::Medium),
+            "Dificuldade: Médio"
+        );
+        assert_eq!(strings.round_text(3), "Rodada 3");
+    }
+
+    #[test]
+    fn difficulty_names_are_translated() {
+        let portuguese = Language::PtBr.strings();
+        let english = Language::En.strings();
+
+        assert_eq!(portuguese.difficulty_name(Difficulty::Easy), "Fácil");
+        assert_eq!(
+            portuguese.difficulty_name(Difficulty::Impossible),
+            "Impossível"
+        );
+        assert_eq!(english.difficulty_name(Difficulty::Easy), "Easy");
+        assert_eq!(
+            english.difficulty_name(Difficulty::Impossible),
+            "Impossible"
+        );
     }
 
     #[test]

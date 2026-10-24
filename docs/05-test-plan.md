@@ -186,8 +186,9 @@ Testes:
 
 ### 8.1 TUI
 
-Usar `TestBackend` com tamanhos 134 × 38, 112 × 32 e 80 × 24, nos idiomas pt-BR e
-inglês, para as telas:
+Usar `TestBackend` com terminais de 192 × 54 (área Wide 134 × 38), 160 × 46
+(área Compact 112 × 32) e 80 × 24 (área Minimal), nos idiomas pt-BR e inglês,
+para as telas:
 
 - Home;
 - Dificuldade;
@@ -199,7 +200,9 @@ inglês, para as telas:
 - Aviso de terminal pequeno;
 - Modo sem cor (se suportado pelo backend de teste).
 
-Os snapshots devem ser aprovados manualmente e versionados com `insta`.
+Os snapshots devem ser aprovados manualmente. A Fase 2 usa um comparador leve
+próprio em `tests/snapshots/*.txt` (sem `insta`), conforme D-023; regenere com
+`UPDATE_SNAPSHOTS=1 cargo test`.
 
 ### 8.2 Capturas do canvas
 

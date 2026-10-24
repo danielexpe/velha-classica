@@ -126,6 +126,10 @@ impl Game {
         self.start_round();
     }
 
+    pub fn restart_round(&mut self) {
+        self.start_round();
+    }
+
     pub fn reset_session(&mut self) {
         self.score.reset();
         self.starter = Mark::X;
@@ -281,6 +285,22 @@ mod tests {
 
         assert!(game.board().is_empty());
         assert_eq!(game.selected(), 4);
+        assert_eq!(game.outcome(), Outcome::InProgress);
+    }
+
+    #[test]
+    fn restart_round_keeps_score_and_starter() {
+        let mut game = game_with_moves(Mode::TwoPlayers, &[0, 3, 1, 4, 2]);
+
+        assert_eq!(game.score().p1_wins(), 1);
+        game.rematch();
+        assert_eq!(game.starter(), Mark::O);
+        game.play(0).unwrap();
+        game.restart_round();
+
+        assert_eq!(game.score().p1_wins(), 1);
+        assert_eq!(game.starter(), Mark::O);
+        assert!(game.board().is_empty());
         assert_eq!(game.outcome(), Outcome::InProgress);
     }
 

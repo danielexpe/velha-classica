@@ -1,0 +1,24 @@
+VELHA CLÁSSICA                                              2 Jogadores · v0.1.0
+
+
+
+
+
+                              ╭─────────────────╮
+                              │     │     │     │
+                              │     │     │     │
+                              │─────┼─────┼─────│
+                              │     │┌   ┐│     │
+                              │     │└ X ┘│     │
+                              │─────┼─────┼─────│
+                              │     │     │     │
+                              │     │     │     │
+                              ╰─────────────────╯
+
+
+
+
+
+
+            Vez do Jogador 2 · Jogador 1 0 · Jogador 2 0 · Empates 0
+Setas/WASD mover  ·  Enter marcar  ·  Esc pausar                          v0.1.0

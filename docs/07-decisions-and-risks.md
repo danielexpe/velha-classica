@@ -218,6 +218,16 @@ Questões abertas e riscos ficam no final.
 - **Consequências:** viabiliza snapshots e revisão visual; não substitui o teste
   no hardware real.
 
+### D-023 — Snapshots de TUI sem dependência adicional
+
+- **Status:** aceita.
+- **Contexto:** a Fase 2 precisa de snapshots iniciais, mas o projeto deve
+  continuar offline e evitar novas dependências de desenvolvimento.
+- **Decisão:** usar `TestBackend` com um comparador leve de arquivos `.txt` em
+  `tests/snapshots/`; `UPDATE_SNAPSHOTS=1 cargo test` regenera os arquivos.
+- **Consequências:** snapshots versionados e legíveis; revisão manual necessária.
+  Se a suíte crescer, reavaliar `insta`.
+
 ## 3. Premissas
 
 1. O Zorin OS tem terminal local com suporte a truecolor; o usuário pode instalar
@@ -303,3 +313,4 @@ Revisar um ADR quando:
 | Data | Mudança |
 | --- | --- |
 | 2026-10-24 | Versão inicial do planejamento e das decisões. |
+| 2026-10-24 | D-023: snapshots de TUI com comparador próprio, sem `insta`. |
