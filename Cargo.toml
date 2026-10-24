@@ -1,0 +1,13 @@
+[package]
+name = "velha-classica"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+description = "Classic tic-tac-toe for the Linux terminal with a wood and paper look"
+license = "MIT"
+
+[dependencies]
+clap = { version = "4.6.7", features = ["derive"] }
+crossterm = "0.29.0"
+ratatui = { version = "0.30.2", default-features = false, features = ["crossterm", "std"] }
+thiserror = "2.0.21"

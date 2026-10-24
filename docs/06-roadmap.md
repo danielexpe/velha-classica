@@ -58,23 +58,23 @@ Critérios de saída:
 
 Entregáveis:
 
-- `Cargo.toml`, `Cargo.lock`, estrutura de módulos.
-- CLI inicial com `--help`, `--version`, `--lang`, `--backend`.
-- `core::board`, `core::rules`, `core::score` com testes.
-- Tipos de estado e máquina de telas mínima.
-- Catálogo i18n com pt-BR/inglês.
-- Tokens de tema e detecção de cor.
-- Guards de terminal (raw mode, alternate screen, cursor).
-- Placeholder visual no terminal com o layout vazio.
-- Scripts de qualidade (`fmt`, `clippy`, `test`).
+- [x] `Cargo.toml`, `Cargo.lock`, estrutura de módulos.
+- [x] CLI inicial com `--help`, `--version`, `--lang`, `--backend`.
+- [x] `core::board`, `core::rules`, `core::score` com testes.
+- [x] Tipos de estado e máquina de telas mínima.
+- [x] Catálogo i18n com pt-BR/inglês.
+- [x] Tokens de tema e detecção de cor.
+- [x] Guards de terminal (raw mode, alternate screen, cursor).
+- [x] Placeholder visual no terminal com o layout vazio.
+- [x] Scripts de qualidade (`fmt`, `clippy`, `test`).
 
 Critérios de saída:
 
-- [ ] `cargo test` verde para tabuleiro, regras e placar.
-- [ ] `cargo run` abre e fecha o terminal sem corrompê-lo.
-- [ ] `--help` e `--version` funcionam.
-- [ ] `F2` alterna strings de placeholder.
-- [ ] `cargo fmt --check` e `clippy -D warnings` passam.
+- [x] `cargo test` verde para tabuleiro, regras e placar.
+- [x] `cargo run` abre e fecha o terminal sem corrompê-lo.
+- [x] `--help` e `--version` funcionam.
+- [x] `F2` alterna strings de placeholder.
+- [x] `cargo fmt --check` e `clippy -D warnings` passam.
 
 ## 5. Fase 2 — TUI jogável
 

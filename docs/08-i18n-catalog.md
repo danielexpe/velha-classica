@@ -181,6 +181,13 @@ truncar. Testar todas as strings nos breakpoints Wide, Compact e Minimal.
 | `error.invalid_cli` | Opção inválida: {option}. | Invalid option: {option}. | 48 | CLI |
 | `error.capture_frame` | Não foi possível gravar o frame em {path}. | Could not write frame to {path}. | 58 | QA |
 
+### 4.11 Placeholder da Fase 1 (temporário)
+
+| Chave | pt-BR | English | Limite | Notas |
+| --- | --- | --- | --- | --- |
+| `placeholder.title` | Fundação pronta | Foundation ready | 20 | Remover ao concluir a Fase 2 |
+| `placeholder.body` | Fase 1 · esqueleto visual | Phase 1 · visual skeleton | 30 | Remover ao concluir a Fase 2 |
+
 ## 5. Placeholders
 
 | Placeholder | Tipo | Usado em |
