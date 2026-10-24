@@ -1,0 +1,26 @@
+# Rust
+/target/
+**/*.rs.bk
+*.profraw
+*.profdata
+
+# Build e distribuição
+/dist/
+*.tar.gz
+
+# Logs e capturas locais
+*.log
+/captures/
+/tmp/
+
+# Editores e sistema
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Ambiente
+.env
+.env.*
