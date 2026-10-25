@@ -9,7 +9,7 @@
 > tabuleiro em imagem com fallback, animações, áudio sintetizado e assets/fontes
 > embutidos. Próxima: Fase 5 (v1.0 desktop).
 > **Branch:** `main`
-> **Último commit:** `f27f70c docs: registra hash do commit da fase 3`
+> **Último commit:** `d973584 feat: conclui fase 4 com arte, áudio e acessibilidade`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -43,7 +43,7 @@ fontes OFL e flags de acessibilidade.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `f27f70c` |
+| Repositório Git | Inicializado em `main`; último commit `d973584` |
 | Remote | Nenhum; não configurar sem pedido explícito |
 | Código Rust | Presente; `cargo test` com 164 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | Criados; crate `velha-classica` 0.1.0 |
@@ -269,6 +269,7 @@ Regras de escrita:
 | 2026-10-24 | Commit local da Fase 3 | `dd591d6 feat: conclui fase 3 com IA em três níveis e modo 1P`; 15 arquivos | `src/ai/**`, `src/util/rng.rs`, `src/**`, `README.md`, `docs/**`, `AGENTS.md` |
 | 2026-10-24 | Smoke 1P em PTY | Home → dificuldade → partida → IA pensando → pausa/retomada → saída limpa com restauração do terminal | — |
 | 2026-10-24 | Fase 4 — arte, som e i18n | SVGs + pipeline `xtask`, PNGs/manifesto, fontes OFL, cena `tiny-skia`, `ratatui-image`, animações, áudio ALSA dinâmico, flags e captura; 164 testes verdes | `assets/**`, `xtask/**`, `src/assets.rs`, `src/audio.rs`, `src/capture.rs`, `src/render/{scene,image}.rs`, `src/app.rs`, `src/cli.rs`, `README.md`, `docs/**`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md` |
+| 2026-10-24 | Commit local da Fase 4 | `d973584 feat: conclui fase 4 com arte, áudio e acessibilidade`; 64 arquivos | `assets/**`, `xtask/**`, `src/**`, `README.md`, `docs/**`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md` |
 
 ## 11. Fases
 
