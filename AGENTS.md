@@ -10,7 +10,7 @@
 > 185 testes e portões verdes. Restam spot-checks de 2P, `Ctrl+C`/SIGTERM,
 > troca de VT e formatos 24/16 bpp.
 > **Branch:** `main`
-> **Último commit:** `bb6d680 docs: registra encerramento de sessão e estado final da v1.0.0`
+> **Último commit:** `5ced541 feat: conclui fase 6 com backend framebuffer e empacota v1.1.0`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -307,6 +307,7 @@ Regras de escrita:
 | 2026-10-24 | Validação de `/dev/fb0` | `amdgpudrmfb`, 1920 × 1080, 32 bpp; leitura/escrita bloqueadas para `daniel` (fora do grupo `video`); sessão Wayland, teste exige VT | — |
 | 2026-10-24 | Capturas de QA do fb | Revisadas Home, dificuldade, jogo, pausa e resultado em pt-BR/en; correção do card de pausa; captura `--capture-frame` agora inclui texto | `src/render/fb.rs`, `src/capture.rs`, `src/app.rs` |
 | 2026-10-25 | Validação manual v1.1.0 no VT | 1920 × 1080, 32 bpp: partida 1P contra a IA, áudio no console e saída pelo menu com restauração; console sem corrupção | `docs/12-v1.1-release-checklist.md`, `AGENTS.md` |
+| 2026-10-25 | Commit local da Fase 6 + v1.1.0 | `5ced541 feat: conclui fase 6 com backend framebuffer e empacota v1.1.0`; 30 arquivos; pacote em `dist/` (ignorado pelo Git) | `src/platform/**`, `src/render/{fb,text}.rs`, `src/**`, `tests/snapshots/**`, `README.md`, `docs/**`, `Cargo.*`, `AGENTS.md` |
 | 2026-10-25 | Empacotamento v1.1.0 | `dist/velha-classica-1.1.0-...tar.gz` + `.sha256`; smoke em `/tmp` sem assets (`--version` e PNG 1344 × 756) | `dist/velha-classica-1.1.0-*`, `docs/06-roadmap.md`, `docs/11-release-notes-v1.1.md`, `AGENTS.md` |
 
 ## 11. Fases
