@@ -4,12 +4,12 @@
 > Leia-o inteiro no início de cada sessão antes de qualquer alteração.
 > Ele deve ser atualizado ao final de cada tarefa relevante.
 >
-> **Última atualização:** 2026-10-24 (validação manual v1.0.0)
+> **Última atualização:** 2026-10-24 (encerramento de sessão)
 > **Status atual:** v1.0.0 validada e empacotada. Fases 0 a 5 entregues; matriz
 > manual concluída em Kitty, foot, WezTerm, GNOME Terminal e áudio real. Próxima:
 > Fase 6 (v1.1 framebuffer), após confirmação e validação de `/dev/fb0`.
 > **Branch:** `main`
-> **Último commit:** `5da4af0 fix: valida v1.0 e corrige detalhes nos terminais reais`
+> **Último commit:** `878bc24 docs: registra hash do commit da validação v1.0.0`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -44,7 +44,7 @@ medições, binário release e pacote `.tar.gz`.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `5da4af0` |
+| Repositório Git | Inicializado em `main`; último commit `878bc24` |
 | Remote | Nenhum; não configurar sem pedido explícito |
 | Código Rust | Presente; `cargo test` com 164 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.0.0; workspace com `xtask` |
@@ -60,11 +60,12 @@ medições, binário release e pacote `.tar.gz`.
 | Fontes | EB Garamond + Inter (OFL 1.1), estáticas e embutidas |
 | Áudio | Sintetizado em runtime; ALSA via `libloading`; silencioso sem device |
 | Captura | `--capture-frame` gera PNG 1344 × 756 de arte para QA |
-| Release | `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` + `.sha256` |
+| Release | `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` + `.sha256`
+| SHA-256 do release | `f3b3e9d75e98d41f703ac20cb90f6953b32d0a0bd423ea9629486a019ca34caa` |
 | Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
 | Framebuffer | Planejado para v1.1; não iniciado |
 | Bloqueios | Nenhum; Konsole não testado (fallback documentado) |
-| Working tree | Correções da validação e README final não commitados |
+| Working tree | Limpo até o commit `878bc24`; este AGENTS.md foi atualizado no encerramento da sessão e está não commitado |
 
 ### Próxima tarefa recomendada
 
@@ -279,6 +280,8 @@ Regras de escrita:
 | 2026-10-24 | Commit local da Fase 5 | `9a369c1 feat: conclui fase 5 e empacota v1.0.0`; 23 arquivos | `LICENSE`, `LICENSE-ASSETS`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/**`, `src/render/image.rs`, `tests/snapshots/**`, `AGENTS.md` |
 | 2026-10-24 | Validação manual v1.0.0 | Kitty 0.49.2, foot 1.16.2, WezTerm 20240203, GNOME Terminal e áudio PipeWire/ALSA; 80 × 24, Wide, pausa, selo, F2/M e áudio OK. Correções: overlay de pausa, contraste de menu, posição do selo e indicador de som | `src/render/tui.rs`, `src/render/scene.rs`, `tests/snapshots/**`, `README.md`, `docs/06-roadmap.md`, `docs/09-release-notes-v1.0.md`, `docs/10-v1.0-release-checklist.md`, `AGENTS.md` |
 | 2026-10-24 | Commit da validação v1.0.0 | `5da4af0 fix: valida v1.0 e corrige detalhes nos terminais reais`; 10 arquivos | `README.md`, `AGENTS.md`, `docs/**`, `src/render/{tui,scene}.rs`, `tests/snapshots/**` |
+| 2026-10-24 | Registro do hash da validação | `878bc24 docs: registra hash do commit da validação v1.0.0` | `AGENTS.md` |
+| 2026-10-24 | Encerramento de sessão | AGENTS.md atualizado com estado final, release `f3b3e9d…`, terminais instalados e próximo passo (Fase 6); arquivo deixado não commitado por não haver pedido explícito de commit | `AGENTS.md` |
 
 ## 11. Fases
 
@@ -308,8 +311,17 @@ Regras de escrita:
 - Áudio: ALSA dinâmico; sem device é silêncio. `--no-default-features` remove.
 - A captura `--capture-frame` cobre a arte; texto do canvas fica para a v1.1.
 - Release: `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` e `.sha256`;
-  o hash também está em `docs/10-v1.0-release-checklist.md`.
-- Próximo foco: Fase 6 (framebuffer), após confirmação e Q-003/Q-004.
+  SHA-256 `f3b3e9d75e98d41f703ac20cb90f6953b32d0a0bd423ea9629486a019ca34caa`
+  (também em `docs/10-v1.0-release-checklist.md`).
+- Terminais usados na validação manual, instalados em `~/.local`:
+  `~/.local/kitty.app` (`kitty` 0.49.2), `~/.local/foot.app` (`foot` 1.16.2) e
+  `~/.local/wezterm.app` (`wezterm` 20240203). GNOME Terminal também validado.
+- Estado final da v1.0.0: 164 testes verdes; matriz manual completa; Konsole não
+  testado (fallback half-blocks documentado).
+- Próximo foco: Fase 6 (framebuffer), após confirmação e Q-003/Q-004. Validar
+  `/dev/fb0`, resolução, bpp e permissão de console/grupo `video`.
+- Ao retomar, rode `git status` e verifique se este AGENTS.md continua
+  não commitado; se o usuário pedir, faça um commit `docs:` com ele.
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
 - `--backend fb` retorna código 3 de propósito até a v1.1.
