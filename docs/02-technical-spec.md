@@ -84,10 +84,10 @@ As versões exatas serão fixadas no `Cargo.lock` na implementação, usando as
 | `ratatui-image` | Detecção e exibição de PNG via Kitty/Sixel/iTerm2/half-blocks | padrão |
 | `image` | Decodificação de PNG, composição e conversão de formatos | padrão |
 | `tiny-skia` | Rasterização vetorial do tabuleiro, painéis e overlays | padrão |
-| `fontdue` | Rasterização de texto para o backend framebuffer | padrão |
+| `fontdue` | Rasterização de texto para o backend framebuffer | v1.1 (planejado) |
 | `clap` | CLI declarativa | padrão |
-| `rand` | Aleatoriedade da IA e variação de aberturas | padrão |
-| `rodio` | Efeitos sonoros sintetizados | `audio` (padrão) |
+| RNG próprio | Aleatoriedade da IA e variação de aberturas | `util/rng.rs` |
+| `libloading` | Carregamento dinâmico de `libasound.so.2` para áudio Linux | `audio` (padrão) |
 | `libc` | ioctls, termios, sinais, mmap do framebuffer | Linux |
 | `memmap2` | Mapeamento de `/dev/fb0` | Linux |
 | `signal-hook` | Restauração em SIGINT/SIGTERM/SIGHUP | Linux |
@@ -108,7 +108,7 @@ Features propostas:
 ```toml
 [features]
 default = ["audio"]
-audio = ["dep:rodio"]
+audio = ["dep:libloading"]
 ```
 
 O backend framebuffer é compilado por `cfg(target_os = "linux")`; não precisa de
@@ -256,8 +256,11 @@ Regras de implementação:
 
 1. Verificar se `stdin`/`stdout` são TTY. Se não forem, erro claro em vez de lixo.
 2. Detectar `TERM`, `COLORTERM`, `NO_COLOR` e tamanho.
-3. Consultar o protocolo de imagem com `ratatui-image::Picker`, com timeout curto
-   e override por CLI. Se a consulta falhar, usar half-blocks.
+3. Detectar o protocolo de imagem por variáveis de ambiente (`KITTY_WINDOW_ID`,
+   `TERM`, `TERM_PROGRAM`) e usar `--image-protocol` como override. Sem indício de
+   Kitty/Sixel/iTerm2, usar half-blocks; com `--no-images`/`none`, usar o
+   tabuleiro textual de 16 cores. Não consultar stdio no startup, para não
+   consumir teclas nem travar em terminais que não respondem.
 4. Entrar em raw mode, alternate screen e esconder o cursor.
 5. Instalar panic hook e guards de restauração.
 6. Iniciar o loop.
@@ -290,6 +293,9 @@ Regras de implementação:
   - legado: tabuleiro desenhado com box drawing e glifos X/O em blocos, 16 cores.
 - A cena do tabuleiro é cacheada; só é regerada quando o estado do tabuleiro,
   cursor, animação ou tamanho mudar.
+- Cursor pulsa suavemente; marca recém-colocada cresce/assenta em 140 ms; linha
+  vencedora é revelada em 450 ms e o selo entra em fade; menus pulsam o marcador.
+  Tudo desligado por `--no-animations`.
 - Não usar emojis. Usar `✦`, `·`, `▸`, `─`, `╭╮╰╯`, `✕`, `◯` com fallback.
 - Esconder o cursor do terminal durante o jogo.
 
@@ -308,7 +314,8 @@ Ordem de protocolo:
 
 1. `--no-images` → nenhum PNG.
 2. `--image-protocol` explícito.
-3. Detecção automática por `Picker`.
+3. Detecção automática por variáveis de ambiente (`KITTY_WINDOW_ID`, `TERM`,
+   `TERM_PROGRAM`).
 4. Fallback half-blocks.
 5. Fallback legado se não houver truecolor.
 
@@ -378,8 +385,10 @@ comprimentos de máscara reportados pelo driver.
 ### 10.5 Modo de captura para QA
 
 `--capture-frame <arquivo.png>` renderiza um frame determinístico no canvas
-1344 × 756 e encerra, sem abrir framebuffer nem terminal interativo. Usado para
-QA visual, snapshots e validação em CI/local.
+1344 × 756 (madeira, tabuleiro, painel, selo e vinheta) e encerra, sem abrir
+framebuffer, áudio nem terminal interativo. A camada textual do canvas entra
+junto com o backend framebuffer da v1.1; por ora a captura serve para QA da arte
+e da composição. Usado em snapshots e validação local/CI.
 
 ## 11. Renderização compartilhada
 
@@ -448,11 +457,14 @@ de camadas de imagem atrás de texto, que não são portáveis entre Kitty e Six
 
 ## 13. Áudio
 
-- Feature `audio` ativa `rodio`; desligada no servidor.
-- Inicialização preguiçosa: se não houver dispositivo, loga e segue silencioso.
+- Feature `audio` (padrão) carrega `libasound.so.2` em runtime e usa o backend
+  ALSA via FFI mínimo; não exige headers de desenvolvimento no build.
+- Inicialização preguiçosa: se não houver dispositivo ou biblioteca, loga e
+  segue silencioso; `--no-audio` nem tenta abrir.
 - Sons sintetizados em memória; nenhum WAV/MP3 externo.
-- Volume fixo baixo (0,30–0,35); `M` alterna mudo.
+- Volume padrão 0,32; `M` alterna mudo.
 - Reprodução em thread do backend de áudio; nunca bloquear o event loop.
+- `cargo build --no-default-features` remove o áudio e a dependência `libloading`.
 - Eventos: mover cursor, colocar X, colocar O, inválido, selecionar, vitória,
   empate.
 - Sem música de fundo.
@@ -484,8 +496,7 @@ Options:
   --no-audio                      Desliga áudio
   --no-animations                 Reduz movimento
   --color <auto|truecolor|256|16|never>
-  --fb-device <PATH>              Padrão: /dev/fb0
-  --capture-frame <PATH>          Renderiza um frame de QA e encerra
+  --capture-frame <PATH>          Gera um PNG determinístico de QA e encerra
   --seed <u64>                    Semente determinística da IA
   -h, --help
   -V, --version

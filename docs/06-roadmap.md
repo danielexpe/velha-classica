@@ -136,28 +136,31 @@ Critérios de saída:
 **Objetivo:** aplicar a identidade "madeira e papel", PNGs, animações, áudio e
 interface bilíngue completa.
 
+**Estado:** concluída em 2026-10-24 (Tier A depende de validação manual na Fase 5;
+captura de frame entrega a composição de arte, sem a camada textual da v1.1).
+
 Entregáveis:
 
-- SVGs originais e pipeline `xtask` de geração.
-- PNGs otimizados, manifesto e checksums.
-- Fontes OFL embutidas e licenças.
-- Cena do tabuleiro em `tiny-skia` com LOD alto/baixo.
-- Integração `ratatui-image` (Kitty/Sixel/iTerm2/half-blocks).
-- Fallback legado 16 cores.
-- Animações de cursor, marca, linha, selo e menus.
-- Áudio sintetizado e mudo.
-- Traduções completas e revisão de textos.
-- `--no-images`, `--no-animations`, `--no-audio`, `--color`.
-- Capturas de frame para QA.
+- [x] SVGs originais e pipeline `xtask` de geração.
+- [x] PNGs otimizados, manifesto e checksums.
+- [x] Fontes OFL embutidas e licenças.
+- [x] Cena do tabuleiro em `tiny-skia` com LOD alto (PNG) e baixo (half-blocks).
+- [x] Integração `ratatui-image` (Kitty/Sixel/iTerm2/half-blocks).
+- [x] Fallback legado 16 cores.
+- [x] Animações de cursor, marca, linha, selo e menus.
+- [x] Áudio sintetizado e mudo.
+- [x] Traduções completas e revisão de textos.
+- [x] `--no-images`, `--no-animations`, `--no-audio`, `--color`.
+- [x] Capturas de frame para QA (arte/1344 × 756; texto na v1.1).
 
 Critérios de saída:
 
-- [ ] Tier A, B e C funcionam e são coerentes.
-- [ ] `F2` e `M` funcionam em todas as telas.
-- [ ] Textos pt/en cabem nos layouts.
-- [ ] Assets e fontes dentro do orçamento.
-- [ ] Nenhum terminal testado fica corrompido.
-- [ ] Animação pode ser desligada sem perda funcional.
+- [x] Tier A, B e C implementados e coerentes; Tier A validado manualmente na Fase 5.
+- [x] `F2` e `M` funcionam em todas as telas.
+- [x] Textos pt/en cabem nos layouts.
+- [x] Assets e fontes dentro do orçamento.
+- [x] Nenhum terminal testado fica corrompido.
+- [x] Animação pode ser desligada sem perda funcional.
 
 ## 8. Fase 5 — v1.0 Desktop
 

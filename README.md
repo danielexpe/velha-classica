@@ -2,8 +2,9 @@
 
 Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
-> **Fase 3:** o modo **1 jogador** está completo, com IA Fácil, Médio e
-> Impossível, e o modo 2 jogadores continua disponível no mesmo teclado.
+> **Fase 4:** a identidade visual está aplicada com SVGs/PNGs originais,
+> tabuleiro em imagem (Kitty/Sixel/iTerm2/half-blocks), animações curtas, áudio
+> sintetizado e as fontes OFL embutidas.
 
 ## O que já funciona
 
@@ -16,7 +17,12 @@ Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 - Layouts Wide, Compact e Minimal, com adaptação ao redimensionar.
 - Interface em pt-BR e inglês, alternada com `F2`.
 - Núcleo de tabuleiro, regras, placar e estado de partida implementado e testado.
-- CLI com ajuda, versão, idioma, backend e semente da IA (`--seed`).
+- Tabuleiro em imagem com fallback half-blocks e legado de 16 cores.
+- Animações de cursor, marca, linha vencedora, selo e menus (desligáveis).
+- Áudio sintetizado com mudo; silencioso se não houver dispositivo.
+- Captura determinística de arte para QA com `--capture-frame`.
+- CLI com ajuda, versão, idioma, backend, semente (`--seed`), protocolo de
+  imagem, cor e flags de acessibilidade.
 - Restauração do terminal ao sair, inclusive com `Esc`, `Q` e `Ctrl+C`.
 
 ## Requisitos
@@ -24,6 +30,8 @@ Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 - Linux com um terminal local (Zorin OS, Ubuntu e similares).
 - Terminal de no mínimo **80 × 24** caracteres.
 - Terminal com cores é recomendado; há fallback para 256 e 16 cores.
+- Áudio usa `libasound.so.2` em runtime; não é preciso instalar headers de
+  desenvolvimento. Sem dispositivo, o jogo segue em silêncio.
 - Para compilar: **Rust 1.88 ou superior** (edição 2021).
 
 ## Instalar o Rust
@@ -54,6 +62,18 @@ cargo run -- --backend tui
 
 # Reproduzir as escolhas da IA (útil para depuração)
 cargo run -- --seed 42
+
+# Acessibilidade e compatibilidade
+cargo run -- --no-images --no-animations
+cargo run -- --no-audio
+cargo run -- --color 256
+cargo run -- --image-protocol halfblocks
+```
+
+Gerar uma captura de arte determinística para QA:
+
+```bash
+cargo run -- --capture-frame captura.png
 ```
 
 Outras opções:
@@ -61,6 +81,7 @@ Outras opções:
 ```bash
 cargo run -- --help
 cargo run -- --version
+cargo run -- --backend fb
 ```
 
 > `--backend fb` ainda retorna código de saída 3 de propósito: o backend de
@@ -85,7 +106,7 @@ NO_COLOR=1 cargo run
 | Pausa | `↑`/`↓`, `Enter` | Escolher ação; `Esc` continua |
 | Fim da rodada | `↑`/`↓`, `Enter` | Escolher ação; `R` inicia revanche |
 | Global | `F2` | Alterna pt-BR/inglês |
-| Global | `M` | Liga/desliga o indicador de som (o áudio ainda não existe) |
+| Global | `M` | Liga/desliga o som |
 | Home | `Q` | Sair |
 | Pausa | `Q` | Sair do jogo |
 | Global | `Ctrl+C` | Sair e restaurar o terminal |
@@ -98,13 +119,15 @@ Rodar a suíte automatizada:
 cargo test
 ```
 
-Resultado esperado nesta versão: **138 testes passando**, incluindo snapshots de TUI.
+Resultado esperado nesta versão: **164 testes passando**, incluindo snapshots de TUI.
 
 Rodar os portões de qualidade:
 
 ```bash
 cargo fmt --check
-cargo clippy --all-targets -- -D warnings
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test
+cargo xtask assets --check
 cargo build --release
 cargo build --release --no-default-features
 ```
@@ -120,8 +143,10 @@ Teste manual rápido:
 5. Abra a pausa com `Esc` durante o turno da IA e confirme que ela não joga até
    você continuar; teste também reiniciar e voltar ao menu.
 6. Redimensione o terminal e confirme que a partida continua no mesmo estado.
-7. Pressione `F2` e verifique os textos em inglês.
+7. Pressione `F2` e verifique os textos em inglês; pressione `M` e confirme o
+   mudo no cabeçalho/rodapé.
 8. Pressione `Q` ou `Ctrl+C` e confirme que o cursor e a tela normal voltaram.
+9. Rode `cargo xtask assets --check` e confirme que os assets estão atualizados.
 
 ## Problemas comuns
 
@@ -135,15 +160,34 @@ Aumente a janela do terminal até pelo menos 80 colunas por 24 linhas.
 Esperado ao usar `--backend fb`. Use `--backend tui` ou deixe o padrão `auto`.
 
 **As cores parecem estranhas**
-O jogo detecta truecolor, 256 e 16 cores automaticamente. Para jogar sem cor,
-use `NO_COLOR=1 cargo run`.
+O jogo detecta truecolor, 256 e 16 cores automaticamente. Force com
+`--color truecolor`, `--color 256`, `--color 16` ou `--color never`.
+
+**O tabuleiro aparece em blocos ou sem imagem**
+A detecção automática usa variáveis do terminal. Imagens automáticas exigem
+truecolor; force o protocolo com `--image-protocol kitty`, `sixel`, `iterm2` ou
+`halfblocks`, ou use `--no-images` para o tabuleiro textual.
+
+**Não há som**
+O áudio é opcional e silencioso quando não há dispositivo ou `libasound.so.2`.
+`M` alterna o mudo.
+
+## Assets, fontes e licenças
+
+- SVGs originais em `assets/src/`; PNGs versionados em `assets/generated/`.
+- Regeneração: `cargo xtask assets`; verificação: `cargo xtask assets --check`.
+- Fontes EB Garamond e Inter (OFL 1.1) em `assets/fonts/`, com as licenças.
+- Créditos de terceiros em [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- Proposta de licença da arte: CC BY 4.0 (confirmar antes da v1.0).
 
 ## Limitações desta versão
 
-- Sem imagens finais, animações ou áudio.
-- Sem backend de framebuffer.
+- Sem backend de framebuffer (v1.1).
+- A detecção de protocolo de imagem é conservadora; use `--image-protocol` se
+  necessário.
+- A captura de frame cobre a composição de arte; o texto do canvas chega com o
+  framebuffer.
 - Sem persistência de idioma, placar ou configurações.
-- A arte ainda usa a composição tipográfica da TUI, sem PNGs.
 
 ## Documentação do projeto
 
@@ -158,4 +202,5 @@ As especificações completas estão em [`docs/`](docs/):
 
 ## Licença
 
-Licença de código proposta: MIT. A licença final será confirmada antes da v1.0.
+Licença de código proposta: MIT. Arte proposta em CC BY 4.0; fontes em OFL 1.1.
+A licença final será confirmada antes da v1.0.

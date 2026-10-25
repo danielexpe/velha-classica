@@ -1,3 +1,4 @@
+use std::cell::{RefCell, RefMut};
 use std::io::{self, stdout, Stdout};
 use std::time::{Duration, Instant};
 
@@ -7,10 +8,12 @@ use ratatui::style::Color;
 use ratatui::Terminal;
 
 use crate::ai::{choose_move, AI_MARK};
+use crate::audio::{self, Audio, Sound};
 use crate::core::{BoardError, Difficulty};
 use crate::i18n::{Language, Strings};
 use crate::input::{map_key, Action};
 use crate::render;
+use crate::render::image::{self, ImageProtocol, ImageState};
 use crate::state::{Game, Mode, MoveError, Screen, Settings};
 use crate::theme::{ColorMode, Token};
 use crate::util::rng::Rng;
@@ -20,6 +23,11 @@ const STATUS_DURATION: Duration = Duration::from_millis(900);
 const CONFIRM_DEBOUNCE: Duration = Duration::from_millis(150);
 const AI_THINK_MIN_MS: u64 = 450;
 const AI_THINK_MAX_MS: u64 = 800;
+const AI_THINK_REDUCED_MS: u64 = 250;
+const MARK_ANIMATION: Duration = Duration::from_millis(140);
+const WIN_ANIMATION: Duration = Duration::from_millis(450);
+const FRAME_TIME: Duration = Duration::from_millis(40);
+const EVENT_POLL: Duration = Duration::from_millis(100);
 const HOME_ITEMS: usize = 3;
 const DIFFICULTY_ITEMS: usize = 4;
 const PAUSE_ITEMS: usize = 4;
@@ -57,6 +65,14 @@ pub struct App {
     last_confirm: Option<Instant>,
     rng: Rng,
     ai_pending: Option<Instant>,
+    images_enabled: bool,
+    image_protocol: ImageProtocol,
+    image_state: RefCell<Option<ImageState>>,
+    audio: Audio,
+    last_move: Option<usize>,
+    last_move_at: Option<Instant>,
+    round_over_at: Option<Instant>,
+    started: Instant,
 }
 
 impl App {
@@ -65,9 +81,12 @@ impl App {
     }
 
     pub fn with_seed(language: Language, color_mode: ColorMode, seed: u64) -> Self {
+        let mut settings = Settings::new(language);
+        settings.sound_enabled = audio::available();
+
         Self {
             screen: Screen::Home,
-            settings: Settings::new(language),
+            settings,
             color_mode,
             quit: false,
             version: env!("CARGO_PKG_VERSION"),
@@ -80,6 +99,14 @@ impl App {
             last_confirm: None,
             rng: Rng::new(seed),
             ai_pending: None,
+            images_enabled: true,
+            image_protocol: ImageProtocol::Auto,
+            image_state: RefCell::new(None),
+            audio: Audio::new(audio::DEFAULT_VOLUME),
+            last_move: None,
+            last_move_at: None,
+            round_over_at: None,
+            started: Instant::now(),
         }
     }
 
@@ -152,6 +179,92 @@ impl App {
         self.ai_pending.is_some()
     }
 
+    pub fn set_images_enabled(&mut self, enabled: bool) {
+        self.images_enabled = enabled;
+
+        if !enabled {
+            self.image_state.borrow_mut().take();
+        }
+    }
+
+    pub fn set_image_protocol(&mut self, protocol: ImageProtocol) {
+        self.image_protocol = protocol;
+    }
+
+    pub fn set_animations_enabled(&mut self, enabled: bool) {
+        self.settings.animations_enabled = enabled;
+    }
+
+    pub fn set_audio_enabled(&mut self, enabled: bool) {
+        self.settings.sound_enabled = enabled;
+    }
+
+    pub fn has_images(&self) -> bool {
+        self.images_enabled && self.image_state.borrow().is_some()
+    }
+
+    pub(crate) fn image_state(&self) -> RefMut<'_, Option<ImageState>> {
+        self.image_state.borrow_mut()
+    }
+
+    pub fn animations_enabled(&self) -> bool {
+        self.settings.animations_enabled
+    }
+
+    pub fn animated_cell(&self) -> Option<usize> {
+        if self.mark_progress() < 1.0 {
+            self.last_move
+        } else {
+            None
+        }
+    }
+
+    pub fn last_move_cell(&self) -> Option<usize> {
+        self.last_move
+    }
+
+    pub fn mark_progress(&self) -> f32 {
+        if !self.settings.animations_enabled {
+            return 1.0;
+        }
+
+        progress(self.last_move_at, MARK_ANIMATION)
+    }
+
+    pub fn winning_progress(&self) -> f32 {
+        if !self.settings.animations_enabled {
+            return 1.0;
+        }
+
+        progress(self.round_over_at, WIN_ANIMATION)
+    }
+
+    pub fn cursor_opacity(&self) -> f32 {
+        if !self.settings.animations_enabled {
+            return 1.0;
+        }
+
+        let phase = self.started.elapsed().as_secs_f32();
+        0.65 + 0.35 * (std::f32::consts::TAU * 0.9 * phase).sin().abs()
+    }
+
+    pub fn animation_frame_delay(&self) -> Duration {
+        if !self.settings.animations_enabled {
+            return EVENT_POLL;
+        }
+
+        let text_board_animating = self.screen == Screen::Playing && !self.has_images();
+        let mark_animating = self.screen == Screen::Playing && self.mark_progress() < 1.0;
+        let win_animating =
+            self.screen == Screen::RoundOver && self.has_images() && self.winning_progress() < 1.0;
+
+        if text_board_animating || mark_animating || win_animating {
+            FRAME_TIME
+        } else {
+            EVENT_POLL
+        }
+    }
+
     pub fn color(&self, token: Token) -> Color {
         crate::theme::color(token, self.color_mode)
     }
@@ -163,7 +276,10 @@ impl App {
                 return true;
             }
             Action::ToggleSound => {
-                self.settings.sound_enabled = !self.settings.sound_enabled;
+                if audio::available() {
+                    self.settings.sound_enabled = !self.settings.sound_enabled;
+                    self.audio.set_enabled(self.settings.sound_enabled);
+                }
                 return true;
             }
             Action::Quit => {
@@ -287,6 +403,7 @@ impl App {
         let len = len as isize;
 
         *index = (*index as isize + delta).rem_euclid(len) as usize;
+        self.audio.play(Sound::Select);
     }
 
     fn confirm_allowed(&mut self) -> bool {
@@ -307,6 +424,8 @@ impl App {
         if let Some(game) = self.game.as_mut() {
             game.move_selection(delta_row, delta_col);
         }
+
+        self.audio.play(Sound::Move);
     }
 
     fn play_selected(&mut self) {
@@ -321,20 +440,39 @@ impl App {
         let Some(game) = self.game.as_mut() else {
             return;
         };
+        let mark = game.turn();
 
         match game.play(cell) {
             Ok(outcome) if outcome.is_over() => {
                 self.status = None;
                 self.result_selection = 0;
                 self.screen = Screen::RoundOver;
+                let now = Instant::now();
+                self.last_move = Some(cell);
+                self.last_move_at = Some(now);
+                self.round_over_at = Some(now);
+                self.audio.play(match outcome {
+                    crate::core::Outcome::Draw => Sound::Draw,
+                    _ => Sound::Win,
+                });
             }
-            Ok(_) => self.status = None,
+            Ok(_) => {
+                self.status = None;
+                self.last_move = Some(cell);
+                self.last_move_at = Some(Instant::now());
+                self.audio.play(if mark == crate::core::Mark::X {
+                    Sound::PlaceX
+                } else {
+                    Sound::PlaceO
+                });
+            }
             Err(MoveError::GameOver) => {
                 self.result_selection = 0;
                 self.screen = Screen::RoundOver;
             }
             Err(MoveError::Board(BoardError::Occupied(_))) => {
                 self.set_status(StatusKind::Occupied);
+                self.audio.play(Sound::Invalid);
             }
             Err(MoveError::Board(BoardError::OutOfBounds(_))) => {}
         }
@@ -349,6 +487,9 @@ impl App {
         self.status = None;
         self.last_confirm = None;
         self.ai_pending = None;
+        self.last_move = None;
+        self.last_move_at = None;
+        self.round_over_at = None;
         self.screen = Screen::Playing;
         self.sync_ai();
     }
@@ -379,7 +520,11 @@ impl App {
             return;
         }
 
-        let delay = self.rng.range_inclusive(AI_THINK_MIN_MS, AI_THINK_MAX_MS);
+        let delay = if self.settings.animations_enabled {
+            self.rng.range_inclusive(AI_THINK_MIN_MS, AI_THINK_MAX_MS)
+        } else {
+            AI_THINK_REDUCED_MS
+        };
 
         self.ai_pending = Some(Instant::now() + Duration::from_millis(delay));
     }
@@ -423,6 +568,9 @@ impl App {
             game.restart_round();
         }
 
+        self.last_move = None;
+        self.last_move_at = None;
+        self.round_over_at = None;
         self.resume();
     }
 
@@ -432,6 +580,9 @@ impl App {
         }
 
         self.result_selection = 0;
+        self.last_move = None;
+        self.last_move_at = None;
+        self.round_over_at = None;
         self.resume();
     }
 
@@ -440,6 +591,9 @@ impl App {
         self.home_selection = 0;
         self.status = None;
         self.ai_pending = None;
+        self.last_move = None;
+        self.last_move_at = None;
+        self.round_over_at = None;
         self.screen = Screen::Home;
     }
 
@@ -456,6 +610,15 @@ impl App {
         let mut guard = TerminalGuard::enter()?;
         let backend = CrosstermBackend::new(stdout());
         let mut terminal = Terminal::new(backend)?;
+
+        if self.images_enabled {
+            let picker = image::create_picker(self.image_protocol);
+            *self.image_state.borrow_mut() = Some(ImageState::new(picker));
+        }
+
+        self.audio.allow_start();
+        self.audio.set_enabled(self.settings.sound_enabled);
+
         let result = self.event_loop(&mut terminal);
 
         drop(terminal);
@@ -469,7 +632,7 @@ impl App {
             self.update_ai(Instant::now());
             terminal.draw(|frame| render::tui::draw(frame, self))?;
 
-            if event::poll(Duration::from_millis(100))? {
+            if event::poll(self.animation_frame_delay())? {
                 if let Event::Key(key) = event::read()? {
                     if key.kind == KeyEventKind::Press {
                         if let Some(action) = map_key(key) {
@@ -482,6 +645,14 @@ impl App {
 
         Ok(())
     }
+}
+
+fn progress(started: Option<Instant>, duration: Duration) -> f32 {
+    let Some(started) = started else {
+        return 1.0;
+    };
+
+    (started.elapsed().as_secs_f32() / duration.as_secs_f32()).clamp(0.0, 1.0)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -505,7 +676,9 @@ mod tests {
     use crate::core::{Board, Mark, Outcome};
 
     fn app() -> App {
-        App::new(Language::PtBr, ColorMode::TrueColor)
+        let mut app = App::new(Language::PtBr, ColorMode::TrueColor);
+        app.set_animations_enabled(false);
+        app
     }
 
     fn start_two_players(app: &mut App) {
@@ -530,7 +703,7 @@ mod tests {
 
         assert_eq!(app.screen(), Screen::Home);
         assert_eq!(app.language(), Language::PtBr);
-        assert!(app.sound_enabled());
+        assert_eq!(app.sound_enabled(), audio::available());
         assert!(!app.should_quit());
         assert!(app.game().is_none());
     }
@@ -543,7 +716,7 @@ mod tests {
 
         assert_eq!(app.language(), Language::En);
         assert_eq!(app.screen(), Screen::Home);
-        assert!(app.sound_enabled());
+        assert_eq!(app.sound_enabled(), audio::available());
     }
 
     #[test]
@@ -886,6 +1059,42 @@ mod tests {
         assert_eq!(app.game().unwrap().starter(), Mark::X);
         assert_eq!(app.game().unwrap().turn(), Mark::X);
         assert!(!app.ai_pending());
+    }
+
+    #[test]
+    fn animations_can_be_disabled_without_changing_turns() {
+        let mut app = app();
+        app.set_animations_enabled(true);
+        app.handle(Action::Confirm);
+        app.handle(Action::Confirm);
+        app.play_for_test(4);
+
+        assert!(app.animations_enabled());
+        assert!(app.mark_progress() <= 1.0);
+        assert!(app.cursor_opacity() >= 0.0 && app.cursor_opacity() <= 1.0);
+
+        app.set_animations_enabled(false);
+        assert!(!app.animations_enabled());
+        assert_eq!(app.mark_progress(), 1.0);
+        assert_eq!(app.winning_progress(), 1.0);
+        assert_eq!(app.cursor_opacity(), 1.0);
+        assert_eq!(app.animated_cell(), None);
+    }
+
+    #[test]
+    fn no_animations_reduces_ai_thinking_delay() {
+        let mut app = app();
+        app.handle(Action::Confirm);
+        app.handle(Action::Confirm);
+        app.play_for_test(4);
+
+        let remaining = app
+            .ai_pending
+            .expect("AI should be scheduled")
+            .saturating_duration_since(Instant::now());
+
+        assert!(remaining <= Duration::from_millis(250));
+        assert!(remaining > Duration::from_millis(200));
     }
 
     #[test]

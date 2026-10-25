@@ -9,5 +9,17 @@ license = "MIT"
 [dependencies]
 clap = { version = "4.6.7", features = ["derive"] }
 crossterm = "0.29.0"
+image = { version = "0.25", default-features = false, features = ["png"] }
+libloading = { version = "0.8", optional = true }
 ratatui = { version = "0.30.2", default-features = false, features = ["crossterm", "std"] }
+ratatui-image = { version = "11.1", default-features = false, features = ["crossterm"] }
 thiserror = "2.0.21"
+tiny-skia = { version = "0.12", default-features = false, features = ["std", "png-format"] }
+
+[features]
+default = ["audio"]
+audio = ["dep:libloading"]
+
+[workspace]
+members = ["xtask"]
+resolver = "2"

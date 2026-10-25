@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" width="640" height="200">
+<defs>
+
+</defs>
+<g transform="rotate(-3 320 100)">
+<rect x="30" y="24" width="580" height="152" rx="18" fill="none" stroke="#284B5A" stroke-width="8" opacity="0.88"/>
+<rect x="42" y="34" width="556" height="132" rx="12" fill="none" stroke="#284B5A" stroke-width="2.5" opacity="0.62"/>
+<path d="M54 37 l2 5 h6 l-5 4 l2 6 l-5 -4 l-5 4 l2 -6 l-5 -4 h6 Z" fill="#284B5A" opacity="0.8"/>
+<path d="M586 37 l2 5 h6 l-5 4 l2 6 l-5 -4 l-5 4 l2 -6 l-5 -4 h6 Z" fill="#284B5A" opacity="0.8"/>
+<path d="M54 149 l2 5 h6 l-5 4 l2 6 l-5 -4 l-5 4 l2 -6 l-5 -4 h6 Z" fill="#284B5A" opacity="0.8"/>
+<path d="M586 149 l2 5 h6 l-5 4 l2 6 l-5 -4 l-5 4 l2 -6 l-5 -4 h6 Z" fill="#284B5A" opacity="0.8"/>
+<polyline points="16.00,0.00 16.00,140.00 48.00,140.00 74.00,132.00 90.00,112.00 96.00,86.00 96.00,54.00 90.00,28.00 74.00,8.00 48.00,0.00 16.00,0.00" fill="none" stroke="#284B5A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" transform="translate(60.00 33.49) scale(1.0359)"/>
+<polyline points="18.00,140.00 18.00,0.00 62.00,0.00 82.00,8.00 92.00,24.00 92.00,44.00 82.00,60.00 62.00,68.00 18.00,68.00" fill="none" stroke="#284B5A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" transform="translate(198.80 33.49) scale(1.0359)"/>
+<polyline points="54.00,68.00 92.00,140.00" fill="none" stroke="#284B5A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" transform="translate(198.80 33.49) scale(1.0359)"/>
+<polyline points="0.00,140.00 50.00,0.00 100.00,140.00" fill="none" stroke="#284B5A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" transform="translate(337.61 33.49) scale(1.0359)"/>
+<polyline points="20.00,96.00 80.00,96.00" fill="none" stroke="#284B5A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" transform="translate(337.61 33.49) scale(1.0359)"/>
+<polyline points="0.00,0.00 20.00,140.00 50.00,62.00 80.00,140.00 100.00,0.00" fill="none" stroke="#284B5A" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" transform="translate(476.41 33.49) scale(1.0359)"/>
+</g>
+</svg>

@@ -13,6 +13,19 @@
 - Selos de resultado podem ser PNGs localizados, mas o status textual sempre
   repete a informação.
 
+### 1.1 Estado da implementação (Fase 4)
+
+- 16 SVGs originais em `assets/src/` (~333 KB) e 16 PNGs em
+  `assets/generated/` (~360 KB), gerados por `cargo xtask assets`.
+- `assets/manifest.sha256` cobre os PNGs e `cargo xtask assets --check` valida
+  fontes, PNGs e manifesto.
+- 4 fontes TTF estáticas em `assets/fonts/` (~1,7 MB), instanciadas a partir das
+  variáveis OFL do Google Fonts, com as licenças completas.
+- Assets totais ~2,4 MB; binário release ~3,0 MB com assets e fontes embutidos.
+- A TUI usa o tabuleiro rasterizado (`tiny-skia`) via Kitty/Sixel/iTerm2/
+  half-blocks; o selo entra na cena de resultado. Os demais assets ficam prontos
+  para o framebuffer da v1.1.
+
 ## 2. Estrutura
 
 ```text
@@ -202,7 +215,8 @@ cargo xtask assets --check
 | EB Garamond | Título, números, selos | SIL Open Font License 1.1 |
 | Inter | Interface, status, atalhos | SIL Open Font License 1.1 |
 
-- Arquivos `.ttf` versionados em `assets/fonts/`.
+- Arquivos `.ttf` estáticos versionados em `assets/fonts/`, instanciados das
+  variáveis OFL: EB Garamond `wght=400/600`; Inter `opsz=14, wght=400/600`.
 - Licenças completas copiadas para `assets/fonts/OFL-*.txt`.
 - Créditos no README e em `THIRD_PARTY_NOTICES.md` na implementação.
 - A TUI usa a fonte do terminal; as fontes embutidas são para o framebuffer.
@@ -221,6 +235,8 @@ cargo xtask assets --check
 - Nenhum arquivo de áudio é distribuído.
 - Todos os sons são sintetizados em runtime (senoides, ruído e envelopes).
 - Isso reduz o binário, evita licenças de áudio e permite desligar a feature.
+- Backend ALSA carregado dinamicamente (`libasound.so.2`) via `libloading`; sem
+  headers de desenvolvimento no build e sem bloquear quando não há dispositivo.
 - Não há música.
 
 ## 10. Orçamentos

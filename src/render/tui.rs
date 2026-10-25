@@ -7,6 +7,7 @@ use ratatui::Frame;
 use crate::app::App;
 use crate::core::{Difficulty, Mark, Outcome, BOARD_CELLS, BOARD_SIDE};
 use crate::render::layout::{breakpoint, game_area, Breakpoint, MIN_COLS, MIN_ROWS};
+use crate::render::scene::{self, SceneInput, Stamp};
 use crate::state::{Game, Mode, Screen};
 use crate::theme::Token;
 
@@ -589,6 +590,10 @@ fn draw_pause(frame: &mut Frame, app: &App, area: Rect) {
 }
 
 fn draw_board(frame: &mut Frame, app: &App, game: &Game, area: Rect, breakpoint: Breakpoint) {
+    if draw_board_image(frame, app, game, area) {
+        return;
+    }
+
     let (cell_width, cell_height) = board_cell_size(breakpoint);
     let width = cell_width * 3 + 4;
     let height = cell_height * 3 + 4;
@@ -633,12 +638,58 @@ fn draw_board(frame: &mut Frame, app: &App, game: &Game, area: Rect, breakpoint:
     }
 }
 
+fn draw_board_image(frame: &mut Frame, app: &App, game: &Game, area: Rect) -> bool {
+    if !app.has_images() {
+        return false;
+    }
+
+    let mut guard = app.image_state();
+    let Some(state) = guard.as_mut() else {
+        return false;
+    };
+    let target = state.square_area(area);
+    let input = SceneInput {
+        selected: game.selected(),
+        turn: game.turn(),
+        show_cursor: !game.is_over() && app.screen() == Screen::Playing,
+        cursor_opacity: 1.0,
+        winning_line: game.outcome().winning_line(),
+        win_progress: app.winning_progress(),
+        last_move: app.last_move_cell(),
+        mark_progress: app.mark_progress(),
+        stamp: stamp_for(app, game),
+    };
+    let signature = scene::signature(game.board(), input);
+
+    if state.signature() != Some(signature) {
+        let pixmap = scene::render(game.board(), input);
+        state.update(scene::to_dynamic_image(&pixmap), signature);
+    }
+
+    state.render(frame, target);
+
+    true
+}
+
+fn stamp_for(app: &App, game: &Game) -> Option<Stamp> {
+    let english = app.language() == crate::i18n::Language::En;
+
+    match game.outcome() {
+        crate::core::Outcome::Win { .. } if english => Some(Stamp::WinEn),
+        crate::core::Outcome::Win { .. } => Some(Stamp::WinPt),
+        crate::core::Outcome::Draw if english => Some(Stamp::DrawEn),
+        crate::core::Outcome::Draw => Some(Stamp::DrawPt),
+        crate::core::Outcome::InProgress => None,
+    }
+}
+
 fn draw_cell(frame: &mut Frame, app: &App, game: &Game, cell: usize, area: Rect, cell_height: u16) {
     let winning = game
         .outcome()
         .winning_line()
         .is_some_and(|line| line.contains(&cell));
     let selected = !game.is_over() && game.selected() == cell;
+    let flash = app.animated_cell() == Some(cell);
     let highlight = winning || selected;
 
     if highlight {
@@ -648,7 +699,7 @@ fn draw_cell(frame: &mut Frame, app: &App, game: &Game, cell: usize, area: Rect,
         );
     }
 
-    if selected && cell_height >= 2 && area.width >= 3 {
+    if selected && cell_height >= 2 && area.width >= 3 && app.cursor_opacity() >= 0.5 {
         let style = Style::default()
             .fg(app.color(Token::Brass))
             .add_modifier(Modifier::BOLD);
@@ -675,7 +726,7 @@ fn draw_cell(frame: &mut Frame, app: &App, game: &Game, cell: usize, area: Rect,
     let content = match mark {
         Some(mark) => Some((
             mark.glyph().to_string(),
-            if winning {
+            if winning || flash {
                 app.color(Token::BrassBright)
             } else {
                 mark_color(app, mark)
@@ -958,11 +1009,17 @@ fn mark_color(app: &App, mark: Mark) -> ratatui::style::Color {
 
 fn menu_line(app: &App, label: &'static str, focused: bool) -> Line<'static> {
     if focused {
+        let marker = if app.cursor_opacity() > 0.8 {
+            Token::BrassBright
+        } else {
+            Token::Brass
+        };
+
         Line::from(vec![
             Span::styled(
                 "▸ ",
                 Style::default()
-                    .fg(app.color(Token::BrassBright))
+                    .fg(app.color(marker))
                     .add_modifier(Modifier::BOLD),
             ),
             Span::styled(
@@ -1076,8 +1133,15 @@ mod tests {
         text
     }
 
+    fn app_with(language: Language) -> App {
+        let mut app = App::new(language, ColorMode::TrueColor);
+        app.set_animations_enabled(false);
+        app.set_audio_enabled(true);
+        app
+    }
+
     fn app() -> App {
-        App::new(Language::PtBr, ColorMode::TrueColor)
+        app_with(Language::PtBr)
     }
 
     fn start_two_players(app: &mut App) {
@@ -1134,8 +1198,8 @@ mod tests {
 
     #[test]
     fn renders_home_in_both_languages() {
-        let portuguese = render(&App::new(Language::PtBr, ColorMode::TrueColor), 192, 54);
-        let english = render(&App::new(Language::En, ColorMode::TrueColor), 192, 54);
+        let portuguese = render(&app_with(Language::PtBr), 192, 54);
+        let english = render(&app_with(Language::En), 192, 54);
 
         assert!(portuguese.contains("1 Jogador"));
         assert!(portuguese.contains("2 Jogadores"));
@@ -1266,7 +1330,7 @@ mod tests {
     #[test]
     fn renders_minimum_size_warning() {
         let portuguese = render(&app(), 79, 23);
-        let english = render(&App::new(Language::En, ColorMode::TrueColor), 79, 23);
+        let english = render(&app_with(Language::En), 79, 23);
 
         assert!(portuguese.contains("Terminal muito pequeno. Mínimo: 80×24."));
         assert!(english.contains("Terminal too small. Minimum: 80×24."));
@@ -1296,7 +1360,7 @@ mod tests {
 
     #[test]
     fn home_minimal_english_snapshot() {
-        let app = App::new(Language::En, ColorMode::TrueColor);
+        let app = app_with(Language::En);
         assert_snapshot("home_minimal_en", &render(&app, 80, 24));
     }
 

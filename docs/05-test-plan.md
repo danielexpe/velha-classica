@@ -19,12 +19,12 @@ sem hardware.
 ## 2. Ferramentas
 
 - `cargo test` — unitários e integração.
-- `insta` — snapshots de buffer da TUI.
-- `proptest` — propriedades do núcleo e da IA.
-- `cargo clippy --all-targets -- -D warnings`.
+- Comparador próprio de snapshots de buffer da TUI (`tests/snapshots/`).
+- Propriedades determinísticas com RNG semeado (sem `proptest`).
+- `cargo clippy --workspace --all-targets -- -D warnings`.
 - `cargo fmt --check`.
 - `cargo xtask assets --check`.
-- `--capture-frame` — PNG determinístico do canvas 1344 × 756.
+- `--capture-frame` — PNG determinístico do canvas de arte 1344 × 756 (texto na v1.1).
 - `--seed` — reprodutibilidade da IA.
 - `hyperfine`, `/usr/bin/time -v`, `top`/`htop` — desempenho manual.
 - Comparação perceptual de PNGs para capturas visuais (ferramenta a definir na
@@ -311,6 +311,7 @@ Matriz mínima em Ubuntu Server 24.04 x86_64:
 
 ## 11. Testes de áudio
 
+- Síntese determinística, duração esperada, sem NaN e pico ≤ 1,0.
 - Com dispositivo: todos os eventos soam, volume baixo, sem clipping.
 - Sem dispositivo: jogo inicia, log discreto, sem erro visível.
 - `--no-audio`: nenhum acesso ao dispositivo.
@@ -322,9 +323,11 @@ Matriz mínima em Ubuntu Server 24.04 x86_64:
 ## 12. Testes de assets
 
 - `cargo xtask assets --check` passa.
-- Todos os PNGs decodificam.
-- Dimensões e canais conferem.
-- Fontes carregam e cobrem acentos.
+- Todos os PNGs embutidos decodificam.
+- Dimensões embutidas conferem com o manifesto.
+- Fontes têm assinatura TTF/OTF e são embutidas.
+- Cena do tabuleiro, assinatura de cache, selo e captura têm testes.
+- Protocolo de imagem explícito resolve sem consultar o terminal.
 - Binário funciona sem a pasta `assets/`.
 - Nenhum asset acima do orçamento.
 - Selos pt/en corretos e legíveis.

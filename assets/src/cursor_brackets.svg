@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320">
+<defs>
+
+</defs>
+<path d="M96 34 H34 V96" fill="none" stroke="#E6C766" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+<path d="M96 34 H34 V96" fill="none" stroke="#C7A23A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/>
+<path d="M224 34 H286 V96" fill="none" stroke="#E6C766" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+<path d="M224 34 H286 V96" fill="none" stroke="#C7A23A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/>
+<path d="M96 286 H34 V224" fill="none" stroke="#E6C766" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+<path d="M96 286 H34 V224" fill="none" stroke="#C7A23A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/>
+<path d="M224 286 H286 V224" fill="none" stroke="#E6C766" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+<path d="M224 286 H286 V224" fill="none" stroke="#C7A23A" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.22"/>
+</svg>

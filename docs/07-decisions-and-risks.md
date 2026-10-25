@@ -216,7 +216,38 @@ Questões abertas e riscos ficam no final.
 - **Decisão:** `--capture-frame <png>` renderiza um frame determinístico do canvas
   e encerra, sem abrir dispositivo interativo.
 - **Consequências:** viabiliza snapshots e revisão visual; não substitui o teste
-  no hardware real.
+  no hardware real. Na Fase 4 a captura cobre a composição de arte (madeira,
+  tabuleiro, painel, selo e vinheta); a camada textual entra com o framebuffer.
+
+### D-023 — RNG próprio para a IA
+
+- **Status:** aceita.
+- **Contexto:** a especificação previa `rand`, mas a IA precisa apenas de um
+  gerador determinístico simples e reprodutível por `--seed`.
+- **Decisão:** usar SplitMix64 em `src/util/rng.rs`.
+- **Consequências:** menos uma dependência; sequências estáveis entre versões.
+
+### D-024 — Áudio por ALSA dinâmico em vez de rodio
+
+- **Status:** aceita.
+- **Contexto:** `rodio`/`cpal` exigem headers de ALSA no build, o que quebra
+  compilações em ambientes sem `libasound2-dev`; o alvo é Linux local.
+- **Decisão:** feature `audio` (padrão) carrega `libasound.so.2` em runtime via
+  `libloading` e usa um FFI mínimo de PCM. Se a biblioteca ou o dispositivo
+  faltar, o áudio fica silencioso sem erro bloqueante.
+- **Consequências:** build sem dependências nativas de desenvolvimento; backend
+  cobre ALSA/PipeWire/PulseAudio via plugin `default`; `--no-default-features`
+  remove áudio e `libloading`.
+
+### D-025 — Detecção de imagem sem consultar stdio
+
+- **Status:** aceita.
+- **Contexto:** `Picker::from_query_stdio` pode deixar uma thread lendo stdin
+  quando o terminal não responde e consumir teclas do jogo.
+- **Decisão:** detectar protocolo por `KITTY_WINDOW_ID`, `TERM` e `TERM_PROGRAM`;
+  oferecer `--image-protocol` para override e cair em half-blocks/legado.
+- **Consequências:** startup previsível e sem perda de entrada; detecção menos
+  abrangente que a consulta ativa, compensada pelo override.
 
 ### D-023 — Snapshots de TUI sem dependência adicional
 
@@ -251,15 +282,15 @@ Questões abertas e riscos ficam no final.
 | ID | Questão | Impacto | Prazo |
 | --- | --- | --- | --- |
 | Q-001 | Confirmar licença do código e da arte (MIT + CC BY 4.0?) | Legal/distribuição | Antes da v1.0 |
-| Q-002 | Aprovar EB Garamond + Inter ou indicar outras fontes | Visual/licenças | Antes da Fase 4 |
+| Q-002 | Aprovar EB Garamond + Inter ou indicar outras fontes | Visual/licenças | Resolvida: aprovadas |
 | Q-003 | Confirmar hardware do Ubuntu Server: `/dev/fb0`, resolução, bpp | v1.1 | Antes da Fase 6 |
 | Q-004 | Confirmar que o servidor pode usar grupo `video`/console local | v1.1 | Antes da Fase 6 |
-| Q-005 | Preferência de volume padrão do áudio | UX | Fase 4 |
+| Q-005 | Preferência de volume padrão do áudio | UX | Resolvida: 0,32 |
 | Q-006 | Manter a marca "Velha Clássica" também na UI em inglês? | i18n | Fase 4 |
 | Q-007 | Deseja persistência futura de placar/idioma? | Backlog | Pós-v1.1 |
 | Q-008 | O modo Impossível deve ter atraso de "pensamento" ou ser instantâneo? | UX | Resolvida: atraso de 450–800 ms |
 | Q-009 | Limite mínimo de terminal: 80 × 24 é aceitável? | Layout | Resolvida: sim |
-| Q-010 | Capturas de frame devem entrar no repositório ou ser artefato de release? | QA/repo | Fase 4 |
+| Q-010 | Capturas de frame devem entrar no repositório ou ser artefato de release? | QA/repo | Resolvida: gerar localmente, não versionar |
 
 Recomendações iniciais:
 

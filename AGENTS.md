@@ -4,12 +4,12 @@
 > Leia-o inteiro no início de cada sessão antes de qualquer alteração.
 > Ele deve ser atualizado ao final de cada tarefa relevante.
 >
-> **Última atualização:** 2026-10-24 (após a Fase 3)
-> **Status atual:** Fases 0, 1, 2 e 3 concluídas. A TUI tem partidas 1P contra
-> IA (Fácil/Médio/Impossível) e 2P, pausa, revanche, placar e layouts
-> adaptativos. Próxima: Fase 4 (arte, som e i18n completo).
+> **Última atualização:** 2026-10-24 (após a Fase 4)
+> **Status atual:** Fases 0 a 4 concluídas. A TUI tem 1P/2P, IA em três níveis,
+> tabuleiro em imagem com fallback, animações, áudio sintetizado e assets/fontes
+> embutidos. Próxima: Fase 5 (v1.0 desktop).
 > **Branch:** `main`
-> **Último commit:** `dd591d6 feat: conclui fase 3 com IA em três níveis e modo 1P`
+> **Último commit:** `f27f70c docs: registra hash do commit da fase 3`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -32,7 +32,9 @@ Se você é uma IA abrindo uma nova sessão, faça nesta ordem:
 A Fase 1 criou o projeto Rust, o núcleo puro, o catálogo i18n inicial e o
 placeholder TUI. A Fase 2 entregou a partida 2P jogável, menus, pausa, fim de
 rodada, placar e snapshots. A Fase 3 entregou a IA em três níveis, o modo 1P,
-o atraso de pensamento e `--seed`. Ainda não há arte final nem framebuffer.
+o atraso de pensamento e `--seed`. A Fase 4 entregou assets originais, pipeline
+`xtask`, cena em `tiny-skia`, `ratatui-image`, animações, áudio ALSA dinâmico,
+fontes OFL e flags de acessibilidade.
 
 ## 2. Status atual
 
@@ -41,40 +43,44 @@ o atraso de pensamento e `--seed`. Ainda não há arte final nem framebuffer.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `dd591d6` |
+| Repositório Git | Inicializado em `main`; último commit `f27f70c` |
 | Remote | Nenhum; não configurar sem pedido explícito |
-| Código Rust | Presente; `cargo test` com 138 testes verdes |
+| Código Rust | Presente; `cargo test` com 164 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | Criados; crate `velha-classica` 0.1.0 |
 | Toolchain | rustup stable 1.99.1; MSRV declarada 1.88 |
-| Dependências | `clap`, `crossterm`, `ratatui`, `thiserror` |
+| Dependências | `clap`, `crossterm`, `ratatui`, `ratatui-image`, `image`, `tiny-skia`, `thiserror`, `libloading` (opcional) |
 | CLI | `--help`, `--version`, `--lang`, `--backend` funcionam |
 | Núcleo | `board`, `rules`, `score` e `state::game` com testes |
-| TUI | Jogável em 1P e 2P; dificuldade inicia partida, IA pensa sem travar |
+| TUI | 1P/2P; IA; imagem com fallback half-blocks/legado; animações |
 | Layout | Wide/Compact/Minimal; resize preserva o estado |
 | Snapshots | 10 arquivos em `tests/snapshots/` (comparador próprio, sem `insta`) |
 | Restauração | Guards de raw mode/alternate screen/cursor + panic hook |
-| Assets PNG/fontes | Planejados, ainda não produzidos |
+| Assets | 16 SVGs, 16 PNGs e manifesto; `xtask assets --check` verde |
+| Fontes | EB Garamond + Inter (OFL 1.1), estáticas e embutidas |
+| Áudio | Sintetizado em runtime; ALSA via `libloading`; silencioso sem device |
+| Captura | `--capture-frame` gera PNG 1344 × 756 de arte para QA |
 | Framebuffer | Planejado para v1.1; não iniciado |
-| Bloqueios | Nenhum para a Fase 4 |
-| Working tree | Alterações da Fase 3 ainda não commitadas |
+| Bloqueios | Nenhum para a Fase 5 |
+| Working tree | Alterações da Fase 4 ainda não commitadas |
 
 ### Próxima tarefa recomendada
 
-**Iniciar a Fase 4 — Arte, som e i18n**, conforme
+**Iniciar a Fase 5 — v1.0 Desktop**, conforme
 [docs/06-roadmap.md](docs/06-roadmap.md), somente após o usuário confirmar.
-Não começar framebuffer antes da v1.0 estável.
 
-Escopo principal da Fase 4 (ver roadmap):
+Escopo principal da Fase 5 (ver roadmap):
 
-- [ ] SVGs originais e pipeline `xtask` de geração de assets.
-- [ ] PNGs otimizados, manifesto e checksums.
-- [ ] Fontes OFL embutidas e licenças.
-- [ ] Cena do tabuleiro e fallbacks de imagem.
-- [ ] Áudio sintetizado e controle de mudo.
-- [ ] Revisão completa de i18n e snapshots visuais.
+- [ ] Matriz manual de terminais e validação do Tier A (Kitty/Sixel/iTerm2).
+- [ ] Ajustes de desempenho e legibilidade encontrados na matriz.
+- [ ] README final, guia rápido e notas de release.
+- [ ] `LICENSE`, `LICENSE-ASSETS` e `THIRD_PARTY_NOTICES.md` finais.
+- [ ] Binário release e `tar.gz`.
+- [ ] Checklist de release completo.
 
-Portões: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`,
-`cargo test`, `cargo build --release`.
+Portões: `cargo fmt --check`,
+`cargo clippy --workspace --all-targets -- -D warnings`, `cargo test`,
+`cargo xtask assets --check`, `cargo build --release` e
+`cargo build --release --no-default-features`.
 
 ## 3. Resumo do produto
 
@@ -92,7 +98,7 @@ Portões: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`,
 - **Backends:** TUI (`ratatui` + `crossterm`) na v1.0; framebuffer Linux
   (`/dev/fb0`) na v1.1.
 - **Imagens:** SVGs originais → PNGs embutidos; fallback half-blocks e legado.
-- **Fontes:** EB Garamond + Inter (OFL 1.1), embutidas apenas no framebuffer.
+- **Fontes:** EB Garamond + Inter (OFL 1.1), embutidas; usadas no framebuffer (v1.1).
 - **Licença proposta:** código MIT; arte CC BY 4.0 (confirmar antes da v1.0).
 
 ## 4. Decisões congeladas (não reabrir sem o usuário)
@@ -116,6 +122,11 @@ Portões: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`,
 - `--backend auto` é conservador: prefere TUI; no servidor usar `--backend fb`.
 - Fallback de imagem obrigatório; o jogo nunca depende de protocolo de imagem.
 - IA Impossível usa minimax com desempate aleatório entre jogadas ótimas.
+- RNG próprio SplitMix64 em `util/rng.rs`; `--seed` para reprodutibilidade.
+- Áudio via ALSA dinâmico (`libasound.so.2` + `libloading`), não `rodio`.
+- Detecção de imagem por ambiente + `--image-protocol`; sem consultar stdio.
+- Fontes estáticas instanciadas das variáveis OFL; usadas apenas no framebuffer.
+- `--capture-frame` gera arte 1344 × 756; a camada textual do canvas é v1.1.
 - Nenhuma dependência de rede em runtime.
 
 ## 5. Documentos e fontes de verdade
@@ -138,20 +149,20 @@ correspondente e registre a decisão em `docs/07-decisions-and-risks.md`.
 
 ## 6. Pendências e questões abertas
 
-Não bloqueiam a Fase 4, mas precisam ser resolvidas antes das fases indicadas:
+Não bloqueiam a Fase 5, mas precisam ser resolvidas antes das fases indicadas:
 
 | ID | Pendência | Prazo | Observação |
 | --- | --- | --- | --- |
 | Q-001 | Licença final (MIT + CC BY 4.0?) | Antes da v1.0 | Proposta atual |
-| Q-002 | Aprovar EB Garamond + Inter | Antes da Fase 4 | Alternativa: outras OFL |
+| Q-002 | Aprovar EB Garamond + Inter | Fase 4 | Resolvida: aprovadas |
 | Q-003 | Hardware do Ubuntu Server: `/dev/fb0`, resolução, bpp | Antes da Fase 6 | Validar cedo |
 | Q-004 | Permissão de console/grupo `video` no servidor | Antes da Fase 6 | Necessário para fbdev |
-| Q-005 | Volume padrão do áudio | Fase 4 | Sugestão: 0,32 |
+| Q-005 | Volume padrão do áudio | Fase 4 | Resolvida: 0,32 |
 | Q-006 | Manter a marca em inglês? | Fase 4 | Sugestão: sim |
 | Q-007 | Persistência futura? | Pós-v1.1 | Fora do escopo atual |
 | Q-008 | Atraso da IA Impossível? | Fase 3 | Resolvida: 450–800 ms |
 | Q-009 | Mínimo de 80 × 24 é aceitável? | Fase 2 | Resolvida: sim; testado em 80 × 24 |
-| Q-010 | Capturas de frame versionadas? | Fase 4 | Sugestão: só referências pequenas |
+| Q-010 | Capturas de frame versionadas? | Fase 4 | Resolvida: gerar localmente; não versionar |
 
 O usuário aprovou as especificações em escopo. As pendências acima são
 operacionais/legais e não bloquearam as Fases 1, 2 e 3.
@@ -176,9 +187,12 @@ cargo build --release
 cargo build --release --no-default-features
 ./target/release/velha-classica --backend fb
 
-# Assets (Fase 4; ainda não existe)
+# Assets
 cargo xtask assets
 cargo xtask assets --check
+
+# Captura de arte para QA
+cargo run -- --capture-frame captura.png
 ```
 
 Toolchain local: rustup em `~/.cargo` (stable 1.99.1, componentes `rustfmt` e
@@ -187,7 +201,8 @@ Toolchain local: rustup em `~/.cargo` (stable 1.99.1, componentes `rustfmt` e
 Portões antes de qualquer release:
 
 - `cargo fmt --check`
-- `cargo clippy --all-targets -- -D warnings`
+- `cargo clippy --workspace --all-targets -- -D warnings`
+- `cargo clippy --workspace --all-targets --no-default-features -- -D warnings`
 - `cargo test`
 - `cargo xtask assets --check`
 - `cargo build --release`
@@ -253,6 +268,7 @@ Regras de escrita:
 | 2026-10-24 | Fase 3 — IA implementada | `src/ai` com Fácil/Médio/Impossível, RNG próprio, modo 1P, atraso 450–800 ms, `--seed`, pausa segura e 138 testes verdes | `src/ai/mod.rs`, `src/util/rng.rs`, `src/app.rs`, `src/cli.rs`, `src/main.rs`, `src/i18n/mod.rs`, `src/render/tui.rs`, `README.md`, `docs/01-game-design.md`, `docs/06-roadmap.md`, `docs/08-i18n-catalog.md`, `AGENTS.md` |
 | 2026-10-24 | Commit local da Fase 3 | `dd591d6 feat: conclui fase 3 com IA em três níveis e modo 1P`; 15 arquivos | `src/ai/**`, `src/util/rng.rs`, `src/**`, `README.md`, `docs/**`, `AGENTS.md` |
 | 2026-10-24 | Smoke 1P em PTY | Home → dificuldade → partida → IA pensando → pausa/retomada → saída limpa com restauração do terminal | — |
+| 2026-10-24 | Fase 4 — arte, som e i18n | SVGs + pipeline `xtask`, PNGs/manifesto, fontes OFL, cena `tiny-skia`, `ratatui-image`, animações, áudio ALSA dinâmico, flags e captura; 164 testes verdes | `assets/**`, `xtask/**`, `src/assets.rs`, `src/audio.rs`, `src/capture.rs`, `src/render/{scene,image}.rs`, `src/app.rs`, `src/cli.rs`, `README.md`, `docs/**`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md` |
 
 ## 11. Fases
 
@@ -262,21 +278,25 @@ Regras de escrita:
 | 1 — Fundação | Concluída | Placeholder TUI + núcleo testado |
 | 2 — TUI jogável | Concluída | Partida 2P completa |
 | 3 — IA | Concluída | Impossível nunca perde |
-| 4 — Arte/som/i18n | Próxima | Tier A/B/C + áudio + traduções |
-| 5 — v1.0 desktop | Pendente | Release desktop |
+| 4 — Arte/som/i18n | Concluída | Tier A/B/C + áudio + traduções |
+| 5 — v1.0 desktop | Próxima | Release desktop |
 | 6 — v1.1 framebuffer | Pendente | Console local do servidor |
 | 7 — Backlog | Não iniciada | Itens pós-v1.1 |
 
 ## 12. Notas para a próxima sessão
 
 - Na nova sessão, comece lendo este arquivo e confirmando o `git status`.
-- As Fases 1, 2 e 3 estão concluídas; **não as reimplemente**. Não comece arte
-  final, áudio nem framebuffer sem confirmação do usuário.
-- A TUI cobre 1P (IA Fácil/Médio/Impossível) e 2P: Home, dificuldade, partida,
-  pausa, fim de rodada, placar e revanche.
+- As Fases 1 a 4 estão concluídas; **não as reimplemente**. Não comece o
+  framebuffer antes da v1.0 estável sem confirmação.
+- A TUI cobre 1P (IA Fácil/Médio/Impossível) e 2P, com imagem e fallbacks.
 - A IA é função pura em `src/ai/mod.rs`; o atraso fica no `App` e não bloqueia
   o loop de eventos. `--seed` controla o RNG e os atrasos.
 - A pausa cancela o turno pendente da IA e o reagenda ao continuar.
+- Assets: `cargo xtask assets`; `--check` é portão. Não edite PNG à mão.
+- Imagem: detecção por ambiente + `--image-protocol`; não consultar stdio.
+- Áudio: ALSA dinâmico; sem device é silêncio. `--no-default-features` remove.
+- A captura `--capture-frame` cobre a arte; texto do canvas fica para a v1.1.
+- Próximo foco: Fase 5 (matriz manual, licenças finais, release).
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
 - `--backend fb` retorna código 3 de propósito até a v1.1.

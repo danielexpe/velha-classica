@@ -480,7 +480,9 @@ Tier C (16 cores / legado)
 ```
 
 `--no-images` força Tier B/C. `--image-protocol none` é equivalente a desligar
-PNG. O jogo nunca falha por falta de protocolo de imagem.
+PNG. Sem truecolor, a detecção automática fica no Tier C; um protocolo explícito
+(`--image-protocol`) pode forçar imagem. O jogo nunca falha por falta de
+protocolo de imagem.
 
 ## 9. Animações
 
@@ -500,6 +502,12 @@ PNG. O jogo nunca falha por falta de protocolo de imagem.
 | IA pensando | 500 ms/ciclo | linear | Três pontos | Três pontos | Estático |
 | Jogada inválida | 180 ms | ease-out | Tremor 4 px | 1 flash | 1 flash |
 | Troca de tela | 200 ms | ease-out | Crossfade | Corte | Corte |
+
+**Implementação atual (Fase 4):** foco de menu, pulso de cursor, marca, linha
+vencedora e selo são animados. A linha e o selo duram 450 ms; a marca, 140 ms;
+o frame mínimo é 40 ms. IA pensando, cartões e trocas de tela usam estado
+estático/corte por enquanto. `--no-animations` desliga tudo e reduz a IA para
+250 ms.
 
 ### 9.2 Regras
 
