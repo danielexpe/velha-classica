@@ -6,12 +6,13 @@
 >
 > **Última atualização:** 2026-10-25 (v1.1.0 validada no console e empacotada)
 > **Status atual:** v1.1.0 implementada, validada manualmente no console local
-> (1920 × 1080, 32 bpp: 1P, áudio e saída pelo menu) e empacotada em `dist/`.
+> (1920 × 1080, 32 bpp: 1P, áudio e saída pelo menu), empacotada em `dist/` e
+> publicada no GitHub Releases.
 > 185 testes e portões verdes. Restam spot-checks de 2P, `Ctrl+C`/SIGTERM,
 > troca de VT e formatos 24/16 bpp.
 > **Branch:** `main`
-> **Último commit:** `5ced541 feat: conclui fase 6 com backend framebuffer e empacota v1.1.0`
-> **Remote:** nenhum (repositório apenas local).
+> **Último commit:** `a0191c7 docs: registra hash do commit da fase 6`
+> **Remote:** `origin` (SSH) → https://github.com/danielexpe/velha-classica (público).
 
 ## 1. Retomada rápida
 
@@ -48,7 +49,7 @@ a captura com texto; a validação manual no console segue pendente.
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
 | Repositório Git | Inicializado em `main`; último commit `878bc24` |
-| Remote | Nenhum; não configurar sem pedido explícito |
+| Remote | `origin` SSH: `git@github.com:danielexpe/velha-classica.git` (público) |
 | Código Rust | Presente; `cargo test` com 185 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.1.0; workspace com `xtask` |
 | Toolchain | rustup stable 1.99.1; MSRV declarada 1.88 |
@@ -63,12 +64,12 @@ a captura com texto; a validação manual no console segue pendente.
 | Fontes | EB Garamond + Inter (OFL 1.1), estáticas e embutidas |
 | Áudio | Sintetizado em runtime; ALSA via `libloading`; silencioso sem device |
 | Captura | `--capture-frame` gera PNG 1344 × 756 com arte e texto (estado de resultado) |
-| Release | `dist/velha-classica-1.1.0-x86_64-unknown-linux-gnu.tar.gz` + `.sha256` (v1.0.0 preservada em `dist/`) |
+| Release | tag `v1.1.0` + assets em https://github.com/danielexpe/velha-classica/releases/tag/v1.1.0 (v1.0.0 preservada em `dist/`) |
 | SHA-256 do release | `cced01c99d20044dd773aa76fce830277484c5509e512343d761f922df5930cd` (v1.1.0) |
 | Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
 | Framebuffer | Validado no console: 1920 × 1080, 32 bpp, 1P, áudio e saída pelo menu; 2P/Ctrl+C/SIGTERM/24/16 bpp pendentes |
 | Bloqueios | Nenhum; grupo `video` e VT validados (Q-003/Q-004). Konsole não testado |
-| Working tree | Alterações da Fase 6 e release v1.1.0 não commitadas (código, docs, snapshots, `dist/` e este arquivo) |
+| Working tree | Limpo; `main` sincronizado com `origin/main` |
 
 ### Próxima tarefa recomendada
 
@@ -308,6 +309,8 @@ Regras de escrita:
 | 2026-10-24 | Capturas de QA do fb | Revisadas Home, dificuldade, jogo, pausa e resultado em pt-BR/en; correção do card de pausa; captura `--capture-frame` agora inclui texto | `src/render/fb.rs`, `src/capture.rs`, `src/app.rs` |
 | 2026-10-25 | Validação manual v1.1.0 no VT | 1920 × 1080, 32 bpp: partida 1P contra a IA, áudio no console e saída pelo menu com restauração; console sem corrupção | `docs/12-v1.1-release-checklist.md`, `AGENTS.md` |
 | 2026-10-25 | Commit local da Fase 6 + v1.1.0 | `5ced541 feat: conclui fase 6 com backend framebuffer e empacota v1.1.0`; 30 arquivos; pacote em `dist/` (ignorado pelo Git) | `src/platform/**`, `src/render/{fb,text}.rs`, `src/**`, `tests/snapshots/**`, `README.md`, `docs/**`, `Cargo.*`, `AGENTS.md` |
+| 2026-10-25 | Repositório remoto criado | Publicado em https://github.com/danielexpe/velha-classica; `origin` SSH e `main` rastreando `origin/main` | `AGENTS.md` |
+| 2026-10-25 | Release v1.1.0 publicada | Tag `v1.1.0` em `a0191c7`; assets `tar.gz` + `.sha256`; release público com as notas da v1.1 | `AGENTS.md` |
 | 2026-10-25 | Empacotamento v1.1.0 | `dist/velha-classica-1.1.0-...tar.gz` + `.sha256`; smoke em `/tmp` sem assets (`--version` e PNG 1344 × 756) | `dist/velha-classica-1.1.0-*`, `docs/06-roadmap.md`, `docs/11-release-notes-v1.1.md`, `AGENTS.md` |
 
 ## 11. Fases
@@ -354,7 +357,7 @@ Regras de escrita:
   `~/.local/wezterm.app` (`wezterm` 20240203). GNOME Terminal também validado.
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
-- Ao retomar, rode `git status`; Fase 6 + release v1.1.0 estão não commitados.
+- Ao retomar, rode `git status`; o remoto `origin` já existe (GitHub público), `main` o rastreia e a tag `v1.1.0` está publicada.
   Se o usuário pedir, faça um commit coerente e atualize o hash na seção 2.
 - Se houver dúvida sobre uma decisão, consulte `docs/07-decisions-and-risks.md`
   antes de perguntar; se ainda não estiver registrada, pergunte e registre.
