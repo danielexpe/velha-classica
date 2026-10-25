@@ -65,12 +65,18 @@ fn auto_protocol() -> ProtocolType {
 
     if program == "iterm.app"
         || term.contains("iterm")
+        || program == "wezterm"
         || std::env::var_os("WEZTERM_PANE").is_some()
     {
         return ProtocolType::Iterm2;
     }
 
-    if term.contains("sixel") || program == "mlterm" || program == "foot" {
+    if term.contains("sixel")
+        || term.contains("foot")
+        || term.contains("mlterm")
+        || program == "mlterm"
+        || program == "foot"
+    {
         return ProtocolType::Sixel;
     }
 

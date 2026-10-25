@@ -168,23 +168,30 @@ Critérios de saída:
 
 **Objetivo:** estabilizar, medir, documentar e empacotar a versão desktop.
 
+**Estado:** release v1.0.0 empacotado em 2026-10-24. A matriz automatizada em PTY
+passou; a validação visual/manual em Kitty, Sixel, iTerm2 e áudio real fica
+pendente de hardware e está listada em
+[10 — Checklist de Release](10-v1.0-release-checklist.md). O pacote não deve ser
+distribuído publicamente antes desses itens.
+
 Entregáveis:
 
-- Matriz manual de terminais executada.
-- Ajustes de desempenho e legibilidade.
-- Correção de bugs encontrados.
-- README final, guia rápido e notas de release.
-- `LICENSE`, `LICENSE-ASSETS`/equivalente e `THIRD_PARTY_NOTICES.md`.
-- Binário release e `tar.gz`.
-- Checklist de release completo.
+- [x] Matriz automatizada de terminais e protocolos em PTY.
+- [ ] Matriz visual/manual em Kitty, Sixel, iTerm2, GNOME Terminal/Konsole e áudio real.
+- [x] Ajustes de desempenho e legibilidade.
+- [x] Correção de bugs encontrados.
+- [x] README final, guia rápido e notas de release.
+- [x] `LICENSE`, `LICENSE-ASSETS`/equivalente e `THIRD_PARTY_NOTICES.md`.
+- [x] Binário release e `tar.gz`.
+- [x] Checklist de release criado (com pendências manuais explícitas).
 
 Critérios de saída (v1.0):
 
-- [ ] Todas as metas funcionais de [01 — Game Design](01-game-design.md).
-- [ ] Portões de qualidade de [05 — Plano de Testes](05-test-plan.md).
-- [ ] Metas de desempenho atendidas ou desvios justificados.
-- [ ] Jogo funciona copiado para outro diretório, sem `assets/`.
-- [ ] Nenhuma pendência bloqueante no backlog.
+- [x] Todas as metas funcionais de [01 — Game Design](01-game-design.md).
+- [x] Portões de qualidade de [05 — Plano de Testes](05-test-plan.md).
+- [x] Metas de desempenho atendidas ou desvios justificados.
+- [x] Jogo funciona copiado para outro diretório, sem `assets/`.
+- [ ] Nenhuma pendência bloqueante no backlog (matriz manual pendente).
 
 ## 9. Fase 6 — v1.1 Framebuffer
 

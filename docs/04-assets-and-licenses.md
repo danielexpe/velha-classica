@@ -21,7 +21,7 @@
   fontes, PNGs e manifesto.
 - 4 fontes TTF estáticas em `assets/fonts/` (~1,7 MB), instanciadas a partir das
   variáveis OFL do Google Fonts, com as licenças completas.
-- Assets totais ~2,4 MB; binário release ~3,0 MB com assets e fontes embutidos.
+- Assets totais ~2,4 MB; binário release ~3,3 MB com assets e fontes embutidos.
 - A TUI usa o tabuleiro rasterizado (`tiny-skia`) via Kitty/Sixel/iTerm2/
   half-blocks; o selo entra na cena de resultado. Os demais assets ficam prontos
   para o framebuffer da v1.1.
@@ -255,7 +255,7 @@ cargo xtask assets --check
 
 ## 11. Licenciamento
 
-### 11.1 Proposta
+### 11.1 Licenças confirmadas
 
 - **Código:** MIT.
 - **Arte original:** CC BY 4.0, com crédito "Velha Clássica — arte original".
@@ -270,8 +270,8 @@ cargo xtask assets --check
 - Selos localizados são arte original.
 - Se o projeto for distribuído, incluir `LICENSE`, `LICENSE-ASSETS` (ou equivalente)
   e `THIRD_PARTY_NOTICES.md`.
-- A licença final deve ser confirmada antes da v1.0; ver questões abertas em
-  [07 — Decisões e Riscos](07-decisions-and-risks.md).
+- Licenças confirmadas para a v1.0: código MIT; arte CC BY 4.0; fontes OFL 1.1.
+  Ver `LICENSE`, `LICENSE-ASSETS` e [07 — Decisões e Riscos](07-decisions-and-risks.md).
 
 ## 12. QA de assets
 

@@ -43,7 +43,7 @@
 
 
 
-                             Idioma: Português  ·  Som ligado  ·  F2 idioma  ·  M som  ·  Q sair                                                             v0.1.0
+                             Idioma: Português  ·  Som ligado  ·  F2 idioma  ·  M som  ·  Q sair                                                             v1.0.0
 
 
 

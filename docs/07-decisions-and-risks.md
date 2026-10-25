@@ -281,7 +281,7 @@ Questões abertas e riscos ficam no final.
 
 | ID | Questão | Impacto | Prazo |
 | --- | --- | --- | --- |
-| Q-001 | Confirmar licença do código e da arte (MIT + CC BY 4.0?) | Legal/distribuição | Antes da v1.0 |
+| Q-001 | Confirmar licença do código e da arte (MIT + CC BY 4.0?) | Legal/distribuição | Resolvida: MIT + CC BY 4.0 |
 | Q-002 | Aprovar EB Garamond + Inter ou indicar outras fontes | Visual/licenças | Resolvida: aprovadas |
 | Q-003 | Confirmar hardware do Ubuntu Server: `/dev/fb0`, resolução, bpp | v1.1 | Antes da Fase 6 |
 | Q-004 | Confirmar que o servidor pode usar grupo `video`/console local | v1.1 | Antes da Fase 6 |

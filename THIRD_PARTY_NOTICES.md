@@ -42,6 +42,6 @@ fonts.
 
 ## Artwork
 
-The SVG sources and generated PNGs are original artwork for this project.
-Unless a different license is confirmed before v1.0, the proposal is
-CC BY 4.0 with the credit "Velha Clássica — arte original".
+The SVG sources and generated PNGs are original artwork for this project,
+licensed under CC BY 4.0 with the credit "Velha Clássica — arte original".
+See `LICENSE-ASSETS` for the full license text.

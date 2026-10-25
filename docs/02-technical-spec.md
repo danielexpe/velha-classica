@@ -103,7 +103,7 @@ As versões exatas serão fixadas no `Cargo.lock` na implementação, usando as
 
 `drm`/KMS não entra na v1.1; fica no backlog para uma versão posterior.
 
-Features propostas:
+Features:
 
 ```toml
 [features]
@@ -112,8 +112,9 @@ audio = ["dep:libloading"]
 ```
 
 O backend framebuffer é compilado por `cfg(target_os = "linux")`; não precisa de
-feature própria. No servidor, compilar com `--no-default-features` para remover
-áudio e evitar dependência de ALSA.
+feature própria. No servidor, compilar com `--no-default-features` para remover o
+backend de áudio e a crate `libloading`; o ALSA só é acessado quando a feature
+está ativa.
 
 ## 6. Arquitetura
 

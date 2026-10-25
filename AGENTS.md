@@ -4,12 +4,12 @@
 > Leia-o inteiro no início de cada sessão antes de qualquer alteração.
 > Ele deve ser atualizado ao final de cada tarefa relevante.
 >
-> **Última atualização:** 2026-10-24 (após a Fase 4)
-> **Status atual:** Fases 0 a 4 concluídas. A TUI tem 1P/2P, IA em três níveis,
-> tabuleiro em imagem com fallback, animações, áudio sintetizado e assets/fontes
-> embutidos. Próxima: Fase 5 (v1.0 desktop).
+> **Última atualização:** 2026-10-24 (após a Fase 5)
+> **Status atual:** v1.0.0 empacotada. Fases 0 a 5 entregues; falta apenas a
+> matriz visual/manual em Kitty/Sixel/iTerm2/GNOME Terminal e áudio real antes
+> da distribuição pública. Próxima: validação manual e depois Fase 6 (v1.1).
 > **Branch:** `main`
-> **Último commit:** `d973584 feat: conclui fase 4 com arte, áudio e acessibilidade`
+> **Último commit:** `87fc656 docs: registra hash do commit da fase 4`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -34,7 +34,8 @@ placeholder TUI. A Fase 2 entregou a partida 2P jogável, menus, pausa, fim de
 rodada, placar e snapshots. A Fase 3 entregou a IA em três níveis, o modo 1P,
 o atraso de pensamento e `--seed`. A Fase 4 entregou assets originais, pipeline
 `xtask`, cena em `tiny-skia`, `ratatui-image`, animações, áudio ALSA dinâmico,
-fontes OFL e flags de acessibilidade.
+fontes OFL e flags de acessibilidade. A Fase 5 fechou licenças, documentação,
+medições, binário release e pacote `.tar.gz`.
 
 ## 2. Status atual
 
@@ -46,10 +47,10 @@ fontes OFL e flags de acessibilidade.
 | Repositório Git | Inicializado em `main`; último commit `d973584` |
 | Remote | Nenhum; não configurar sem pedido explícito |
 | Código Rust | Presente; `cargo test` com 164 testes verdes |
-| `Cargo.toml` / `Cargo.lock` | Criados; crate `velha-classica` 0.1.0 |
+| `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.0.0; workspace com `xtask` |
 | Toolchain | rustup stable 1.99.1; MSRV declarada 1.88 |
 | Dependências | `clap`, `crossterm`, `ratatui`, `ratatui-image`, `image`, `tiny-skia`, `thiserror`, `libloading` (opcional) |
-| CLI | `--help`, `--version`, `--lang`, `--backend` funcionam |
+| CLI | idioma, backend, seed, cor, protocolo de imagem, flags e captura |
 | Núcleo | `board`, `rules`, `score` e `state::game` com testes |
 | TUI | 1P/2P; IA; imagem com fallback half-blocks/legado; animações |
 | Layout | Wide/Compact/Minimal; resize preserva o estado |
@@ -59,23 +60,28 @@ fontes OFL e flags de acessibilidade.
 | Fontes | EB Garamond + Inter (OFL 1.1), estáticas e embutidas |
 | Áudio | Sintetizado em runtime; ALSA via `libloading`; silencioso sem device |
 | Captura | `--capture-frame` gera PNG 1344 × 756 de arte para QA |
+| Release | `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` + `.sha256` |
+| Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
 | Framebuffer | Planejado para v1.1; não iniciado |
-| Bloqueios | Nenhum para a Fase 5 |
-| Working tree | Alterações da Fase 4 ainda não commitadas |
+| Bloqueios | Matriz visual/manual e áudio real pendentes antes de publicar |
+| Working tree | Alterações da Fase 5 ainda não commitadas |
 
 ### Próxima tarefa recomendada
 
-**Iniciar a Fase 5 — v1.0 Desktop**, conforme
-[docs/06-roadmap.md](docs/06-roadmap.md), somente após o usuário confirmar.
+**Concluir a validação manual da v1.0.0** e publicar o pacote, conforme
+[docs/10-v1.0-release-checklist.md](docs/10-v1.0-release-checklist.md).
 
-Escopo principal da Fase 5 (ver roadmap):
+Pendências manuais (não executáveis neste ambiente sem terminal gráfico/áudio):
 
-- [ ] Matriz manual de terminais e validação do Tier A (Kitty/Sixel/iTerm2).
-- [ ] Ajustes de desempenho e legibilidade encontrados na matriz.
-- [ ] README final, guia rápido e notas de release.
-- [ ] `LICENSE`, `LICENSE-ASSETS` e `THIRD_PARTY_NOTICES.md` finais.
-- [ ] Binário release e `tar.gz`.
-- [ ] Checklist de release completo.
+- [ ] Kitty real: imagens, animações e legibilidade em 80 × 24.
+- [ ] Sixel real (foot/mlterm/outro): imagens e desempenho.
+- [ ] iTerm2/WezTerm real: imagens e fallback.
+- [ ] GNOME Terminal/Konsole: half-blocks e cores.
+- [ ] Dispositivo de áudio real: volume, mudo e clipping.
+- [ ] Áudio sem dispositivo/`libasound` ausente.
+
+Depois disso, a próxima fase é **Fase 6 — v1.1 Framebuffer**, somente após
+confirmação do usuário e da validação de `/dev/fb0` (Q-003/Q-004).
 
 Portões: `cargo fmt --check`,
 `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test`,
@@ -99,7 +105,7 @@ Portões: `cargo fmt --check`,
   (`/dev/fb0`) na v1.1.
 - **Imagens:** SVGs originais → PNGs embutidos; fallback half-blocks e legado.
 - **Fontes:** EB Garamond + Inter (OFL 1.1), embutidas; usadas no framebuffer (v1.1).
-- **Licença proposta:** código MIT; arte CC BY 4.0 (confirmar antes da v1.0).
+- **Licença:** código MIT; arte original CC BY 4.0; fontes OFL 1.1.
 
 ## 4. Decisões congeladas (não reabrir sem o usuário)
 
@@ -149,16 +155,16 @@ correspondente e registre a decisão em `docs/07-decisions-and-risks.md`.
 
 ## 6. Pendências e questões abertas
 
-Não bloqueiam a Fase 5, mas precisam ser resolvidas antes das fases indicadas:
+Não bloqueiam a v1.0, mas precisam ser resolvidas antes das fases indicadas:
 
 | ID | Pendência | Prazo | Observação |
 | --- | --- | --- | --- |
-| Q-001 | Licença final (MIT + CC BY 4.0?) | Antes da v1.0 | Proposta atual |
+| Q-001 | Licença final (MIT + CC BY 4.0?) | Antes da v1.0 | Resolvida: MIT + CC BY 4.0 |
 | Q-002 | Aprovar EB Garamond + Inter | Fase 4 | Resolvida: aprovadas |
 | Q-003 | Hardware do Ubuntu Server: `/dev/fb0`, resolução, bpp | Antes da Fase 6 | Validar cedo |
 | Q-004 | Permissão de console/grupo `video` no servidor | Antes da Fase 6 | Necessário para fbdev |
 | Q-005 | Volume padrão do áudio | Fase 4 | Resolvida: 0,32 |
-| Q-006 | Manter a marca em inglês? | Fase 4 | Sugestão: sim |
+| Q-006 | Manter a marca em inglês? | Fase 4 | Resolvida: sim |
 | Q-007 | Persistência futura? | Pós-v1.1 | Fora do escopo atual |
 | Q-008 | Atraso da IA Impossível? | Fase 3 | Resolvida: 450–800 ms |
 | Q-009 | Mínimo de 80 × 24 é aceitável? | Fase 2 | Resolvida: sim; testado em 80 × 24 |
@@ -270,6 +276,7 @@ Regras de escrita:
 | 2026-10-24 | Smoke 1P em PTY | Home → dificuldade → partida → IA pensando → pausa/retomada → saída limpa com restauração do terminal | — |
 | 2026-10-24 | Fase 4 — arte, som e i18n | SVGs + pipeline `xtask`, PNGs/manifesto, fontes OFL, cena `tiny-skia`, `ratatui-image`, animações, áudio ALSA dinâmico, flags e captura; 164 testes verdes | `assets/**`, `xtask/**`, `src/assets.rs`, `src/audio.rs`, `src/capture.rs`, `src/render/{scene,image}.rs`, `src/app.rs`, `src/cli.rs`, `README.md`, `docs/**`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md` |
 | 2026-10-24 | Commit local da Fase 4 | `d973584 feat: conclui fase 4 com arte, áudio e acessibilidade`; 64 arquivos | `assets/**`, `xtask/**`, `src/**`, `README.md`, `docs/**`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md` |
+| 2026-10-24 | Fase 5 — v1.0 desktop | Licenças MIT/CC BY 4.0/OFL, versão 1.0.0, README final, notas e checklist, medições, pacote `tar.gz` + `.sha256` e smoke sem assets; 164 testes verdes | `LICENSE`, `LICENSE-ASSETS`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/06-roadmap.md`, `docs/07-decisions-and-risks.md`, `docs/09-release-notes-v1.0.md`, `docs/10-v1.0-release-checklist.md`, `tests/snapshots/**`, `AGENTS.md` |
 
 ## 11. Fases
 
@@ -280,15 +287,16 @@ Regras de escrita:
 | 2 — TUI jogável | Concluída | Partida 2P completa |
 | 3 — IA | Concluída | Impossível nunca perde |
 | 4 — Arte/som/i18n | Concluída | Tier A/B/C + áudio + traduções |
-| 5 — v1.0 desktop | Próxima | Release desktop |
+| 5 — v1.0 desktop | Release gerado; validação manual pendente | Matriz Tier A/áudio real |
 | 6 — v1.1 framebuffer | Pendente | Console local do servidor |
 | 7 — Backlog | Não iniciada | Itens pós-v1.1 |
 
 ## 12. Notas para a próxima sessão
 
 - Na nova sessão, comece lendo este arquivo e confirmando o `git status`.
-- As Fases 1 a 4 estão concluídas; **não as reimplemente**. Não comece o
-  framebuffer antes da v1.0 estável sem confirmação.
+- As Fases 1 a 5 estão entregues; **não as reimplemente**. A v1.0.0 está
+  empacotada, mas a matriz manual/visual ainda deve ser validada antes de
+  divulgação pública. Não comece o framebuffer antes disso.
 - A TUI cobre 1P (IA Fácil/Médio/Impossível) e 2P, com imagem e fallbacks.
 - A IA é função pura em `src/ai/mod.rs`; o atraso fica no `App` e não bloqueia
   o loop de eventos. `--seed` controla o RNG e os atrasos.
@@ -297,7 +305,9 @@ Regras de escrita:
 - Imagem: detecção por ambiente + `--image-protocol`; não consultar stdio.
 - Áudio: ALSA dinâmico; sem device é silêncio. `--no-default-features` remove.
 - A captura `--capture-frame` cobre a arte; texto do canvas fica para a v1.1.
-- Próximo foco: Fase 5 (matriz manual, licenças finais, release).
+- Release: `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` e `.sha256`;
+  o hash também está em `docs/10-v1.0-release-checklist.md`.
+- Próximo foco: validação manual da v1.0.0; depois Fase 6 (framebuffer).
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
 - `--backend fb` retorna código 3 de propósito até a v1.1.

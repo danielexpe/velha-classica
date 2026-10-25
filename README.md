@@ -2,9 +2,9 @@
 
 Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
-> **Fase 4:** a identidade visual está aplicada com SVGs/PNGs originais,
-> tabuleiro em imagem (Kitty/Sixel/iTerm2/half-blocks), animações curtas, áudio
-> sintetizado e as fontes OFL embutidas.
+> **Versão 1.0.0:** primeira versão desktop para terminal Linux, com 1P/2P, IA
+> em três níveis, arte original em imagem, animações, áudio sintetizado e
+> interface pt-BR/inglês.
 
 ## O que já funciona
 
@@ -33,6 +33,26 @@ Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 - Áudio usa `libasound.so.2` em runtime; não é preciso instalar headers de
   desenvolvimento. Sem dispositivo, o jogo segue em silêncio.
 - Para compilar: **Rust 1.88 ou superior** (edição 2021).
+
+## Instalação
+
+A partir do pacote release (quando disponível):
+
+```bash
+tar xzf velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz
+cd velha-classica-1.0.0-x86_64-unknown-linux-gnu
+install -m755 velha-classica ~/.local/bin/
+```
+
+Ou compile e instale a partir do código:
+
+```bash
+cargo build --release
+install -m755 target/release/velha-classica ~/.local/bin/
+```
+
+O binário é autossuficiente: assets e fontes são embutidos e ele funciona copiado
+para outro diretório, sem a pasta `assets/`.
 
 ## Instalar o Rust
 
@@ -199,8 +219,13 @@ As especificações completas estão em [`docs/`](docs/):
 - [Testes](docs/05-test-plan.md)
 - [Roadmap](docs/06-roadmap.md)
 - [Catálogo i18n](docs/08-i18n-catalog.md)
+- [Notas de release v1.0.0](docs/09-release-notes-v1.0.md)
+- [Checklist de release](docs/10-v1.0-release-checklist.md)
 
 ## Licença
 
-Licença de código proposta: MIT. Arte proposta em CC BY 4.0; fontes em OFL 1.1.
-A licença final será confirmada antes da v1.0.
+- Código: [MIT](LICENSE).
+- Arte original (SVGs, PNGs e identidade visual): [CC BY 4.0](LICENSE-ASSETS),
+  crédito "Velha Clássica — arte original".
+- Fontes: SIL Open Font License 1.1; textos em `assets/fonts/OFL-*.txt`.
+- Créditos de terceiros: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
