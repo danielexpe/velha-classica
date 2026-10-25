@@ -1,5 +1,6 @@
 use std::cell::{RefCell, RefMut};
 use std::io::{self, stdout, Stdout};
+use std::path::Path;
 use std::time::{Duration, Instant};
 
 use crossterm::event::{self, Event, KeyEventKind};
@@ -27,6 +28,7 @@ const AI_THINK_REDUCED_MS: u64 = 250;
 const MARK_ANIMATION: Duration = Duration::from_millis(140);
 const WIN_ANIMATION: Duration = Duration::from_millis(450);
 const FRAME_TIME: Duration = Duration::from_millis(40);
+const FRAMEBUFFER_FRAME_TIME: Duration = Duration::from_millis(16);
 const EVENT_POLL: Duration = Duration::from_millis(100);
 const HOME_ITEMS: usize = 3;
 const DIFFICULTY_ITEMS: usize = 4;
@@ -108,6 +110,23 @@ impl App {
             round_over_at: None,
             started: Instant::now(),
         }
+    }
+
+    pub fn preview(language: Language) -> Self {
+        let mut app = Self::with_seed(language, ColorMode::TrueColor, 1);
+        let mut game = Game::new(Mode::TwoPlayers);
+
+        app.settings.animations_enabled = false;
+
+        for cell in [0, 3, 1, 4, 2] {
+            let _ = game.play(cell);
+        }
+
+        game.select(8);
+        app.game = Some(game);
+        app.screen = Screen::RoundOver;
+        app.last_move = Some(2);
+        app
     }
 
     pub const fn screen(&self) -> Screen {
@@ -632,18 +651,94 @@ impl App {
             self.update_ai(Instant::now());
             terminal.draw(|frame| render::tui::draw(frame, self))?;
 
-            if event::poll(self.animation_frame_delay())? {
-                if let Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        if let Some(action) = map_key(key) {
-                            self.handle(action);
-                        }
+            self.handle_pending_events(self.animation_frame_delay())?;
+        }
+
+        Ok(())
+    }
+
+    fn handle_pending_events(&mut self, timeout: Duration) -> io::Result<()> {
+        if event::poll(timeout)? {
+            if let Event::Key(key) = event::read()? {
+                if key.kind == KeyEventKind::Press {
+                    if let Some(action) = map_key(key) {
+                        self.handle(action);
                     }
                 }
             }
         }
 
         Ok(())
+    }
+
+    fn framebuffer_frame_delay(&self) -> Duration {
+        if !self.settings.animations_enabled {
+            return EVENT_POLL;
+        }
+
+        let animating = match self.screen {
+            Screen::Playing => true,
+            Screen::RoundOver => self.winning_progress() < 1.0,
+            _ => false,
+        };
+
+        if animating {
+            FRAMEBUFFER_FRAME_TIME
+        } else {
+            EVENT_POLL
+        }
+    }
+
+    #[cfg(target_os = "linux")]
+    pub fn run_framebuffer(&mut self, device: &Path) -> Result<(), crate::platform::fb::FbError> {
+        use crate::platform::fb;
+
+        fb::install_panic_hook();
+        fb::install_signal_handlers().map_err(fb::FbError::Signal)?;
+
+        let mut session = fb::Session::open(device)?;
+        let info = session.info();
+        let mut renderer = render::fb::Renderer::new(info.width, info.height);
+
+        self.audio.allow_start();
+        self.audio.set_enabled(self.settings.sound_enabled);
+
+        let mut result = Ok(());
+
+        while !self.quit {
+            if fb::terminate_requested() {
+                break;
+            }
+
+            self.update_ai(Instant::now());
+
+            let frame = renderer.render(self);
+
+            if let Err(error) = session.present(frame) {
+                result = Err(error);
+                break;
+            }
+
+            if let Err(error) = self.handle_pending_events(self.framebuffer_frame_delay()) {
+                result = Err(fb::FbError::Io {
+                    path: "/dev/tty".into(),
+                    source: error,
+                });
+                break;
+            }
+        }
+
+        let restored = session.restore();
+
+        if result.is_ok() {
+            result = restored;
+        }
+
+        if fb::terminate_requested() {
+            eprintln!("velha-classica: interrupted by a signal");
+        }
+
+        result
     }
 }
 

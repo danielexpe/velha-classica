@@ -66,6 +66,7 @@ macro_rules! cached_pixmap {
 }
 
 cached_pixmap!(paper_board, PAPER_BOARD);
+cached_pixmap!(paper_panel, PAPER_PANEL);
 cached_pixmap!(mark_x, MARK_X);
 cached_pixmap!(mark_o, MARK_O);
 cached_pixmap!(mark_x_ghost, MARK_X_GHOST);

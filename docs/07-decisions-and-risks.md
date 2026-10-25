@@ -259,6 +259,40 @@ Questões abertas e riscos ficam no final.
 - **Consequências:** snapshots versionados e legíveis; revisão manual necessária.
   Se a suíte crescer, reavaliar `insta`.
 
+### D-026 — `mmap` direto via `libc`, sem `memmap2`
+
+- **Status:** aceita.
+- **Contexto:** a especificação previa `memmap2` para mapear `/dev/fb0`, mas o
+  módulo de sistema já usa `libc` para ioctls, termios e sinais.
+- **Decisão:** mapear o framebuffer com `libc::mmap` e desmapear com
+  `libc::munmap`, mantendo o `unsafe` restrito a `src/platform/fb.rs`.
+- **Consequências:** uma dependência a menos; o código de mapeamento fica
+  explícito e coberto por guarda RAII (`Drop`) e restauração de pânico.
+
+### D-027 — Renderização do framebuffer em duas camadas
+
+- **Status:** aceita.
+- **Contexto:** o fundo de madeira ocupa a tela inteira, mas a composição de 70%
+  precisa ser escalada e centralizada em resoluções diferentes.
+- **Decisão:** pré-renderizar o fundo (madeira, grão e vinheta) no tamanho do
+  framebuffer; compor a cena 1344 × 756 em um canvas RGBA transparente; escalar
+  e centralizar com amostragem bilinear (com caminho rápido 1:1) e converter para
+  o formato do driver. Texto usa `fontdue` com as fontes OFL embutidas e cache de
+  glifos.
+- **Consequências:** suporta 1920 × 1080, 2560 × 1440 e telas menores sem alterar
+  o layout lógico; o fundo é gerado uma vez e o custo por frame fica próximo de
+  13 ms em release nesta máquina.
+
+### D-028 — `--backend auto` continua só TUI
+
+- **Status:** aceita.
+- **Contexto:** detectar console local corretamente é frágil (SSH, X/Wayland,
+  containers, `/dev/fb0` presente sem VT ativo).
+- **Decisão:** `auto` nunca escolhe framebuffer; `--backend fb` é explícito e falha
+  com mensagem acionável quando o console não é local.
+- **Consequências:** evita iniciar o jogo em lugar errado; o usuário do console
+  precisa passar a flag, documentada no README.
+
 ## 3. Premissas
 
 1. O Zorin OS tem terminal local com suporte a truecolor; o usuário pode instalar
@@ -283,8 +317,8 @@ Questões abertas e riscos ficam no final.
 | --- | --- | --- | --- |
 | Q-001 | Confirmar licença do código e da arte (MIT + CC BY 4.0?) | Legal/distribuição | Resolvida: MIT + CC BY 4.0 |
 | Q-002 | Aprovar EB Garamond + Inter ou indicar outras fontes | Visual/licenças | Resolvida: aprovadas |
-| Q-003 | Confirmar hardware do Ubuntu Server: `/dev/fb0`, resolução, bpp | v1.1 | Antes da Fase 6 |
-| Q-004 | Confirmar que o servidor pode usar grupo `video`/console local | v1.1 | Antes da Fase 6 |
+| Q-003 | Confirmar hardware do Ubuntu Server: `/dev/fb0`, resolução, bpp | v1.1 | Parcial: `/dev/fb0` amdgpudrmfb, 1920 × 1080, 32 bpp na máquina de desenvolvimento |
+| Q-004 | Confirmar que o servidor pode usar grupo `video`/console local | v1.1 | Pendente: `daniel` ainda não está no grupo `video`; validar no VT |
 | Q-005 | Preferência de volume padrão do áudio | UX | Resolvida: 0,32 |
 | Q-006 | Manter a marca "Velha Clássica" também na UI em inglês? | i18n | Fase 4 |
 | Q-007 | Deseja persistência futura de placar/idioma? | Backlog | Pós-v1.1 |

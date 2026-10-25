@@ -84,12 +84,11 @@ As versões exatas serão fixadas no `Cargo.lock` na implementação, usando as
 | `ratatui-image` | Detecção e exibição de PNG via Kitty/Sixel/iTerm2/half-blocks | padrão |
 | `image` | Decodificação de PNG, composição e conversão de formatos | padrão |
 | `tiny-skia` | Rasterização vetorial do tabuleiro, painéis e overlays | padrão |
-| `fontdue` | Rasterização de texto para o backend framebuffer | v1.1 (planejado) |
+| `fontdue` | Rasterização de texto para o backend framebuffer | v1.1 (implementado) |
 | `clap` | CLI declarativa | padrão |
 | RNG próprio | Aleatoriedade da IA e variação de aberturas | `util/rng.rs` |
 | `libloading` | Carregamento dinâmico de `libasound.so.2` para áudio Linux | `audio` (padrão) |
 | `libc` | ioctls, termios, sinais, mmap do framebuffer | Linux |
-| `memmap2` | Mapeamento de `/dev/fb0` | Linux |
 | `signal-hook` | Restauração em SIGINT/SIGTERM/SIGHUP | Linux |
 | `tracing` + `tracing-subscriber` | Logs opt-in em arquivo | padrão |
 | `thiserror` | Erros de domínio e backends | padrão |
@@ -332,12 +331,13 @@ Ordem de protocolo:
 
 ### 10.1 Seleção e inicialização
 
-- Ativado por `--backend fb` ou quando a detecção conservadora indicar console
-  local. O padrão é `tui`; nunca assumir framebuffer em uma sessão gráfica.
+- Ativado somente por `--backend fb`; `auto` permanece TUI (D-028). Nunca
+  assumir framebuffer em uma sessão gráfica.
 - Abrir `/dev/fb0` ou o caminho de `--fb-device`.
 - Consultar `FBIOGET_VSCREENINFO` e `FBIOGET_FSCREENINFO` para resolução, bpp,
   line length e offsets de R/G/B.
-- Mapear a memória com `memmap2`.
+- Mapear a memória com `mmap` via `libc`; `memmap2` foi dispensado para reduzir
+  dependências (ver D-026 em `docs/07-decisions-and-risks.md`).
 - Abrir/validar `/dev/tty` para entrada e ioctls de console.
 - Colocar o VT ativo em `KD_GRAPHICS` para impedir que mensagens do kernel
   sobrescrevam o jogo. Guardar o modo anterior.
@@ -386,10 +386,10 @@ comprimentos de máscara reportados pelo driver.
 ### 10.5 Modo de captura para QA
 
 `--capture-frame <arquivo.png>` renderiza um frame determinístico no canvas
-1344 × 756 (madeira, tabuleiro, painel, selo e vinheta) e encerra, sem abrir
-framebuffer, áudio nem terminal interativo. A camada textual do canvas entra
-junto com o backend framebuffer da v1.1; por ora a captura serve para QA da arte
-e da composição. Usado em snapshots e validação local/CI.
+1344 × 756 (madeira, tabuleiro, painel, selo, vinheta e texto) e encerra, sem
+abrir framebuffer, áudio nem terminal interativo. A captura usa o mesmo renderer
+do backend fb, sobre um estado de pré-visualização (resultado 2P) definido em
+`App::preview`. Usado em QA local e CI.
 
 ## 11. Renderização compartilhada
 
@@ -492,6 +492,7 @@ velha-classica [OPTIONS]
 Options:
   --lang <pt|en>                  Idioma inicial (padrão: pt)
   --backend <auto|tui|fb>         Backend de vídeo (padrão: auto)
+  --fb-device <PATH>              Dispositivo de framebuffer (padrão: /dev/fb0)
   --image-protocol <auto|kitty|sixel|iterm2|halfblocks|none>
   --no-images                     Força fallback sem PNG
   --no-audio                      Desliga áudio
@@ -505,10 +506,9 @@ Options:
 
 Regras:
 
-- `--backend auto`: usa TUI quando há TTY de terminal; só escolhe framebuffer se
-  `/dev/fb0` existir, `TERM=linux`, não houver `DISPLAY`/`WAYLAND_DISPLAY` e o
-  processo estiver em um TTY local. Na dúvida, TUI.
-- No servidor, recomendar `--backend fb` explicitamente.
+- `--backend auto`: sempre usa a TUI; o framebuffer é explícito (D-028).
+- No console, usar `--backend fb`; `--fb-device` troca o caminho padrão.
+- Fora de um VT local (SSH, X/Wayland), o backend fb falha com erro acionável.
 - `--seed` existe para testes e depuração; o padrão usa entropia do sistema.
 - `NO_COLOR` e `RUST_LOG`/`VELHA_LOG` são respeitados.
 - CLI inválida: exit code 2 com mensagem curta.

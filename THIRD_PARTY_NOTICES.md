@@ -9,7 +9,9 @@ ship with the sources and with the packages listed in `Cargo.lock`.
 | --- | --- |
 | `clap` | MIT OR Apache-2.0 |
 | `crossterm` | MIT |
+| `fontdue` | MIT OR Apache-2.0 OR Zlib |
 | `image` | MIT OR Apache-2.0 |
+| `libc` | MIT OR Apache-2.0 |
 | `libloading` | ISC |
 | `ratatui` | MIT |
 | `ratatui-image` | MIT |

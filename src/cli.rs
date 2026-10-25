@@ -108,6 +108,14 @@ pub struct Cli {
     )]
     pub backend: Backend,
 
+    #[arg(
+        long,
+        value_name = "PATH",
+        default_value = "/dev/fb0",
+        help = "Framebuffer device used by the fb backend"
+    )]
+    pub fb_device: PathBuf,
+
     #[arg(long, value_name = "N", help = "Seed for reproducible AI moves")]
     pub seed: Option<u64>,
 
@@ -172,6 +180,7 @@ mod tests {
         assert!(!cli.no_audio);
         assert_eq!(cli.image_protocol, ImageProtocolArg::Auto);
         assert_eq!(cli.capture_frame, None);
+        assert_eq!(cli.fb_device, PathBuf::from("/dev/fb0"));
     }
 
     #[test]
@@ -182,6 +191,20 @@ mod tests {
         assert_eq!(cli.language(), Language::En);
         assert_eq!(cli.backend, Backend::Fb);
         assert_eq!(cli.seed, None);
+    }
+
+    #[test]
+    fn parses_framebuffer_device() {
+        let cli = Cli::try_parse_from([
+            "velha-classica",
+            "--backend",
+            "fb",
+            "--fb-device",
+            "/dev/fb1",
+        ])
+        .unwrap();
+
+        assert_eq!(cli.fb_device, PathBuf::from("/dev/fb1"));
     }
 
     #[test]

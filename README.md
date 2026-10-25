@@ -2,9 +2,9 @@
 
 Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
-> **Versão 1.0.0:** primeira versão desktop para terminal Linux, com 1P/2P, IA
-> em três níveis, arte original em imagem, animações, áudio sintetizado e
-> interface pt-BR/inglês.
+> **Versão 1.1.0:** jogo completo no terminal e no console Linux via framebuffer
+> (`/dev/fb0`), com 1P/2P, IA em três níveis, arte original, animações, áudio
+> sintetizado e interface pt-BR/inglês.
 
 ## O que já funciona
 
@@ -20,7 +20,9 @@ Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 - Tabuleiro em imagem com fallback half-blocks e legado de 16 cores.
 - Animações de cursor, marca, linha vencedora, selo e menus (desligáveis).
 - Áudio sintetizado com mudo; silencioso se não houver dispositivo.
-- Captura determinística de arte para QA com `--capture-frame`.
+- Backend framebuffer (`--backend fb`) com composição 1344 × 756, texto
+  rasterizado e restauração do console.
+- Captura determinística de arte e texto para QA com `--capture-frame`.
 - CLI com ajuda, versão, idioma, backend, semente (`--seed`), protocolo de
   imagem, cor e flags de acessibilidade.
 - Restauração do terminal ao sair, inclusive com `Esc`, `Q` e `Ctrl+C`.
@@ -32,6 +34,8 @@ Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 - Terminal com cores é recomendado; há fallback para 256 e 16 cores.
 - Áudio usa `libasound.so.2` em runtime; não é preciso instalar headers de
   desenvolvimento. Sem dispositivo, o jogo segue em silêncio.
+- Para o framebuffer: console local (VT), `/dev/fb0` e usuário no grupo `video`.
+  Não funciona via SSH nem dentro de X/Wayland.
 - Para compilar: **Rust 1.88 ou superior** (edição 2021).
 
 ## Instalação
@@ -40,9 +44,9 @@ A partir do pacote release gerado em `dist/`:
 
 ```bash
 cd dist
-sha256sum -c velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz.sha256
-tar xzf velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz
-cd velha-classica-1.0.0-x86_64-unknown-linux-gnu
+sha256sum -c velha-classica-1.1.0-x86_64-unknown-linux-gnu.tar.gz.sha256
+tar xzf velha-classica-1.1.0-x86_64-unknown-linux-gnu.tar.gz
+cd velha-classica-1.1.0-x86_64-unknown-linux-gnu
 install -m755 velha-classica ~/.local/bin/
 ```
 
@@ -125,6 +129,30 @@ $BIN --image-protocol none    # equivalente a --no-images
 Imagens automáticas exigem truecolor. Em terminal de 256 ou 16 cores o jogo cai
 para o tabuleiro textual automaticamente.
 
+### No console Linux (framebuffer)
+
+```bash
+# 1. Confira o dispositivo e o formato
+ls -l /dev/fb0
+cat /sys/class/graphics/fb0/virtual_size
+cat /sys/class/graphics/fb0/bits_per_pixel
+
+# 2. Permita o acesso (uma vez; depois saia e entre de novo)
+sudo usermod -aG video "$USER"
+
+# 3. Rode em um console local (por exemplo Ctrl+Alt+F3), não no terminal gráfico
+$BIN --backend fb
+$BIN --backend fb --fb-device /dev/fb0
+```
+
+São aceitos 32 bpp (RGBX/BGRX/XRGB/XBGR), 24 bpp (RGB/BGR) e 16 bpp (RGB565).
+Outros formatos geram erro com bpp e offsets detectados. `--backend auto`
+continua preferindo a TUI de propósito; o framebuffer é sempre explícito.
+
+Ao sair, o console volta para `KD_TEXT` e o cursor reaparece, inclusive em
+pânico, `Ctrl+C` e `SIGTERM`/`SIGINT`/`SIGHUP`. Trocar de VT durante o jogo pode
+deixar a tela presa: saia e reinicie o jogo.
+
 ### Cores, animações e áudio
 
 ```bash
@@ -144,9 +172,9 @@ $BIN --no-audio          # desliga o áudio; M também alterna o mudo
 $BIN --capture-frame captura.png
 ```
 
-Gera um PNG determinístico 1344 × 756 com a composição de arte (madeira,
-tabuleiro, painel, selo e vinheta), sem abrir terminal interativo, áudio ou
-framebuffer. É útil para revisar arte e regressões visuais.
+Gera um PNG determinístico 1344 × 756 com a composição completa (madeira,
+tabuleiro, painel, selo, vinheta e texto), sem abrir terminal interativo, áudio
+ou framebuffer. É útil para revisar arte, tipografia e regressões visuais.
 
 ### Ajuda e versão
 
@@ -155,9 +183,8 @@ $BIN --help
 $BIN --version
 ```
 
-> `--backend fb` retorna código de saída 3 de propósito: o backend de
-> framebuffer só será implementado na v1.1. Use `--backend tui` ou o padrão
-> `auto`.
+> `--backend auto` prefere a TUI. Use `--backend fb` no console local; fora de
+> um VT o jogo recusa com erro acionável e código 3.
 
 ## Controles desta versão
 
@@ -187,8 +214,8 @@ cargo test --no-default-features
 cargo test --release
 ```
 
-Resultado esperado nesta versão: **164 testes passando** em cada configuração,
-incluindo snapshots de TUI.
+Resultado esperado nesta versão: **185 testes passando** em cada configuração,
+incluindo snapshots de TUI, conversão de pixels e composição do framebuffer.
 
 ### Portões de qualidade
 
@@ -236,12 +263,28 @@ Execute em um terminal local, de preferência com pelo menos 80 × 24.
     funcionar sem a pasta `assets/`.
 14. **Saída**: `Q`/`Ctrl+C` (e fechar a janela) não deve deixar o terminal em
     raw mode ou alternate screen.
+15. **Framebuffer**: em um console local, rode `--backend fb` e jogue uma partida
+    1P e uma 2P; confirme o enquadramento 1344 × 756 centralizado sobre a madeira.
+16. **Formatos**: se houver hardware/VM disponível, valide 32, 24 e 16 bpp e
+    confirme que as cores não têm canais trocados.
+17. **Restauração do console**: saia pelo menu, com `Ctrl+C` e com
+    `kill -TERM <pid>`; o console deve voltar ao modo texto, com cursor e sem
+    resíduos da última cena.
+18. **Erros de fb**: sem permissão no `/dev/fb0` e fora de um VT, confirme a
+    mensagem acionável e o código de saída 3.
+19. **Troca de VT**: alterne com Ctrl+Alt+F1/F2 durante o jogo e registre se a
+    tela ficou presa; reinicie o jogo se necessário.
 
 ### Validado nesta release
 
 A matriz manual de v1.0.0 foi executada em Kitty, foot, WezTerm e GNOME Terminal,
 incluindo 80 × 24, Wide, pausa, resultado/selo, `F2`, `M` e áudio real via
 PipeWire/ALSA. Konsole não foi testado; o fallback half-blocks deve ser usado.
+
+A v1.1.0 adiciona o backend framebuffer. Em 2026-10-25 o console local foi
+validado em 1920 × 1080, 32 bpp (partida 1P, áudio e saída pelo menu com
+restauração). Spot-checks de 2P, `Ctrl+C`/SIGTERM e formatos 24/16 bpp estão
+registrados em [docs/12-v1.1-release-checklist.md](docs/12-v1.1-release-checklist.md).
 
 ## Problemas comuns
 
@@ -251,8 +294,16 @@ Execute o jogo em um terminal real, não via pipe, redirecionamento ou CI.
 **“Terminal muito pequeno. Mínimo: 80×24.”**
 Aumente a janela do terminal até pelo menos 80 colunas por 24 linhas.
 
-**“the framebuffer backend is not available in this version”**
-Esperado ao usar `--backend fb`. Use `--backend tui` ou deixe o padrão `auto`.
+**“/dev/fb0 ... Permission denied”**
+Adicione o usuário ao grupo `video` com
+`sudo usermod -aG video "$USER"`, saia da sessão e entre novamente.
+
+**“the framebuffer backend needs a local virtual console”**
+`--backend fb` só funciona em um VT local. Não use SSH, X/Wayland ou um terminal
+gráfico; troque para um console com Ctrl+Alt+F3.
+
+**“unsupported framebuffer format”**
+O driver expõe um formato fora de 32/24/16 bpp. Use `--backend tui`.
 
 **As cores parecem estranhas**
 O jogo detecta truecolor, 256 e 16 cores automaticamente. Force com
@@ -277,11 +328,13 @@ O áudio é opcional e silencioso quando não há dispositivo ou `libasound.so.2
 
 ## Limitações desta versão
 
-- Sem backend de framebuffer (v1.1).
+- O backend framebuffer usa fbdev (`/dev/fb0`); DRM/KMS fica para o backlog.
+- `--backend auto` não seleciona o framebuffer sozinho.
+- Sem vsync garantido: tearing leve é aceitável; sem `ypan`, o desenho é direto.
+- Trocar de VT durante o jogo pode deixar resíduos; saia e reinicie.
+- Em 16 bpp a fidelidade de cor é menor (RGB565).
 - A detecção de protocolo de imagem é conservadora; use `--image-protocol` se
   necessário.
-- A captura de frame cobre a composição de arte; o texto do canvas chega com o
-  framebuffer.
 - Konsole não foi validado nesta release; use half-blocks/textual se o protocolo
   automático não funcionar.
 - Sem persistência de idioma, placar ou configurações.
@@ -297,7 +350,9 @@ As especificações completas estão em [`docs/`](docs/):
 - [Roadmap](docs/06-roadmap.md)
 - [Catálogo i18n](docs/08-i18n-catalog.md)
 - [Notas de release v1.0.0](docs/09-release-notes-v1.0.md)
-- [Checklist de release](docs/10-v1.0-release-checklist.md)
+- [Checklist de release v1.0.0](docs/10-v1.0-release-checklist.md)
+- [Notas de release v1.1.0](docs/11-release-notes-v1.1.md)
+- [Checklist de release v1.1.0](docs/12-v1.1-release-checklist.md)
 
 ## Licença
 

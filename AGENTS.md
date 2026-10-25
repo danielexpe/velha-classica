@@ -4,12 +4,13 @@
 > Leia-o inteiro no início de cada sessão antes de qualquer alteração.
 > Ele deve ser atualizado ao final de cada tarefa relevante.
 >
-> **Última atualização:** 2026-10-24 (encerramento de sessão)
-> **Status atual:** v1.0.0 validada e empacotada. Fases 0 a 5 entregues; matriz
-> manual concluída em Kitty, foot, WezTerm, GNOME Terminal e áudio real. Próxima:
-> Fase 6 (v1.1 framebuffer), após confirmação e validação de `/dev/fb0`.
+> **Última atualização:** 2026-10-25 (v1.1.0 validada no console e empacotada)
+> **Status atual:** v1.1.0 implementada, validada manualmente no console local
+> (1920 × 1080, 32 bpp: 1P, áudio e saída pelo menu) e empacotada em `dist/`.
+> 185 testes e portões verdes. Restam spot-checks de 2P, `Ctrl+C`/SIGTERM,
+> troca de VT e formatos 24/16 bpp.
 > **Branch:** `main`
-> **Último commit:** `878bc24 docs: registra hash do commit da validação v1.0.0`
+> **Último commit:** `bb6d680 docs: registra encerramento de sessão e estado final da v1.0.0`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -35,7 +36,9 @@ rodada, placar e snapshots. A Fase 3 entregou a IA em três níveis, o modo 1P,
 o atraso de pensamento e `--seed`. A Fase 4 entregou assets originais, pipeline
 `xtask`, cena em `tiny-skia`, `ratatui-image`, animações, áudio ALSA dinâmico,
 fontes OFL e flags de acessibilidade. A Fase 5 fechou licenças, documentação,
-medições, binário release e pacote `.tar.gz`.
+medições, binário release e pacote `.tar.gz`. A Fase 6 implementou o backend
+fbdev (`src/platform/fb.rs`), o renderer de framebuffer com texto (`fontdue`) e
+a captura com texto; a validação manual no console segue pendente.
 
 ## 2. Status atual
 
@@ -46,42 +49,52 @@ medições, binário release e pacote `.tar.gz`.
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
 | Repositório Git | Inicializado em `main`; último commit `878bc24` |
 | Remote | Nenhum; não configurar sem pedido explícito |
-| Código Rust | Presente; `cargo test` com 164 testes verdes |
-| `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.0.0; workspace com `xtask` |
+| Código Rust | Presente; `cargo test` com 185 testes verdes |
+| `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.1.0; workspace com `xtask` |
 | Toolchain | rustup stable 1.99.1; MSRV declarada 1.88 |
-| Dependências | `clap`, `crossterm`, `ratatui`, `ratatui-image`, `image`, `tiny-skia`, `thiserror`, `libloading` (opcional) |
-| CLI | idioma, backend, seed, cor, protocolo de imagem, flags e captura |
+| Dependências | `clap`, `crossterm`, `ratatui`, `ratatui-image`, `image`, `tiny-skia`, `fontdue`, `libc`, `thiserror`, `libloading` (opcional) |
+| CLI | idioma, backend, `--fb-device`, seed, cor, protocolo de imagem, flags e captura |
 | Núcleo | `board`, `rules`, `score` e `state::game` com testes |
 | TUI | 1P/2P; IA; imagem com fallback half-blocks/legado; animações |
 | Layout | Wide/Compact/Minimal; resize preserva o estado |
-| Snapshots | 10 arquivos em `tests/snapshots/` (comparador próprio, sem `insta`) |
-| Restauração | Guards de raw mode/alternate screen/cursor + panic hook |
+| Snapshots | 10 arquivos em `tests/snapshots/` (comparador próprio, sem `insta`); versão v1.1.0 |
+| Restauração | Guards de raw mode/alternate screen/cursor + `KD_TEXT`/mmap + panic hook e sinais |
 | Assets | 16 SVGs, 16 PNGs e manifesto; `xtask assets --check` verde |
 | Fontes | EB Garamond + Inter (OFL 1.1), estáticas e embutidas |
 | Áudio | Sintetizado em runtime; ALSA via `libloading`; silencioso sem device |
-| Captura | `--capture-frame` gera PNG 1344 × 756 de arte para QA |
-| Release | `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` + `.sha256`
-| SHA-256 do release | `f3b3e9d75e98d41f703ac20cb90f6953b32d0a0bd423ea9629486a019ca34caa` |
+| Captura | `--capture-frame` gera PNG 1344 × 756 com arte e texto (estado de resultado) |
+| Release | `dist/velha-classica-1.1.0-x86_64-unknown-linux-gnu.tar.gz` + `.sha256` (v1.0.0 preservada em `dist/`) |
+| SHA-256 do release | `cced01c99d20044dd773aa76fce830277484c5509e512343d761f922df5930cd` (v1.1.0) |
 | Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
-| Framebuffer | Planejado para v1.1; não iniciado |
-| Bloqueios | Nenhum; Konsole não testado (fallback documentado) |
-| Working tree | Limpo até o commit `878bc24`; este AGENTS.md foi atualizado no encerramento da sessão e está não commitado |
+| Framebuffer | Validado no console: 1920 × 1080, 32 bpp, 1P, áudio e saída pelo menu; 2P/Ctrl+C/SIGTERM/24/16 bpp pendentes |
+| Bloqueios | Nenhum; grupo `video` e VT validados (Q-003/Q-004). Konsole não testado |
+| Working tree | Alterações da Fase 6 e release v1.1.0 não commitadas (código, docs, snapshots, `dist/` e este arquivo) |
 
 ### Próxima tarefa recomendada
 
-**Iniciar a Fase 6 — v1.1 Framebuffer**, somente após confirmação explícita do
-usuário e da validação de `/dev/fb0` (Q-003/Q-004).
+**Fechar os spot-checks manuais da v1.1.0 (opcionais, sem bloquear o pacote).**
 
-Escopo principal da Fase 6 (ver [docs/06-roadmap.md](docs/06-roadmap.md)):
+Passos:
 
-- [ ] Validar `/dev/fb0`, resolução e bpp no Ubuntu Server.
-- [ ] Confirmar permissão de console/grupo `video`.
-- [ ] Abrir/mapear framebuffer e suportar 32/24/16 bpp.
-- [ ] `KDSETMODE KD_GRAPHICS` e restauração para `KD_TEXT`.
-- [ ] Entrada de teclado no TTY.
-- [ ] Composição 1344 × 756 com texto via `fontdue` e fontes embutidas.
-- [ ] `--backend fb`, `--fb-device` e captura com texto.
-- [ ] Testes de restauração em saída, erro, SIGINT/SIGTERM e pânico.
+1. No VT, rodar `--backend fb` e jogar uma partida 2P até o fim.
+2. Testar `Ctrl+C` e `kill -TERM $(pgrep velha-classica)`.
+3. Se possível, testar troca de VT e formatos 24/16 bpp em outra máquina/VM.
+4. Registrar o resultado em
+   [docs/12-v1.1-release-checklist.md](docs/12-v1.1-release-checklist.md).
+5. Commit apenas com pedido explícito do usuário.
+
+Escopo da Fase 6 (ver [docs/06-roadmap.md](docs/06-roadmap.md)):
+
+- [x] Validar `/dev/fb0` na máquina local: `amdgpudrmfb`, 1920 × 1080, 32 bpp
+  (Q-003).
+- [x] Confirmar permissão de console/grupo `video` (Q-004).
+- [x] Abrir/mapear framebuffer e suportar 32/24/16 bpp.
+- [x] `KDSETMODE KD_GRAPHICS` e restauração para `KD_TEXT`.
+- [x] Entrada de teclado no TTY via crossterm (`/dev/tty`).
+- [x] Composição 1344 × 756 com texto via `fontdue` e fontes embutidas.
+- [x] `--backend fb`, `--fb-device` e captura com texto.
+- [x] Guards de restauração e handlers de SIGINT/SIGTERM/SIGHUP + panic hook.
+- [x] Testes manuais no console real (1P, áudio, saída); spot-checks pendentes.
 
 Portões: `cargo fmt --check`,
 `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test`,
@@ -131,8 +144,13 @@ Portões: `cargo fmt --check`,
 - RNG próprio SplitMix64 em `util/rng.rs`; `--seed` para reprodutibilidade.
 - Áudio via ALSA dinâmico (`libasound.so.2` + `libloading`), não `rodio`.
 - Detecção de imagem por ambiente + `--image-protocol`; sem consultar stdio.
-- Fontes estáticas instanciadas das variáveis OFL; usadas apenas no framebuffer.
-- `--capture-frame` gera arte 1344 × 756; a camada textual do canvas é v1.1.
+- Fontes estáticas instanciadas das variáveis OFL; usadas no framebuffer.
+- `--capture-frame` gera canvas 1344 × 756 com arte e texto.
+- Framebuffer mapeia `/dev/fb0` com `mmap` de `libc`; `memmap2` dispensado (D-026).
+- Renderer fb em duas camadas: fundo pré-renderizado + canvas escalado e
+  centralizado com bilinear e caminho rápido 1:1 (D-027).
+- `--backend auto` nunca escolhe framebuffer; fb é explícito (D-028).
+- Texto do framebuffer via `fontdue` com cache de glifos.
 - Nenhuma dependência de rede em runtime.
 
 ## 5. Documentos e fontes de verdade
@@ -148,6 +166,8 @@ Portões: `cargo fmt --check`,
 | [docs/06-roadmap.md](docs/06-roadmap.md) | Fases, entregáveis e critérios de saída |
 | [docs/07-decisions-and-risks.md](docs/07-decisions-and-risks.md) | ADRs, premissas, questões abertas, riscos |
 | [docs/08-i18n-catalog.md](docs/08-i18n-catalog.md) | Strings pt-BR/inglês e limites de layout |
+| [docs/11-release-notes-v1.1.md](docs/11-release-notes-v1.1.md) | Notas da v1.1 |
+| [docs/12-v1.1-release-checklist.md](docs/12-v1.1-release-checklist.md) | Checklist e matriz manual do framebuffer |
 
 Em caso de conflito: primeiro este arquivo para **estado operacional**; depois
 `docs/` para **especificação**. Se a especificação mudar, atualize o documento
@@ -161,8 +181,8 @@ Não bloqueiam a v1.0, mas precisam ser resolvidas antes das fases indicadas:
 | --- | --- | --- | --- |
 | Q-001 | Licença final (MIT + CC BY 4.0?) | Antes da v1.0 | Resolvida: MIT + CC BY 4.0 |
 | Q-002 | Aprovar EB Garamond + Inter | Fase 4 | Resolvida: aprovadas |
-| Q-003 | Hardware do Ubuntu Server: `/dev/fb0`, resolução, bpp | Antes da Fase 6 | Validar cedo |
-| Q-004 | Permissão de console/grupo `video` no servidor | Antes da Fase 6 | Necessário para fbdev |
+| Q-003 | Hardware do Ubuntu Server: `/dev/fb0`, resolução, bpp | Antes da Fase 6 | Resolvida: `amdgpudrmfb`, 1920 × 1080, 32 bpp |
+| Q-004 | Permissão de console/grupo `video` no servidor | Antes da Fase 6 | Resolvida: grupo `video` e VT validados em 2026-10-25 |
 | Q-005 | Volume padrão do áudio | Fase 4 | Resolvida: 0,32 |
 | Q-006 | Manter a marca em inglês? | Fase 4 | Resolvida: sim |
 | Q-007 | Persistência futura? | Pós-v1.1 | Fora do escopo atual |
@@ -192,12 +212,13 @@ cargo build --release
 # Servidor (v1.1)
 cargo build --release --no-default-features
 ./target/release/velha-classica --backend fb
+./target/release/velha-classica --backend fb --fb-device /dev/fb0
 
 # Assets
 cargo xtask assets
 cargo xtask assets --check
 
-# Captura de arte para QA
+# Captura de arte e texto para QA
 cargo run -- --capture-frame captura.png
 ```
 
@@ -282,6 +303,11 @@ Regras de escrita:
 | 2026-10-24 | Commit da validação v1.0.0 | `5da4af0 fix: valida v1.0 e corrige detalhes nos terminais reais`; 10 arquivos | `README.md`, `AGENTS.md`, `docs/**`, `src/render/{tui,scene}.rs`, `tests/snapshots/**` |
 | 2026-10-24 | Registro do hash da validação | `878bc24 docs: registra hash do commit da validação v1.0.0` | `AGENTS.md` |
 | 2026-10-24 | Encerramento de sessão | AGENTS.md atualizado com estado final, release `f3b3e9d…`, terminais instalados e próximo passo (Fase 6); arquivo deixado não commitado por não haver pedido explícito de commit | `AGENTS.md` |
+| 2026-10-24 | Fase 6 — backend framebuffer | `src/platform/fb.rs` (device, ioctls, mmap via `libc`, console, sinais), `src/render/{text,fb}.rs`, `--fb-device`, captura com texto, versão 1.1.0; 185 testes e portões verdes | `Cargo.toml`, `Cargo.lock`, `src/platform/**`, `src/render/{fb,text}.rs`, `src/{app,capture,cli,lib,main,assets}.rs`, `tests/snapshots/**`, `README.md`, `docs/{02,05,06,07}.md`, `docs/11-release-notes-v1.1.md`, `docs/12-v1.1-release-checklist.md`, `AGENTS.md` |
+| 2026-10-24 | Validação de `/dev/fb0` | `amdgpudrmfb`, 1920 × 1080, 32 bpp; leitura/escrita bloqueadas para `daniel` (fora do grupo `video`); sessão Wayland, teste exige VT | — |
+| 2026-10-24 | Capturas de QA do fb | Revisadas Home, dificuldade, jogo, pausa e resultado em pt-BR/en; correção do card de pausa; captura `--capture-frame` agora inclui texto | `src/render/fb.rs`, `src/capture.rs`, `src/app.rs` |
+| 2026-10-25 | Validação manual v1.1.0 no VT | 1920 × 1080, 32 bpp: partida 1P contra a IA, áudio no console e saída pelo menu com restauração; console sem corrupção | `docs/12-v1.1-release-checklist.md`, `AGENTS.md` |
+| 2026-10-25 | Empacotamento v1.1.0 | `dist/velha-classica-1.1.0-...tar.gz` + `.sha256`; smoke em `/tmp` sem assets (`--version` e PNG 1344 × 756) | `dist/velha-classica-1.1.0-*`, `docs/06-roadmap.md`, `docs/11-release-notes-v1.1.md`, `AGENTS.md` |
 
 ## 11. Fases
 
@@ -293,39 +319,41 @@ Regras de escrita:
 | 3 — IA | Concluída | Impossível nunca perde |
 | 4 — Arte/som/i18n | Concluída | Tier A/B/C + áudio + traduções |
 | 5 — v1.0 desktop | Concluída | Release validado |
-| 6 — v1.1 framebuffer | Próxima | Console local do servidor |
+| 6 — v1.1 framebuffer | Concluída (spot-checks opcionais) | Release v1.1.0 empacotado |
 | 7 — Backlog | Não iniciada | Itens pós-v1.1 |
 
 ## 12. Notas para a próxima sessão
 
 - Na nova sessão, comece lendo este arquivo e confirmando o `git status`.
-- As Fases 1 a 5 estão concluídas; **não as reimplemente**. A v1.0.0 foi
+- As Fases 1 a 6 estão implementadas; **não as reimplemente**. A v1.0.0 foi
   validada manualmente em Kitty, foot, WezTerm, GNOME Terminal e áudio real.
-  Não comece o framebuffer sem confirmação e sem validar `/dev/fb0`.
+- Backend fb: `src/platform/fb.rs` (device/console/sinais), `src/render/fb.rs`
+  (telas e composição), `src/render/text.rs` (fontdue). `unsafe` só no módulo de
+  plataforma, com comentário.
+- Entrada do fb: crossterm lê `/dev/tty` automaticamente; não depende de stdin.
+- `--backend auto` continua TUI; use `--backend fb` no VT.
+- Validação feita em 2026-10-25 no VT: 1P, áudio e saída pelo menu OK. Faltam
+  spot-checks de 2P, `Ctrl+C`, SIGTERM, troca de VT e 24/16 bpp (ver docs/12).
+- Desempenho local (release, 1080p): cena ~12 ms/frame, escala 1:1 ~1,7 ms;
+  frame de animação a 16 ms. Remeça no console antes de concluir.
 - A TUI cobre 1P (IA Fácil/Médio/Impossível) e 2P, com imagem e fallbacks.
 - A IA é função pura em `src/ai/mod.rs`; o atraso fica no `App` e não bloqueia
-  o loop de eventos. `--seed` controla o RNG e os atrasos.
+  o loop. `--seed` controla o RNG e os atrasos.
 - A pausa cancela o turno pendente da IA e o reagenda ao continuar.
 - Assets: `cargo xtask assets`; `--check` é portão. Não edite PNG à mão.
 - Imagem: detecção por ambiente + `--image-protocol`; não consultar stdio.
 - Áudio: ALSA dinâmico; sem device é silêncio. `--no-default-features` remove.
-- A captura `--capture-frame` cobre a arte; texto do canvas fica para a v1.1.
-- Release: `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` e `.sha256`;
-  SHA-256 `f3b3e9d75e98d41f703ac20cb90f6953b32d0a0bd423ea9629486a019ca34caa`
-  (também em `docs/10-v1.0-release-checklist.md`).
+- A captura `--capture-frame` usa `App::preview` e inclui texto (resultado 2P).
+- Release v1.1.0: `dist/velha-classica-1.1.0-...tar.gz`, SHA-256
+  `cced01c99d20044dd773aa76fce830277484c5509e512343d761f922df5930cd`.
+  A v1.0.0 permanece em `dist/` (SHA-256
+  `f3b3e9d75e98d41f703ac20cb90f6953b32d0a0bd423ea9629486a019ca34caa`).
 - Terminais usados na validação manual, instalados em `~/.local`:
   `~/.local/kitty.app` (`kitty` 0.49.2), `~/.local/foot.app` (`foot` 1.16.2) e
   `~/.local/wezterm.app` (`wezterm` 20240203). GNOME Terminal também validado.
-- Estado final da v1.0.0: 164 testes verdes; matriz manual completa; Konsole não
-  testado (fallback half-blocks documentado).
-- Próximo foco: Fase 6 (framebuffer), após confirmação e Q-003/Q-004. Validar
-  `/dev/fb0`, resolução, bpp e permissão de console/grupo `video`.
-- Ao retomar, rode `git status` e verifique se este AGENTS.md continua
-  não commitado; se o usuário pedir, faça um commit `docs:` com ele.
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
-- `--backend fb` retorna código 3 de propósito até a v1.1.
-- Se o usuário pedir para commitar, verifique `git diff`/`git status`, faça um
-  commit coerente e atualize o hash na seção 2 e no registro.
+- Ao retomar, rode `git status`; Fase 6 + release v1.1.0 estão não commitados.
+  Se o usuário pedir, faça um commit coerente e atualize o hash na seção 2.
 - Se houver dúvida sobre uma decisão, consulte `docs/07-decisions-and-risks.md`
   antes de perguntar; se ainda não estiver registrada, pergunte e registre.

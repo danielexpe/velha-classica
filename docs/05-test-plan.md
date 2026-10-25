@@ -24,7 +24,7 @@ sem hardware.
 - `cargo clippy --workspace --all-targets -- -D warnings`.
 - `cargo fmt --check`.
 - `cargo xtask assets --check`.
-- `--capture-frame` — PNG determinístico do canvas de arte 1344 × 756 (texto na v1.1).
+- `--capture-frame` — PNG determinístico do canvas 1344 × 756 com arte e texto.
 - `--seed` — reprodutibilidade da IA.
 - `hyperfine`, `/usr/bin/time -v`, `top`/`htop` — desempenho manual.
 - Comparação perceptual de PNGs para capturas visuais (ferramenta a definir na
@@ -263,6 +263,11 @@ plataformas diferentes, usar comparação perceptual ou revisão visual.
 
 ## 10. Testes do backend framebuffer (v1.1)
 
+> Automação implementada em `src/platform/fb.rs` (formatos, ABI, conversão),
+> `src/render/fb.rs` (geometria, telas, blending) e `src/render/text.rs`
+> (layout, medida e quebra). Os itens abaixo marcados como manuais dependem de
+> console real e constam em `docs/12-v1.1-release-checklist.md`.
+
 ### 10.1 Inicialização
 
 - `/dev/fb0` presente e acessível.
@@ -413,7 +418,8 @@ cargo build --release --no-default-features
 E, manualmente:
 
 - [ ] Matriz de terminais principais.
-- [ ] Matriz de framebuffer no servidor real (v1.1).
+- [ ] Matriz de framebuffer no servidor real (v1.1) — pendente de VT e grupo `video`.
+- [x] Testes automatizados do backend fb (185 no total).
 - [ ] Partida completa 1P e 2P.
 - [ ] IA Impossível sem derrota em 20 partidas manuais.
 - [ ] Ambos os idiomas em todas as telas.
@@ -435,8 +441,8 @@ E, manualmente:
 ### v1.1 — Framebuffer
 
 - Tudo da v1.0 continua passando.
-- Backend fbdev testado no servidor real.
-- Restauração de console validada.
-- Capturas de frame aprovadas.
+- Backend fbdev testado no servidor real. **(pendente)**
+- Restauração de console validada. **(pendente no VT)**
+- Capturas de frame aprovadas. **(geradas; aprovação pendente)**
 - Instruções de permissão e diagnóstico documentadas.
 - Limitações conhecidas (fbdev, VT, tearing) registradas.

@@ -1,4 +1,4 @@
-VELHA CLÁSSICA                                 2 Jogadores · Som ligado · v1.0.0
+VELHA CLÁSSICA                                 2 Jogadores · Som ligado · v1.1.0
 
 
 
@@ -21,4 +21,4 @@ VELHA CLÁSSICA                                 2 Jogadores · Som ligado · v1.
 
 
             Vez do Jogador 2 · Jogador 1 0 · Jogador 2 0 · Empates 0
-Setas/WASD mover  ·  Enter marcar  ·  Esc pausar                          v1.0.0
+Setas/WASD mover  ·  Enter marcar  ·  Esc pausar                          v1.1.0

@@ -27,12 +27,16 @@ enum RunError {
     BackendUnavailable(&'static str),
     Capture(String),
     Io(io::Error),
+    #[cfg(target_os = "linux")]
+    Framebuffer(velha_classica::platform::fb::FbError),
 }
 
 impl RunError {
     const fn code(&self) -> u8 {
         match self {
             Self::BackendUnavailable(_) => 3,
+            #[cfg(target_os = "linux")]
+            Self::Framebuffer(_) => 3,
             Self::Capture(_) | Self::Io(_) => 1,
         }
     }
@@ -44,6 +48,8 @@ impl fmt::Display for RunError {
             Self::BackendUnavailable(message) => formatter.write_str(message),
             Self::Capture(message) => write!(formatter, "could not write frame: {message}"),
             Self::Io(error) => write!(formatter, "{error}"),
+            #[cfg(target_os = "linux")]
+            Self::Framebuffer(error) => write!(formatter, "{error}"),
         }
     }
 }
@@ -59,15 +65,6 @@ fn run(cli: Cli) -> Result<(), RunError> {
         capture::write(path, cli.language()).map_err(RunError::Capture)?;
         return Ok(());
     }
-
-    if cli.backend == Backend::Fb {
-        return Err(RunError::BackendUnavailable(
-            "the framebuffer backend is not available in this version",
-        ));
-    }
-
-    ensure_tty()
-        .map_err(|_| RunError::BackendUnavailable("stdin and stdout must be a local terminal"))?;
 
     let term = env::var("TERM").ok();
     let colorterm = env::var("COLORTERM").ok();
@@ -89,7 +86,25 @@ fn run(cli: Cli) -> Result<(), RunError> {
     app.set_animations_enabled(!cli.no_animations);
     app.set_audio_enabled(!cli.no_audio);
 
+    if cli.backend == Backend::Fb {
+        return run_framebuffer(&mut app, &cli.fb_device);
+    }
+
+    ensure_tty()
+        .map_err(|_| RunError::BackendUnavailable("stdin and stdout must be a local terminal"))?;
     app.run()?;
 
     Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn run_framebuffer(app: &mut App, device: &std::path::Path) -> Result<(), RunError> {
+    app.run_framebuffer(device).map_err(RunError::Framebuffer)
+}
+
+#[cfg(not(target_os = "linux"))]
+fn run_framebuffer(_app: &mut App, _device: &std::path::Path) -> Result<(), RunError> {
+    Err(RunError::BackendUnavailable(
+        "the framebuffer backend is only available on Linux",
+    ))
 }

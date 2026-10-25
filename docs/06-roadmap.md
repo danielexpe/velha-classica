@@ -201,26 +201,30 @@ experiência visual.
 
 Entregáveis:
 
-- Detecção e abertura de `/dev/fb0`.
-- Suporte a 32/24/16 bpp.
-- `KDSETMODE KD_GRAPHICS` e restauração para `KD_TEXT`.
-- Entrada de teclado no TTY.
-- Composição completa em 1344 × 756 escalada e centralizada.
-- Renderização de texto com `fontdue` e fontes embutidas.
-- `--backend fb`, `--fb-device` e `--capture-frame`.
-- Feature de áudio desligável no build.
-- Diagnóstico de permissões e formatos.
-- Testes no servidor real.
+- [x] Detecção e abertura de `/dev/fb0`.
+- [x] Suporte a 32/24/16 bpp.
+- [x] `KDSETMODE KD_GRAPHICS` e restauração para `KD_TEXT`.
+- [x] Entrada de teclado no TTY.
+- [x] Composição completa em 1344 × 756 escalada e centralizada.
+- [x] Renderização de texto com `fontdue` e fontes embutidas.
+- [x] `--backend fb`, `--fb-device` e `--capture-frame` com texto.
+- [x] Feature de áudio desligável no build.
+- [x] Diagnóstico de permissões e formatos.
+- [ ] Testes no servidor real (pendente: grupo `video` e VT local).
 
 Critérios de saída (v1.1):
 
-- [ ] Jogo completo 1P e 2P no console local em 1920 × 1080.
-- [ ] Saída restaura o console (texto, cursor, modo).
-- [ ] `Ctrl+C` e SIGTERM restauram.
-- [ ] Sem áudio não bloqueia.
+- [x] Jogo 1P no console local em 1920 × 1080; 2P coberto por testes, spot-check manual pendente.
+- [x] Saída pelo menu restaura o console (texto, cursor, modo).
+- [ ] `Ctrl+C` e SIGTERM restauram (implementados; teste manual pendente).
+- [x] Sem áudio não bloqueia.
 - [ ] Capturas de frame aprovadas.
-- [ ] Instruções de instalação/diagnóstico no README.
-- [ ] Limitações de fbdev/VT/tearing documentadas.
+- [x] Instruções de instalação/diagnóstico no README.
+- [x] Limitações de fbdev/VT/tearing documentadas.
+
+> Implementação concluída em 2026-10-24; validação manual no VT em 2026-10-25.
+> Pacote v1.1.0 gerado. Spot-checks pendentes em
+> `docs/12-v1.1-release-checklist.md`.
 
 ## 10. Fase 7 — Backlog pós-v1.1
 
@@ -288,12 +292,14 @@ Cada item exige uma nova decisão de escopo e, se afetar a arquitetura, um ADR.
 
 ## 15. Checklist de release v1.1
 
-- [ ] Tudo da v1.0 continua válido.
-- [ ] Backend fbdev testado em hardware real.
-- [ ] Formatos 32/24/16 bpp validados.
-- [ ] Permissões e diagnóstico documentados.
-- [ ] Restauração de console validada.
+- [x] Tudo da v1.0 continua válido (185 testes e snapshots).
+- [x] Backend fbdev testado em hardware real (1P, menu, áudio, saída).
+- [ ] Formatos 32/24/16 bpp validados (32 bpp validado; 24/16 pendentes).
+- [x] Permissões e diagnóstico documentados.
+- [x] Restauração de console validada na saída pelo menu; `Ctrl+C`/SIGTERM
+  pendentes de teste manual.
 - [ ] Capturas de frame aprovadas.
-- [ ] Build sem áudio validado.
-- [ ] Limitações conhecidas documentadas.
-- [ ] Notas de release escritas.
+- [x] Build sem áudio validado.
+- [x] Limitações conhecidas documentadas.
+- [x] Notas de release escritas.
+- [x] Pacote `tar.gz` + `.sha256` gerado e testado em `/tmp`.

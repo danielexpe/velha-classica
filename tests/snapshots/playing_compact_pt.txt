@@ -5,7 +5,7 @@
 
 
 
-                        ✦  V E L H A   C L Á S S I C A ✦                                         Idioma: Português · Som ligado · v1.0.0
+                        ✦  V E L H A   C L Á S S I C A ✦                                         Idioma: Português · Som ligado · v1.1.0
                         Jogo da Velha · 2 Jogadores · Rodada 1 · Som ligado
 
 
@@ -36,7 +36,7 @@
 
                                                                         Vez do Jogador 2
                                                               Jogador 1 0 · Jogador 2 0 · Empates 0
-                        Setas/WASD mover  ·  Enter marcar  ·  Esc pausar                                                          v1.0.0
+                        Setas/WASD mover  ·  Enter marcar  ·  Esc pausar                                                          v1.1.0
 
 
 

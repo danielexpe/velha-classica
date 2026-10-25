@@ -1,6 +1,6 @@
 [package]
 name = "velha-classica"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 rust-version = "1.88"
 description = "Classic tic-tac-toe for the Linux terminal with a wood and paper look"
@@ -9,7 +9,9 @@ license = "MIT"
 [dependencies]
 clap = { version = "4.6.7", features = ["derive"] }
 crossterm = "0.29.0"
+fontdue = { version = "0.9", features = ["std"] }
 image = { version = "0.25", default-features = false, features = ["png"] }
+libc = "0.2"
 libloading = { version = "0.8", optional = true }
 ratatui = { version = "0.30.2", default-features = false, features = ["crossterm", "std"] }
 ratatui-image = { version = "11.1", default-features = false, features = ["crossterm"] }
