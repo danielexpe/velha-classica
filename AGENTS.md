@@ -9,7 +9,7 @@
 > matriz visual/manual em Kitty/Sixel/iTerm2/GNOME Terminal e áudio real antes
 > da distribuição pública. Próxima: validação manual e depois Fase 6 (v1.1).
 > **Branch:** `main`
-> **Último commit:** `87fc656 docs: registra hash do commit da fase 4`
+> **Último commit:** `9a369c1 feat: conclui fase 5 e empacota v1.0.0`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -277,6 +277,7 @@ Regras de escrita:
 | 2026-10-24 | Fase 4 — arte, som e i18n | SVGs + pipeline `xtask`, PNGs/manifesto, fontes OFL, cena `tiny-skia`, `ratatui-image`, animações, áudio ALSA dinâmico, flags e captura; 164 testes verdes | `assets/**`, `xtask/**`, `src/assets.rs`, `src/audio.rs`, `src/capture.rs`, `src/render/{scene,image}.rs`, `src/app.rs`, `src/cli.rs`, `README.md`, `docs/**`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md` |
 | 2026-10-24 | Commit local da Fase 4 | `d973584 feat: conclui fase 4 com arte, áudio e acessibilidade`; 64 arquivos | `assets/**`, `xtask/**`, `src/**`, `README.md`, `docs/**`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md` |
 | 2026-10-24 | Fase 5 — v1.0 desktop | Licenças MIT/CC BY 4.0/OFL, versão 1.0.0, README final, notas e checklist, medições, pacote `tar.gz` + `.sha256` e smoke sem assets; 164 testes verdes | `LICENSE`, `LICENSE-ASSETS`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/06-roadmap.md`, `docs/07-decisions-and-risks.md`, `docs/09-release-notes-v1.0.md`, `docs/10-v1.0-release-checklist.md`, `tests/snapshots/**`, `AGENTS.md` |
+| 2026-10-24 | Commit local da Fase 5 | `9a369c1 feat: conclui fase 5 e empacota v1.0.0`; 23 arquivos | `LICENSE`, `LICENSE-ASSETS`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/**`, `src/render/image.rs`, `tests/snapshots/**`, `AGENTS.md` |
 
 ## 11. Fases
 
