@@ -36,9 +36,11 @@ Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
 ## Instalação
 
-A partir do pacote release (quando disponível):
+A partir do pacote release gerado em `dist/`:
 
 ```bash
+cd dist
+sha256sum -c velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz.sha256
 tar xzf velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz
 cd velha-classica-1.0.0-x86_64-unknown-linux-gnu
 install -m755 velha-classica ~/.local/bin/
@@ -63,55 +65,99 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 . "$HOME/.cargo/env"
 ```
 
-## Como rodar
+## Como jogar
 
-Dentro da pasta do projeto:
-
-```bash
-# Desenvolvimento
-cargo run
-
-# Versão otimizada
-cargo run --release
-
-# Começar em inglês
-cargo run -- --lang en
-
-# Forçar o backend de terminal
-cargo run -- --backend tui
-
-# Reproduzir as escolhas da IA (útil para depuração)
-cargo run -- --seed 42
-
-# Acessibilidade e compatibilidade
-cargo run -- --no-images --no-animations
-cargo run -- --no-audio
-cargo run -- --color 256
-cargo run -- --image-protocol halfblocks
-```
-
-Gerar uma captura de arte determinística para QA:
+Compile uma vez e use o binário. A escolha de 1P/2P e da dificuldade é feita
+dentro do jogo.
 
 ```bash
-cargo run -- --capture-frame captura.png
+cargo build --release
+BIN=./target/release/velha-classica
 ```
 
-Outras opções:
+### 1 jogador
 
 ```bash
-cargo run -- --help
-cargo run -- --version
-cargo run -- --backend fb
+# Abra o jogo e escolha: 1 Jogador -> Fácil, Médio ou Impossível
+$BIN
+
+# Inglês e semente fixa (útil para comparar partidas)
+$BIN --lang en --seed 42
 ```
 
-> `--backend fb` ainda retorna código de saída 3 de propósito: o backend de
-> framebuffer só será implementado na v1.1.
+No modo 1P você é **X** e começa. A IA é **O**; no Impossível ela usa minimax e
+nunca perde. Durante o turno dela aparece “IA pensando…”.
 
-Para desativar cores:
+### 2 jogadores
 
 ```bash
-NO_COLOR=1 cargo run
+# Abra o jogo e escolha: 2 Jogadores
+$BIN
 ```
+
+X começa a primeira rodada; as revanches alternam o iniciante. O placar é da
+sessão e fica em memória.
+
+## Modos de exibição
+
+### Por terminal
+
+| Terminal | Comando | Protocolo esperado |
+| --- | --- | --- |
+| Kitty | `kitty ./target/release/velha-classica` | Kitty (Tier A) |
+| foot | `foot ./target/release/velha-classica` | Sixel (Tier A) |
+| WezTerm | `wezterm start --cwd "$PWD" -- ./target/release/velha-classica` | iTerm2 (Tier A) |
+| GNOME Terminal | `gnome-terminal --working-directory="$PWD" -- ./target/release/velha-classica` | half-blocks (Tier B) |
+| Terminal 16 cores | `$BIN --color 16` | textual (Tier C) |
+
+A detecção automática usa `KITTY_WINDOW_ID`, `TERM` e `TERM_PROGRAM`. Se o
+terminal não for reconhecido, force o protocolo:
+
+```bash
+$BIN --image-protocol kitty
+$BIN --image-protocol sixel
+$BIN --image-protocol iterm2
+$BIN --image-protocol halfblocks
+$BIN --no-images              # tabuleiro textual
+$BIN --image-protocol none    # equivalente a --no-images
+```
+
+Imagens automáticas exigem truecolor. Em terminal de 256 ou 16 cores o jogo cai
+para o tabuleiro textual automaticamente.
+
+### Cores, animações e áudio
+
+```bash
+$BIN --color truecolor   # força truecolor
+$BIN --color 256         # 256 cores
+$BIN --color 16          # 16 cores
+$BIN --color never       # sem cor
+NO_COLOR=1 $BIN          # respeita a variável de ambiente
+
+$BIN --no-animations     # reduz movimento e o atraso da IA para 250 ms
+$BIN --no-audio          # desliga o áudio; M também alterna o mudo
+```
+
+### Captura para QA
+
+```bash
+$BIN --capture-frame captura.png
+```
+
+Gera um PNG determinístico 1344 × 756 com a composição de arte (madeira,
+tabuleiro, painel, selo e vinheta), sem abrir terminal interativo, áudio ou
+framebuffer. É útil para revisar arte e regressões visuais.
+
+### Ajuda e versão
+
+```bash
+$BIN --help
+$BIN --version
+```
+
+> `--backend fb` retorna código de saída 3 de propósito: o backend de
+> framebuffer só será implementado na v1.1. Use `--backend tui` ou o padrão
+> `auto`.
 
 ## Controles desta versão
 
@@ -133,40 +179,69 @@ NO_COLOR=1 cargo run
 
 ## Como testar
 
-Rodar a suíte automatizada:
+### Suite automatizada
 
 ```bash
 cargo test
+cargo test --no-default-features
+cargo test --release
 ```
 
-Resultado esperado nesta versão: **164 testes passando**, incluindo snapshots de TUI.
+Resultado esperado nesta versão: **164 testes passando** em cada configuração,
+incluindo snapshots de TUI.
 
-Rodar os portões de qualidade:
+### Portões de qualidade
 
 ```bash
 cargo fmt --check
 cargo clippy --workspace --all-targets -- -D warnings
-cargo test
+cargo clippy --workspace --all-targets --no-default-features -- -D warnings
 cargo xtask assets --check
 cargo build --release
 cargo build --release --no-default-features
 ```
 
-Teste manual rápido:
+Assets podem ser regenerados a partir dos SVGs com:
 
-1. Execute `cargo run` em um terminal local.
-2. Escolha **1 Jogador**, selecione **Impossível** e confirme que a IA nunca
-   perde; observe o aviso "IA pensando…" durante o turno dela.
-3. Teste **Fácil** e **Médio** para comparar o comportamento.
-4. Escolha **2 Jogadores**, mova o cursor com as setas ou `WASD` e marque casas
-   com `Enter`; complete uma rodada e confira o placar e a revanche com `R`.
-5. Abra a pausa com `Esc` durante o turno da IA e confirme que ela não joga até
-   você continuar; teste também reiniciar e voltar ao menu.
-6. Redimensione o terminal e confirme que a partida continua no mesmo estado.
-7. Pressione `F2` e verifique os textos em inglês; pressione `M` e confirme o
-   mudo no cabeçalho/rodapé.
-8. Pressione `Q` ou `Ctrl+C` e confirme que o cursor e a tela normal voltaram.
-9. Rode `cargo xtask assets --check` e confirme que os assets estão atualizados.
+```bash
+cargo xtask assets
+cargo xtask assets --check
+```
+
+### Checklist manual
+
+Execute em um terminal local, de preferência com pelo menos 80 × 24.
+
+1. **1P Fácil**: jogue algumas partidas; confirme que a IA é vencível.
+2. **1P Médio**: confirme bloqueios e que ela ainda pode ser vencida com garfos.
+3. **1P Impossível**: jogue várias partidas; confirme “IA pensando…” e que a IA
+   nunca perde (empate é o melhor resultado).
+4. **2P**: complete uma vitória e um empate; confira placar, linha vencedora,
+   selo e revanche (`R`), observando a alternância do iniciante.
+5. **Pausa**: abra com `Esc` durante o turno da IA; ela não deve jogar até você
+   continuar. Teste reiniciar rodada e voltar ao menu.
+6. **Imagens**: abra em Kitty, foot, WezTerm e GNOME Terminal; confirme o
+   tabuleiro em imagem/half-blocks e a legibilidade em 80 × 24.
+7. **Resize**: altere entre Wide, Compact e Minimal sem perder o estado.
+8. **Idioma/som**: `F2` alterna pt-BR/inglês; `M` alterna mudo e o indicador
+   aparece no cabeçalho/rodapé.
+9. **Áudio**: ouça navegação, X/O, jogada inválida, vitória e empate; confirme
+   volume baixo e ausência de clipping.
+10. **Fallbacks**: teste `--no-images`, `--color 256`, `--color 16`,
+    `--no-animations` e `--no-audio`.
+11. **Reprodutibilidade**: rode duas vezes com `--seed 42` e compare as jogadas
+    da IA.
+12. **Captura**: rode `--capture-frame captura.png` e abra o PNG gerado.
+13. **Sem assets**: copie o binário para outro diretório e execute; ele deve
+    funcionar sem a pasta `assets/`.
+14. **Saída**: `Q`/`Ctrl+C` (e fechar a janela) não deve deixar o terminal em
+    raw mode ou alternate screen.
+
+### Validado nesta release
+
+A matriz manual de v1.0.0 foi executada em Kitty, foot, WezTerm e GNOME Terminal,
+incluindo 80 × 24, Wide, pausa, resultado/selo, `F2`, `M` e áudio real via
+PipeWire/ALSA. Konsole não foi testado; o fallback half-blocks deve ser usado.
 
 ## Problemas comuns
 
@@ -198,7 +273,7 @@ O áudio é opcional e silencioso quando não há dispositivo ou `libasound.so.2
 - Regeneração: `cargo xtask assets`; verificação: `cargo xtask assets --check`.
 - Fontes EB Garamond e Inter (OFL 1.1) em `assets/fonts/`, com as licenças.
 - Créditos de terceiros em [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-- Proposta de licença da arte: CC BY 4.0 (confirmar antes da v1.0).
+- Licença da arte: CC BY 4.0 (texto completo em `LICENSE-ASSETS`).
 
 ## Limitações desta versão
 
@@ -207,6 +282,8 @@ O áudio é opcional e silencioso quando não há dispositivo ou `libasound.so.2
   necessário.
 - A captura de frame cobre a composição de arte; o texto do canvas chega com o
   framebuffer.
+- Konsole não foi validado nesta release; use half-blocks/textual se o protocolo
+  automático não funcionar.
 - Sem persistência de idioma, placar ou configurações.
 
 ## Documentação do projeto

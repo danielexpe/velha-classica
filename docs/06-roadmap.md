@@ -168,22 +168,21 @@ Critérios de saída:
 
 **Objetivo:** estabilizar, medir, documentar e empacotar a versão desktop.
 
-**Estado:** release v1.0.0 empacotado em 2026-10-24. A matriz automatizada em PTY
-passou; a validação visual/manual em Kitty, Sixel, iTerm2 e áudio real fica
-pendente de hardware e está listada em
-[10 — Checklist de Release](10-v1.0-release-checklist.md). O pacote não deve ser
-distribuído publicamente antes desses itens.
+**Estado:** release v1.0.0 validado e empacotado em 2026-10-24. Matriz
+automatizada em PTY e matriz manual em Kitty, foot (Sixel), WezTerm (iTerm2),
+GNOME Terminal (half-blocks) e áudio real concluídas, conforme
+[10 — Checklist de Release](10-v1.0-release-checklist.md).
 
 Entregáveis:
 
 - [x] Matriz automatizada de terminais e protocolos em PTY.
-- [ ] Matriz visual/manual em Kitty, Sixel, iTerm2, GNOME Terminal/Konsole e áudio real.
+- [x] Matriz visual/manual em Kitty, Sixel, WezTerm/iTerm2, GNOME Terminal e áudio real.
 - [x] Ajustes de desempenho e legibilidade.
 - [x] Correção de bugs encontrados.
 - [x] README final, guia rápido e notas de release.
 - [x] `LICENSE`, `LICENSE-ASSETS`/equivalente e `THIRD_PARTY_NOTICES.md`.
 - [x] Binário release e `tar.gz`.
-- [x] Checklist de release criado (com pendências manuais explícitas).
+- [x] Checklist de release completo.
 
 Critérios de saída (v1.0):
 
@@ -191,7 +190,7 @@ Critérios de saída (v1.0):
 - [x] Portões de qualidade de [05 — Plano de Testes](05-test-plan.md).
 - [x] Metas de desempenho atendidas ou desvios justificados.
 - [x] Jogo funciona copiado para outro diretório, sem `assets/`.
-- [ ] Nenhuma pendência bloqueante no backlog (matriz manual pendente).
+- [x] Nenhuma pendência bloqueante no backlog (Konsole não testado, fallback documentado).
 
 ## 9. Fase 6 — v1.1 Framebuffer
 

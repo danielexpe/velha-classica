@@ -261,10 +261,11 @@ fn draw_game_header_compact(frame: &mut Frame, app: &App, game: &Game, area: Rec
     frame.render_widget(
         Paragraph::new(Line::from(Span::styled(
             format!(
-                "{} · {} · {}",
+                "{} · {} · {} · {}",
                 app.strings().app_subtitle,
                 mode_text(app, game),
-                round_text(app, game)
+                round_text(app, game),
+                app.strings().sound_status(app.sound_enabled())
             ),
             Style::default().fg(app.color(Token::TextOnWoodMuted)),
         ))),
@@ -274,8 +275,9 @@ fn draw_game_header_compact(frame: &mut Frame, app: &App, game: &Game, area: Rec
 
 fn draw_game_header_minimal(frame: &mut Frame, app: &App, game: &Game, area: Rect) {
     let indicators = format!(
-        "{} · {}",
+        "{} · {} · {}",
         mode_text(app, game),
+        app.strings().sound_status(app.sound_enabled()),
         app.strings().version_text(app.version())
     );
     let columns = Layout::horizontal([
@@ -446,7 +448,7 @@ fn result_panel_lines(app: &App, game: &Game) -> Vec<Line<'static>> {
     )));
 
     for (index, label) in result_actions(app).into_iter().enumerate() {
-        lines.push(menu_line(app, label, index == app.result_selection()));
+        lines.push(menu_line_paper(app, label, index == app.result_selection()));
     }
 
     lines
@@ -557,6 +559,12 @@ fn draw_minimal_status(frame: &mut Frame, app: &App, game: &Game, area: Rect) {
 }
 
 fn draw_pause(frame: &mut Frame, app: &App, area: Rect) {
+    frame.render_widget(Clear, area);
+    frame.render_widget(
+        Block::default().style(Style::default().bg(app.color(Token::SurfaceWoodDeep))),
+        area,
+    );
+
     let (width, height) = match breakpoint(area) {
         Breakpoint::Wide => (38, 9),
         Breakpoint::Compact => (32, 9),
@@ -583,7 +591,7 @@ fn draw_pause(frame: &mut Frame, app: &App, area: Rect) {
 
     let mut lines = vec![Line::from("")];
     for (index, label) in pause_actions(app).into_iter().enumerate() {
-        lines.push(menu_line(app, label, index == app.pause_selection()));
+        lines.push(menu_line_paper(app, label, index == app.pause_selection()));
     }
 
     frame.render_widget(Paragraph::new(lines), inner);
@@ -639,7 +647,7 @@ fn draw_board(frame: &mut Frame, app: &App, game: &Game, area: Rect, breakpoint:
 }
 
 fn draw_board_image(frame: &mut Frame, app: &App, game: &Game, area: Rect) -> bool {
-    if !app.has_images() {
+    if app.screen() == Screen::Paused || !app.has_images() {
         return false;
     }
 
@@ -1033,6 +1041,30 @@ fn menu_line(app: &App, label: &'static str, focused: bool) -> Line<'static> {
         Line::from(Span::styled(
             format!("  {label}"),
             Style::default().fg(app.color(Token::TextOnWood)),
+        ))
+    }
+}
+
+fn menu_line_paper(app: &App, label: &'static str, focused: bool) -> Line<'static> {
+    if focused {
+        Line::from(vec![
+            Span::styled(
+                "▸ ",
+                Style::default()
+                    .fg(app.color(Token::Brass))
+                    .add_modifier(Modifier::BOLD),
+            ),
+            Span::styled(
+                label,
+                Style::default()
+                    .fg(app.color(Token::TextOnPaper))
+                    .add_modifier(Modifier::BOLD),
+            ),
+        ])
+    } else {
+        Line::from(Span::styled(
+            format!("  {label}"),
+            Style::default().fg(app.color(Token::TextOnPaperMuted)),
         ))
     }
 }

@@ -73,10 +73,11 @@ Medições locais em PTY (não substituem a matriz de hardware real):
 - Sem backend de framebuffer; console local `/dev/fb0` fica para a v1.1.
 - A captura `--capture-frame` cobre a composição de arte; o texto do canvas
   chega com o framebuffer.
-- A matriz visual manual de Kitty/Sixel/iTerm2 e de áudio em hardware real deve
-  ser executada antes da distribuição pública (checklist da Fase 5).
-- Em Kitty/Sixel, as animações reenviam a cena do tabuleiro; o desempenho real
-  deve ser medido na validação manual.
+- A matriz manual foi executada em Kitty 0.49.2, foot 1.16.2, WezTerm
+  20240203, GNOME Terminal e áudio PipeWire/ALSA reais.
+- Konsole não foi testado; o fallback half-blocks/textual deve ser usado.
+- Em Kitty/Sixel, as animações reenviam a cena do tabuleiro; o desempenho foi
+  aceitável na validação local.
 - Sem persistência de idioma, placar ou configurações.
 
 ## Verificação

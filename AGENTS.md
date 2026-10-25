@@ -5,11 +5,11 @@
 > Ele deve ser atualizado ao final de cada tarefa relevante.
 >
 > **Última atualização:** 2026-10-24 (após a Fase 5)
-> **Status atual:** v1.0.0 empacotada. Fases 0 a 5 entregues; falta apenas a
-> matriz visual/manual em Kitty/Sixel/iTerm2/GNOME Terminal e áudio real antes
-> da distribuição pública. Próxima: validação manual e depois Fase 6 (v1.1).
+> **Status atual:** v1.0.0 validada e empacotada. Fases 0 a 5 entregues; matriz
+> manual concluída em Kitty, foot, WezTerm, GNOME Terminal e áudio real. Próxima:
+> Fase 6 (v1.1 framebuffer), após confirmação e validação de `/dev/fb0`.
 > **Branch:** `main`
-> **Último commit:** `9a369c1 feat: conclui fase 5 e empacota v1.0.0`
+> **Último commit:** `360525f docs: registra hash do commit da fase 5`
 > **Remote:** nenhum (repositório apenas local).
 
 ## 1. Retomada rápida
@@ -44,7 +44,7 @@ medições, binário release e pacote `.tar.gz`.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `d973584` |
+| Repositório Git | Inicializado em `main`; último commit `360525f` |
 | Remote | Nenhum; não configurar sem pedido explícito |
 | Código Rust | Presente; `cargo test` com 164 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.0.0; workspace com `xtask` |
@@ -63,25 +63,24 @@ medições, binário release e pacote `.tar.gz`.
 | Release | `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` + `.sha256` |
 | Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
 | Framebuffer | Planejado para v1.1; não iniciado |
-| Bloqueios | Matriz visual/manual e áudio real pendentes antes de publicar |
-| Working tree | Alterações da Fase 5 ainda não commitadas |
+| Bloqueios | Nenhum; Konsole não testado (fallback documentado) |
+| Working tree | Correções da validação e README final não commitados |
 
 ### Próxima tarefa recomendada
 
-**Concluir a validação manual da v1.0.0** e publicar o pacote, conforme
-[docs/10-v1.0-release-checklist.md](docs/10-v1.0-release-checklist.md).
+**Iniciar a Fase 6 — v1.1 Framebuffer**, somente após confirmação explícita do
+usuário e da validação de `/dev/fb0` (Q-003/Q-004).
 
-Pendências manuais (não executáveis neste ambiente sem terminal gráfico/áudio):
+Escopo principal da Fase 6 (ver [docs/06-roadmap.md](docs/06-roadmap.md)):
 
-- [ ] Kitty real: imagens, animações e legibilidade em 80 × 24.
-- [ ] Sixel real (foot/mlterm/outro): imagens e desempenho.
-- [ ] iTerm2/WezTerm real: imagens e fallback.
-- [ ] GNOME Terminal/Konsole: half-blocks e cores.
-- [ ] Dispositivo de áudio real: volume, mudo e clipping.
-- [ ] Áudio sem dispositivo/`libasound` ausente.
-
-Depois disso, a próxima fase é **Fase 6 — v1.1 Framebuffer**, somente após
-confirmação do usuário e da validação de `/dev/fb0` (Q-003/Q-004).
+- [ ] Validar `/dev/fb0`, resolução e bpp no Ubuntu Server.
+- [ ] Confirmar permissão de console/grupo `video`.
+- [ ] Abrir/mapear framebuffer e suportar 32/24/16 bpp.
+- [ ] `KDSETMODE KD_GRAPHICS` e restauração para `KD_TEXT`.
+- [ ] Entrada de teclado no TTY.
+- [ ] Composição 1344 × 756 com texto via `fontdue` e fontes embutidas.
+- [ ] `--backend fb`, `--fb-device` e captura com texto.
+- [ ] Testes de restauração em saída, erro, SIGINT/SIGTERM e pânico.
 
 Portões: `cargo fmt --check`,
 `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test`,
@@ -278,6 +277,7 @@ Regras de escrita:
 | 2026-10-24 | Commit local da Fase 4 | `d973584 feat: conclui fase 4 com arte, áudio e acessibilidade`; 64 arquivos | `assets/**`, `xtask/**`, `src/**`, `README.md`, `docs/**`, `THIRD_PARTY_NOTICES.md`, `AGENTS.md` |
 | 2026-10-24 | Fase 5 — v1.0 desktop | Licenças MIT/CC BY 4.0/OFL, versão 1.0.0, README final, notas e checklist, medições, pacote `tar.gz` + `.sha256` e smoke sem assets; 164 testes verdes | `LICENSE`, `LICENSE-ASSETS`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/06-roadmap.md`, `docs/07-decisions-and-risks.md`, `docs/09-release-notes-v1.0.md`, `docs/10-v1.0-release-checklist.md`, `tests/snapshots/**`, `AGENTS.md` |
 | 2026-10-24 | Commit local da Fase 5 | `9a369c1 feat: conclui fase 5 e empacota v1.0.0`; 23 arquivos | `LICENSE`, `LICENSE-ASSETS`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/**`, `src/render/image.rs`, `tests/snapshots/**`, `AGENTS.md` |
+| 2026-10-24 | Validação manual v1.0.0 | Kitty 0.49.2, foot 1.16.2, WezTerm 20240203, GNOME Terminal e áudio PipeWire/ALSA; 80 × 24, Wide, pausa, selo, F2/M e áudio OK. Correções: overlay de pausa, contraste de menu, posição do selo e indicador de som | `src/render/tui.rs`, `src/render/scene.rs`, `tests/snapshots/**`, `README.md`, `docs/06-roadmap.md`, `docs/09-release-notes-v1.0.md`, `docs/10-v1.0-release-checklist.md`, `AGENTS.md` |
 
 ## 11. Fases
 
@@ -288,16 +288,16 @@ Regras de escrita:
 | 2 — TUI jogável | Concluída | Partida 2P completa |
 | 3 — IA | Concluída | Impossível nunca perde |
 | 4 — Arte/som/i18n | Concluída | Tier A/B/C + áudio + traduções |
-| 5 — v1.0 desktop | Release gerado; validação manual pendente | Matriz Tier A/áudio real |
-| 6 — v1.1 framebuffer | Pendente | Console local do servidor |
+| 5 — v1.0 desktop | Concluída | Release validado |
+| 6 — v1.1 framebuffer | Próxima | Console local do servidor |
 | 7 — Backlog | Não iniciada | Itens pós-v1.1 |
 
 ## 12. Notas para a próxima sessão
 
 - Na nova sessão, comece lendo este arquivo e confirmando o `git status`.
-- As Fases 1 a 5 estão entregues; **não as reimplemente**. A v1.0.0 está
-  empacotada, mas a matriz manual/visual ainda deve ser validada antes de
-  divulgação pública. Não comece o framebuffer antes disso.
+- As Fases 1 a 5 estão concluídas; **não as reimplemente**. A v1.0.0 foi
+  validada manualmente em Kitty, foot, WezTerm, GNOME Terminal e áudio real.
+  Não comece o framebuffer sem confirmação e sem validar `/dev/fb0`.
 - A TUI cobre 1P (IA Fácil/Médio/Impossível) e 2P, com imagem e fallbacks.
 - A IA é função pura em `src/ai/mod.rs`; o atraso fica no `App` e não bloqueia
   o loop de eventos. `--seed` controla o RNG e os atrasos.
@@ -308,7 +308,7 @@ Regras de escrita:
 - A captura `--capture-frame` cobre a arte; texto do canvas fica para a v1.1.
 - Release: `dist/velha-classica-1.0.0-x86_64-unknown-linux-gnu.tar.gz` e `.sha256`;
   o hash também está em `docs/10-v1.0-release-checklist.md`.
-- Próximo foco: validação manual da v1.0.0; depois Fase 6 (framebuffer).
+- Próximo foco: Fase 6 (framebuffer), após confirmação e Q-003/Q-004.
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
 - `--backend fb` retorna código 3 de propósito até a v1.1.

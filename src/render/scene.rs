@@ -184,17 +184,17 @@ fn draw_stamp(pixmap: &mut Pixmap, input: SceneInput) {
         Stamp::DrawEn => assets::stamp_draw_en(),
     };
     let opacity = input.win_progress.clamp(0.0, 1.0);
-    let width = 480.0;
+    let width = 300.0;
     let height = width * source.height() as f32 / source.width() as f32;
     let scale = width / source.width() as f32;
     let x = (SIZE as f32 - width) / 2.0;
-    let y = (SIZE as f32 - height) / 2.0;
+    let y = SIZE as f32 - height - 8.0;
     draw_stamp_backing(
         pixmap,
-        x - 10.0,
-        y - 10.0,
-        width + 20.0,
-        height + 20.0,
+        x - 8.0,
+        y - 8.0,
+        width + 16.0,
+        height + 16.0,
         opacity,
     );
     let transform = Transform::from_scale(scale, scale).post_translate(x, y);

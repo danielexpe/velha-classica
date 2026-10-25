@@ -6,7 +6,7 @@
 
 
                         ✦  V E L H A   C L Á S S I C A ✦                                         Idioma: Português · Som ligado · v1.0.0
-                        Jogo da Velha · 2 Jogadores · Rodada 1
+                        Jogo da Velha · 2 Jogadores · Rodada 1 · Som ligado
 
 
 
