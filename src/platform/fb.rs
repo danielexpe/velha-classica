@@ -233,13 +233,98 @@ pub struct DeviceInfo {
     pub pan_buffers: u32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct MappingPlan {
+    pan: bool,
+    yoffset: u32,
+    mapping_len: usize,
+}
+
+fn plan_mapping(
+    yres: u32,
+    yres_virtual: u32,
+    yoffset: u32,
+    ypanstep: u16,
+    line_length: usize,
+    row_bytes: usize,
+    smem_len: usize,
+) -> Result<MappingPlan, FbError> {
+    if line_length < row_bytes {
+        return Err(FbError::Unsupported(format!(
+            "line length {line_length} is smaller than {row_bytes} bytes per row"
+        )));
+    }
+
+    let max_yoffset = yres_virtual.checked_sub(yres).ok_or_else(|| {
+        FbError::Unsupported(format!(
+            "virtual height {yres_virtual} is smaller than the visible height {yres}"
+        ))
+    })?;
+
+    if yoffset > max_yoffset {
+        return Err(FbError::Unsupported(format!(
+            "yoffset {yoffset} exceeds the usable virtual range (0..={max_yoffset})"
+        )));
+    }
+
+    let visible_rows = (yoffset as usize)
+        .checked_add(yres as usize)
+        .ok_or_else(|| FbError::Unsupported("framebuffer size overflow".into()))?;
+    let visible_len = line_length
+        .checked_mul(visible_rows)
+        .ok_or_else(|| FbError::Unsupported("framebuffer size overflow".into()))?;
+    let double_rows = (yres as usize)
+        .checked_mul(2)
+        .ok_or_else(|| FbError::Unsupported("framebuffer size overflow".into()))?;
+    let double_len = line_length
+        .checked_mul(double_rows)
+        .ok_or_else(|| FbError::Unsupported("framebuffer size overflow".into()))?;
+
+    let pan_candidate = ypanstep > 0
+        && yres_virtual >= yres.saturating_mul(2)
+        && yres.is_multiple_of(u32::from(ypanstep));
+    let pan = pan_candidate && smem_len >= double_len;
+    let mapping_len = if pan {
+        double_len.max(visible_len)
+    } else {
+        visible_len
+    };
+
+    if mapping_len == 0 {
+        return Err(FbError::Unsupported(
+            "framebuffer reports zero bytes of visible memory".into(),
+        ));
+    }
+
+    if smem_len < mapping_len {
+        return Err(FbError::Unsupported(format!(
+            "framebuffer memory has {smem_len} bytes, but {mapping_len} are required"
+        )));
+    }
+
+    Ok(MappingPlan {
+        pan,
+        yoffset,
+        mapping_len,
+    })
+}
+
+fn next_buffer(current: u32, yres: u32) -> u32 {
+    if current == 0 {
+        yres
+    } else {
+        0
+    }
+}
+
 pub struct Device {
     file: File,
     var: FbVarScreenInfo,
     info: DeviceInfo,
     mapping: *mut u8,
     mapping_len: usize,
-    back_buffer: u32,
+    current_yoffset: u32,
+    pan_enabled: bool,
 }
 
 impl Device {
@@ -270,23 +355,16 @@ impl Device {
 
         let line_length = fix.line_length as usize;
         let row_bytes = var.xres as usize * format.bytes_per_pixel();
-
-        if line_length < row_bytes {
-            return Err(FbError::Unsupported(format!(
-                "line length {line_length} is smaller than {row_bytes} bytes per row"
-            )));
-        }
-
-        let mapping_len = line_length
-            .checked_mul(var.yres_virtual as usize)
-            .ok_or_else(|| FbError::Unsupported("framebuffer size overflow".into()))?;
-
-        if mapping_len == 0 {
-            return Err(FbError::Unsupported(format!(
-                "framebuffer memory is inconsistent (line length {line_length}, virtual height {})",
-                var.yres_virtual
-            )));
-        }
+        let plan = plan_mapping(
+            var.yres,
+            var.yres_virtual,
+            var.yoffset,
+            fix.ypanstep,
+            line_length,
+            row_bytes,
+            fix.smem_len as usize,
+        )?;
+        let mapping_len = plan.mapping_len;
 
         let mapping = unsafe {
             // SAFETY: the descriptor is open read/write and the length comes from the driver.
@@ -304,15 +382,6 @@ impl Device {
             return Err(FbError::io(path, io::Error::last_os_error()));
         }
 
-        let pan_buffers = if fix.ypanstep > 0
-            && var.yres_virtual >= var.yres.saturating_mul(2)
-            && var.yres.is_multiple_of(u32::from(fix.ypanstep))
-        {
-            2
-        } else {
-            1
-        };
-
         Ok(Self {
             file,
             var,
@@ -321,11 +390,12 @@ impl Device {
                 height: var.yres,
                 line_length,
                 format,
-                pan_buffers,
+                pan_buffers: if plan.pan { 2 } else { 1 },
             },
             mapping: mapping.cast(),
             mapping_len,
-            back_buffer: 0,
+            current_yoffset: plan.yoffset,
+            pan_enabled: plan.pan,
         })
     }
 
@@ -334,15 +404,8 @@ impl Device {
     }
 
     pub fn present(&mut self, rgba: &[u8]) -> Result<(), FbError> {
-        let DeviceInfo {
-            width,
-            height,
-            line_length,
-            format,
-            pan_buffers,
-        } = self.info;
+        let DeviceInfo { width, height, .. } = self.info;
         let expected = width as usize * height as usize * 4;
-        let row_bytes = width as usize * format.bytes_per_pixel();
 
         if rgba.len() != expected {
             return Err(FbError::Unsupported(format!(
@@ -351,22 +414,48 @@ impl Device {
             )));
         }
 
-        let target_y = if pan_buffers == 2 {
-            self.back_buffer * height
-        } else {
-            self.var.yoffset
-        };
-        let offset = target_y as usize * line_length;
-        let last_row = offset + (height as usize - 1) * line_length + row_bytes;
+        if self.pan_enabled {
+            let target = next_buffer(self.current_yoffset, height);
+            self.write_frame(rgba, target)?;
 
-        if last_row > self.mapping_len {
+            if self.pan_to(target).is_ok() {
+                self.current_yoffset = target;
+                return Ok(());
+            }
+
+            self.pan_enabled = false;
+            self.info.pan_buffers = 1;
+            self.var.yoffset = self.current_yoffset;
+        }
+
+        self.write_frame(rgba, self.current_yoffset)
+    }
+
+    fn write_frame(&mut self, rgba: &[u8], target_y: u32) -> Result<(), FbError> {
+        let DeviceInfo {
+            width,
+            height,
+            line_length,
+            format,
+            ..
+        } = self.info;
+        let row_bytes = width as usize * format.bytes_per_pixel();
+        let offset = (target_y as usize)
+            .checked_mul(line_length)
+            .ok_or_else(|| FbError::Unsupported("framebuffer offset overflow".into()))?;
+        let frame_len = (height as usize)
+            .checked_mul(line_length)
+            .and_then(|len| offset.checked_add(len))
+            .ok_or_else(|| FbError::Unsupported("framebuffer size overflow".into()))?;
+
+        if frame_len > self.mapping_len {
             return Err(FbError::Unsupported(
                 "the frame does not fit in the framebuffer memory".into(),
             ));
         }
 
         let destination = unsafe {
-            // SAFETY: the offset was bounds-checked against the mapping length above.
+            // SAFETY: the offset and frame length were bounds-checked against the mapping above.
             std::slice::from_raw_parts_mut(self.mapping.add(offset), height as usize * line_length)
         };
 
@@ -376,21 +465,21 @@ impl Device {
             format.write_row(source, target);
         }
 
-        if pan_buffers == 2 {
-            self.var.yoffset = target_y;
-            let result = unsafe {
-                // SAFETY: the descriptor is a valid framebuffer and the struct matches the ABI.
-                libc::ioctl(self.file.as_raw_fd(), FBIOPAN_DISPLAY, &self.var)
-            };
+        Ok(())
+    }
 
-            if result == -1 {
-                return Err(FbError::io_owned(
-                    "FBIOPAN_DISPLAY",
-                    io::Error::last_os_error(),
-                ));
-            }
+    fn pan_to(&mut self, target_y: u32) -> Result<(), FbError> {
+        self.var.yoffset = target_y;
+        let result = unsafe {
+            // SAFETY: the descriptor is a valid framebuffer and the struct matches the ABI.
+            libc::ioctl(self.file.as_raw_fd(), FBIOPAN_DISPLAY, &self.var)
+        };
 
-            self.back_buffer ^= 1;
+        if result == -1 {
+            return Err(FbError::io_owned(
+                "FBIOPAN_DISPLAY",
+                io::Error::last_os_error(),
+            ));
         }
 
         Ok(())
@@ -693,5 +782,84 @@ mod tests {
         rgb565.write_row(&rgba, &mut out);
 
         assert_eq!(out, [0xff, 0xff, 0x00, 0x00]);
+    }
+
+    fn plan(
+        yres: u32,
+        yres_virtual: u32,
+        yoffset: u32,
+        ypanstep: u16,
+        line_length: usize,
+        smem_len: usize,
+    ) -> Result<MappingPlan, FbError> {
+        plan_mapping(
+            yres,
+            yres_virtual,
+            yoffset,
+            ypanstep,
+            line_length,
+            4,
+            smem_len,
+        )
+    }
+
+    #[test]
+    fn chooses_the_buffer_that_is_not_visible() {
+        assert_eq!(next_buffer(0, 1080), 1080);
+        assert_eq!(next_buffer(1080, 1080), 0);
+        assert_eq!(next_buffer(42, 1080), 0);
+    }
+
+    #[test]
+    fn plans_double_buffer_when_ypan_and_memory_allow() {
+        let line_length = 7680;
+        let plan = plan(1080, 2160, 0, 1, line_length, line_length * 2160).unwrap();
+
+        assert!(plan.pan);
+        assert_eq!(plan.yoffset, 0);
+        assert_eq!(plan.mapping_len, line_length * 2160);
+    }
+
+    #[test]
+    fn keeps_the_current_yoffset_when_pan_is_unavailable() {
+        let line_length = 7680;
+        let plan = plan(1080, 2160, 1080, 0, line_length, line_length * 2160).unwrap();
+
+        assert!(!plan.pan);
+        assert_eq!(plan.yoffset, 1080);
+        assert_eq!(plan.mapping_len, line_length * 2160);
+    }
+
+    #[test]
+    fn disables_pan_when_memory_only_covers_one_buffer() {
+        let line_length = 7680;
+        let plan = plan(1080, 2160, 0, 1, line_length, line_length * 1080).unwrap();
+
+        assert!(!plan.pan);
+        assert_eq!(plan.mapping_len, line_length * 1080);
+    }
+
+    #[test]
+    fn maps_the_visible_buffer_for_pan_fallback() {
+        let line_length = 400;
+        let plan = plan(100, 300, 200, 1, line_length, line_length * 300).unwrap();
+
+        assert!(plan.pan);
+        assert_eq!(plan.yoffset, 200);
+        assert_eq!(plan.mapping_len, line_length * 300);
+    }
+
+    #[test]
+    fn rejects_invalid_yoffset_and_stride() {
+        assert!(plan(1080, 2160, 1081, 1, 7680, 7680 * 2160).is_err());
+        assert!(plan(1080, 1000, 0, 1, 7680, 7680 * 2160).is_err());
+        assert!(plan_mapping(1080, 2160, 0, 1, 4000, 4320, 7680 * 2160).is_err());
+    }
+
+    #[test]
+    fn rejects_insufficient_framebuffer_memory() {
+        let line_length = 7680;
+
+        assert!(plan(1080, 1080, 0, 1, line_length, line_length * 1080 - 1).is_err());
     }
 }

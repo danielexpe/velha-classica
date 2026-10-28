@@ -4,14 +4,16 @@
 > Leia-o inteiro no início de cada sessão antes de qualquer alteração.
 > Ele deve ser atualizado ao final de cada tarefa relevante.
 >
-> **Última atualização:** 2026-10-25 (v1.1.0 validada no console e empacotada)
-> **Status atual:** v1.1.0 implementada, validada manualmente no console local
-> (1920 × 1080, 32 bpp: 1P, áudio e saída pelo menu), empacotada em `dist/` e
-> publicada no GitHub Releases.
-> 185 testes e portões verdes. Restam spot-checks de 2P, `Ctrl+C`/SIGTERM,
-> troca de VT e formatos 24/16 bpp.
+> **Última atualização:** 2026-10-28 (v1.1.1 com correção de `yoffset` e instalador)
+> **Status atual:** v1.1.1 implementada, empacotada em `dist/` e publicada no
+> GitHub Releases. Corrige o double buffer do framebuffer (buffer ancorado no
+> `yoffset` visível, validação de `smem_len`, fallback de pan) e adiciona
+> `install.sh` com instalação system-wide e acesso ao grupo `video`.
+> 192 testes e portões verdes. A validação da correção no segundo computador
+> segue pendente. Restam spot-checks de 2P, `Ctrl+C`/SIGTERM, troca de VT e
+> formatos 24/16 bpp.
 > **Branch:** `main`
-> **Último commit:** `a0191c7 docs: registra hash do commit da fase 6`
+> **Último commit:** `c6a3372 docs: registra repositório remoto e release v1.1.0`
 > **Remote:** `origin` (SSH) → https://github.com/danielexpe/velha-classica (público).
 
 ## 1. Retomada rápida
@@ -48,38 +50,42 @@ a captura com texto; a validação manual no console segue pendente.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `878bc24` |
+| Repositório Git | Inicializado em `main`; último commit `c6a3372` |
 | Remote | `origin` SSH: `git@github.com:danielexpe/velha-classica.git` (público) |
-| Código Rust | Presente; `cargo test` com 185 testes verdes |
-| `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.1.0; workspace com `xtask` |
+| Código Rust | Presente; `cargo test` com 192 testes verdes |
+| `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.1.1; workspace com `xtask` |
 | Toolchain | rustup stable 1.99.1; MSRV declarada 1.88 |
 | Dependências | `clap`, `crossterm`, `ratatui`, `ratatui-image`, `image`, `tiny-skia`, `fontdue`, `libc`, `thiserror`, `libloading` (opcional) |
 | CLI | idioma, backend, `--fb-device`, seed, cor, protocolo de imagem, flags e captura |
 | Núcleo | `board`, `rules`, `score` e `state::game` com testes |
 | TUI | 1P/2P; IA; imagem com fallback half-blocks/legado; animações |
 | Layout | Wide/Compact/Minimal; resize preserva o estado |
-| Snapshots | 10 arquivos em `tests/snapshots/` (comparador próprio, sem `insta`); versão v1.1.0 |
+| Snapshots | 10 arquivos em `tests/snapshots/` (comparador próprio, sem `insta`); versão v1.1.1 |
 | Restauração | Guards de raw mode/alternate screen/cursor + `KD_TEXT`/mmap + panic hook e sinais |
 | Assets | 16 SVGs, 16 PNGs e manifesto; `xtask assets --check` verde |
 | Fontes | EB Garamond + Inter (OFL 1.1), estáticas e embutidas |
 | Áudio | Sintetizado em runtime; ALSA via `libloading`; silencioso sem device |
 | Captura | `--capture-frame` gera PNG 1344 × 756 com arte e texto (estado de resultado) |
-| Release | tag `v1.1.0` + assets em https://github.com/danielexpe/velha-classica/releases/tag/v1.1.0 (v1.0.0 preservada em `dist/`) |
-| SHA-256 do release | `cced01c99d20044dd773aa76fce830277484c5509e512343d761f922df5930cd` (v1.1.0) |
+| Release | tag `v1.1.1` + assets em https://github.com/danielexpe/velha-classica/releases/tag/v1.1.1 (v1.1.0 e v1.0.0 preservadas em `dist/`) |
+| SHA-256 do release | `ee526bc667fba9abc5061c75473ce6f050883040d28c871a196cde8738fa9400` (v1.1.1) |
+| Instalador | `install.sh` no pacote e como asset da release; instala em `/usr/local` e adiciona o usuário ao grupo `video` |
 | Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
-| Framebuffer | Validado no console: 1920 × 1080, 32 bpp, 1P, áudio e saída pelo menu; 2P/Ctrl+C/SIGTERM/24/16 bpp pendentes |
+| Framebuffer | Validado no console: 1920 × 1080, 32 bpp, 1P, áudio e saída pelo menu; pan/`yoffset` corrigidos mas pendentes no segundo hardware; 2P/Ctrl+C/SIGTERM/24/16 bpp pendentes |
 | Bloqueios | Nenhum; grupo `video` e VT validados (Q-003/Q-004). Konsole não testado |
-| Working tree | Limpo; `main` sincronizado com `origin/main` |
+| Working tree | Alterações locais não commitadas (`src/platform/fb.rs`, `AGENTS.md`); `main` sincronizado com `origin/main` |
 
 ### Próxima tarefa recomendada
 
-**Fechar os spot-checks manuais da v1.1.0 (opcionais, sem bloquear o pacote).**
+**Validar no segundo computador a correção de pan/`yoffset` do framebuffer.**
 
 Passos:
 
-1. No VT, rodar `--backend fb` e jogar uma partida 2P até o fim.
-2. Testar `Ctrl+C` e `kill -TERM $(pgrep velha-classica)`.
-3. Se possível, testar troca de VT e formatos 24/16 bpp em outra máquina/VM.
+1. No VT do segundo computador, rodar `--backend fb` e confirmar que a primeira
+   tela aparece sem `Ctrl+C`.
+2. Rodar `fbset -i` e `strace -e ioctl` para registrar `yoffset`,
+   `yres_virtual`, `ypanstep`, `smem_len` e se `FBIOPAN_DISPLAY` é chamado.
+3. Repetir os spot-checks: partida 2P, `Ctrl+C`, SIGTERM, troca de VT e
+   formatos 24/16 bpp.
 4. Registrar o resultado em
    [docs/12-v1.1-release-checklist.md](docs/12-v1.1-release-checklist.md).
 5. Commit apenas com pedido explícito do usuário.
@@ -169,6 +175,7 @@ Portões: `cargo fmt --check`,
 | [docs/08-i18n-catalog.md](docs/08-i18n-catalog.md) | Strings pt-BR/inglês e limites de layout |
 | [docs/11-release-notes-v1.1.md](docs/11-release-notes-v1.1.md) | Notas da v1.1 |
 | [docs/12-v1.1-release-checklist.md](docs/12-v1.1-release-checklist.md) | Checklist e matriz manual do framebuffer |
+| [docs/13-release-notes-v1.1.1.md](docs/13-release-notes-v1.1.1.md) | Notas da v1.1.1 (correção de pan e instalador) |
 
 Em caso de conflito: primeiro este arquivo para **estado operacional**; depois
 `docs/` para **especificação**. Se a especificação mudar, atualize o documento
@@ -310,8 +317,11 @@ Regras de escrita:
 | 2026-10-25 | Validação manual v1.1.0 no VT | 1920 × 1080, 32 bpp: partida 1P contra a IA, áudio no console e saída pelo menu com restauração; console sem corrupção | `docs/12-v1.1-release-checklist.md`, `AGENTS.md` |
 | 2026-10-25 | Commit local da Fase 6 + v1.1.0 | `5ced541 feat: conclui fase 6 com backend framebuffer e empacota v1.1.0`; 30 arquivos; pacote em `dist/` (ignorado pelo Git) | `src/platform/**`, `src/render/{fb,text}.rs`, `src/**`, `tests/snapshots/**`, `README.md`, `docs/**`, `Cargo.*`, `AGENTS.md` |
 | 2026-10-25 | Repositório remoto criado | Publicado em https://github.com/danielexpe/velha-classica; `origin` SSH e `main` rastreando `origin/main` | `AGENTS.md` |
+| 2026-10-25 | Framework reutilizável criado | Template de arquitetura e processo para apps Rust console Linux TUI + framebuffer, com lições da v1.1 | `framework_app_rust_console_linux_TUI_framebuffer.md`, `AGENTS.md` |
 | 2026-10-25 | Release v1.1.0 publicada | Tag `v1.1.0` em `a0191c7`; assets `tar.gz` + `.sha256`; release público com as notas da v1.1 | `AGENTS.md` |
 | 2026-10-25 | Empacotamento v1.1.0 | `dist/velha-classica-1.1.0-...tar.gz` + `.sha256`; smoke em `/tmp` sem assets (`--version` e PNG 1344 × 756) | `dist/velha-classica-1.1.0-*`, `docs/06-roadmap.md`, `docs/11-release-notes-v1.1.md`, `AGENTS.md` |
+| 2026-10-28 | Correção de double buffer no fb | Buffer de pan ancorado no `yoffset` atual, validação de `yoffset`/`line_length`/`smem_len`, mapeamento que cobre o buffer visível, fallback para escrita direta quando `FBIOPAN_DISPLAY` falha; 7 testes novos e 192 verdes | `src/platform/fb.rs`, `AGENTS.md` |
+| 2026-10-28 | Empacotamento e release v1.1.1 | Versão 1.1.1, snapshots atualizados, `install.sh` com extração/instalação e grupo `video`, pacote `tar.gz` + `.sha256` em `dist/`; 192 testes e portões verdes | `Cargo.toml`, `Cargo.lock`, `install.sh`, `README.md`, `docs/06-roadmap.md`, `docs/13-release-notes-v1.1.1.md`, `tests/snapshots/**`, `dist/velha-classica-1.1.1-*`, `AGENTS.md` |
 
 ## 11. Fases
 
@@ -334,6 +344,8 @@ Regras de escrita:
 - Backend fb: `src/platform/fb.rs` (device/console/sinais), `src/render/fb.rs`
   (telas e composição), `src/render/text.rs` (fontdue). `unsafe` só no módulo de
   plataforma, com comentário.
+- Pan/double buffer: o alvo é o buffer não visível a partir do `yoffset` real;
+  `smem_len` é validado; se `FBIOPAN_DISPLAY` falhar, escreve no buffer visível.
 - Entrada do fb: crossterm lê `/dev/tty` automaticamente; não depende de stdin.
 - `--backend auto` continua TUI; use `--backend fb` no VT.
 - Validação feita em 2026-10-25 no VT: 1P, áudio e saída pelo menu OK. Faltam
@@ -348,16 +360,19 @@ Regras de escrita:
 - Imagem: detecção por ambiente + `--image-protocol`; não consultar stdio.
 - Áudio: ALSA dinâmico; sem device é silêncio. `--no-default-features` remove.
 - A captura `--capture-frame` usa `App::preview` e inclui texto (resultado 2P).
-- Release v1.1.0: `dist/velha-classica-1.1.0-...tar.gz`, SHA-256
-  `cced01c99d20044dd773aa76fce830277484c5509e512343d761f922df5930cd`.
-  A v1.0.0 permanece em `dist/` (SHA-256
+- Release v1.1.1: `dist/velha-classica-1.1.1-...tar.gz`, SHA-256
+  `ee526bc667fba9abc5061c75473ce6f050883040d28c871a196cde8738fa9400`;
+  assets incluem o pacote, `.sha256` e `install.sh`. A v1.1.0 permanece em
+  `dist/` (SHA-256
+  `cced01c99d20044dd773aa76fce830277484c5509e512343d761f922df5930cd`) e a
+  v1.0.0 também (SHA-256
   `f3b3e9d75e98d41f703ac20cb90f6953b32d0a0bd423ea9629486a019ca34caa`).
 - Terminais usados na validação manual, instalados em `~/.local`:
   `~/.local/kitty.app` (`kitty` 0.49.2), `~/.local/foot.app` (`foot` 1.16.2) e
   `~/.local/wezterm.app` (`wezterm` 20240203). GNOME Terminal também validado.
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
-- Ao retomar, rode `git status`; o remoto `origin` já existe (GitHub público), `main` o rastreia e a tag `v1.1.0` está publicada.
+- Ao retomar, rode `git status`; o remoto `origin` já existe (GitHub público), `main` o rastreia e a tag `v1.1.1` está publicada.
   Se o usuário pedir, faça um commit coerente e atualize o hash na seção 2.
 - Se houver dúvida sobre uma decisão, consulte `docs/07-decisions-and-risks.md`
   antes de perguntar; se ainda não estiver registrada, pergunte e registre.

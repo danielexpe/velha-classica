@@ -6,7 +6,7 @@
 
 
 
-                             ✦  V E L H A   C L Á S S I C A ✦                                                               Idioma: Português · Som ligado · v1.1.0
+                             ✦  V E L H A   C L Á S S I C A ✦                                                               Idioma: Português · Som ligado · v1.1.1
                              Jogo da Velha · Mesa de Madeira
                              2 Jogadores · Rodada 2
                              ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@
                                                                                                            │                                                      │
                                                                                                            │                                                      │
                                                                                                            ╰──────────────────────────────────────────────────────╯
-                             Enter selecionar  ·  R revanche  ·  Esc menu                                                                                    v1.1.0
+                             Enter selecionar  ·  R revanche  ·  Esc menu                                                                                    v1.1.1
 
 
 

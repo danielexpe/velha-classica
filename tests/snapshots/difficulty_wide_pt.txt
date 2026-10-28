@@ -43,7 +43,7 @@
 
 
 
-                             Setas/WASD navegar  ·  Enter selecionar  ·  Esc voltar                                                                          v1.1.0
+                             Setas/WASD navegar  ·  Enter selecionar  ·  Esc voltar                                                                          v1.1.1
 
 
 

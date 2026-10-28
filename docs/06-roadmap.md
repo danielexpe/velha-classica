@@ -225,6 +225,10 @@ Critérios de saída (v1.1):
 > Implementação concluída em 2026-10-24; validação manual no VT em 2026-10-25.
 > Pacote v1.1.0 gerado. Spot-checks pendentes em
 > `docs/12-v1.1-release-checklist.md`.
+>
+> Patch v1.1.1 (2026-10-28): correção do double buffer/`yoffset`, validação de
+> `smem_len` com fallback de pan e `install.sh` com acesso ao grupo `video`.
+> Notas em `docs/13-release-notes-v1.1.1.md`.
 
 ## 10. Fase 7 — Backlog pós-v1.1
 

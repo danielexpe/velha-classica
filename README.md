@@ -2,9 +2,9 @@
 
 Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
-> **Versão 1.1.0:** jogo completo no terminal e no console Linux via framebuffer
+> **Versão 1.1.1:** jogo completo no terminal e no console Linux via framebuffer
 > (`/dev/fb0`), com 1P/2P, IA em três níveis, arte original, animações, áudio
-> sintetizado e interface pt-BR/inglês.
+> sintetizado, interface pt-BR/inglês e instalador com acesso ao framebuffer.
 
 ## O que já funciona
 
@@ -40,13 +40,26 @@ Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
 ## Instalação
 
-A partir do pacote release gerado em `dist/`:
+A partir dos assets da release, baixe o `.tar.gz`, o `.sha256` e o `install.sh`
+na mesma pasta e execute:
+
+```bash
+bash install.sh
+```
+
+O script extrai o pacote, instala o binário em `/usr/local/bin` e os documentos
+em `/usr/local/share/velha-classica`, e adiciona o usuário atual ao grupo
+`video` para liberar o acesso ao `/dev/fb0`. O `sudo` pede a senha de forma
+interativa quando necessário. Use `--prefix DIR` para outro destino e
+`--skip-group` para não alterar grupos.
+
+Também é possível instalar manualmente a partir do pacote:
 
 ```bash
 cd dist
-sha256sum -c velha-classica-1.1.0-x86_64-unknown-linux-gnu.tar.gz.sha256
-tar xzf velha-classica-1.1.0-x86_64-unknown-linux-gnu.tar.gz
-cd velha-classica-1.1.0-x86_64-unknown-linux-gnu
+sha256sum -c velha-classica-1.1.1-x86_64-unknown-linux-gnu.tar.gz.sha256
+tar xzf velha-classica-1.1.1-x86_64-unknown-linux-gnu.tar.gz
+cd velha-classica-1.1.1-x86_64-unknown-linux-gnu
 install -m755 velha-classica ~/.local/bin/
 ```
 
@@ -286,6 +299,11 @@ validado em 1920 × 1080, 32 bpp (partida 1P, áudio e saída pelo menu com
 restauração). Spot-checks de 2P, `Ctrl+C`/SIGTERM e formatos 24/16 bpp estão
 registrados em [docs/12-v1.1-release-checklist.md](docs/12-v1.1-release-checklist.md).
 
+A v1.1.1 corrige o double buffer em VTs cujo driver usa `yoffset` pan: o buffer
+não visível é escolhido a partir do `yoffset` real, `smem_len` é validado e há
+fallback para escrita direta se `FBIOPAN_DISPLAY` falhar. A validação no segundo
+computador segue pendente.
+
 ## Problemas comuns
 
 **“stdin and stdout must be a local terminal”**
@@ -353,6 +371,7 @@ As especificações completas estão em [`docs/`](docs/):
 - [Checklist de release v1.0.0](docs/10-v1.0-release-checklist.md)
 - [Notas de release v1.1.0](docs/11-release-notes-v1.1.md)
 - [Checklist de release v1.1.0](docs/12-v1.1-release-checklist.md)
+- [Notas de release v1.1.1](docs/13-release-notes-v1.1.1.md)
 
 ## Licença
 

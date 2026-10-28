@@ -21,4 +21,4 @@
 
 
 
-Language: English  ·  Sound on  ·  F2 language  ·  M sound  ·  Q quit     v1.1.0
+Language: English  ·  Sound on  ·  F2 language  ·  M sound  ·  Q quit     v1.1.1
