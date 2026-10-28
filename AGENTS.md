@@ -13,7 +13,7 @@
 > segue pendente. Restam spot-checks de 2P, `Ctrl+C`/SIGTERM, troca de VT e
 > formatos 24/16 bpp.
 > **Branch:** `main`
-> **Último commit:** `c6a3372 docs: registra repositório remoto e release v1.1.0`
+> **Último commit:** `c8a6125 fix: corrige double buffer do framebuffer e adiciona instalador v1.1.1`
 > **Remote:** `origin` (SSH) → https://github.com/danielexpe/velha-classica (público).
 
 ## 1. Retomada rápida
@@ -50,7 +50,7 @@ a captura com texto; a validação manual no console segue pendente.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `c6a3372` |
+| Repositório Git | Inicializado em `main`; último commit `c8a6125` |
 | Remote | `origin` SSH: `git@github.com:danielexpe/velha-classica.git` (público) |
 | Código Rust | Presente; `cargo test` com 192 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.1.1; workspace com `xtask` |
@@ -72,7 +72,7 @@ a captura com texto; a validação manual no console segue pendente.
 | Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
 | Framebuffer | Validado no console: 1920 × 1080, 32 bpp, 1P, áudio e saída pelo menu; pan/`yoffset` corrigidos mas pendentes no segundo hardware; 2P/Ctrl+C/SIGTERM/24/16 bpp pendentes |
 | Bloqueios | Nenhum; grupo `video` e VT validados (Q-003/Q-004). Konsole não testado |
-| Working tree | Alterações locais não commitadas (`src/platform/fb.rs`, `AGENTS.md`); `main` sincronizado com `origin/main` |
+| Working tree | Limpo (exceto arquivos não rastreados do usuário); `main` sincronizado com `origin/main` |
 
 ### Próxima tarefa recomendada
 
@@ -321,7 +321,7 @@ Regras de escrita:
 | 2026-10-25 | Release v1.1.0 publicada | Tag `v1.1.0` em `a0191c7`; assets `tar.gz` + `.sha256`; release público com as notas da v1.1 | `AGENTS.md` |
 | 2026-10-25 | Empacotamento v1.1.0 | `dist/velha-classica-1.1.0-...tar.gz` + `.sha256`; smoke em `/tmp` sem assets (`--version` e PNG 1344 × 756) | `dist/velha-classica-1.1.0-*`, `docs/06-roadmap.md`, `docs/11-release-notes-v1.1.md`, `AGENTS.md` |
 | 2026-10-28 | Correção de double buffer no fb | Buffer de pan ancorado no `yoffset` atual, validação de `yoffset`/`line_length`/`smem_len`, mapeamento que cobre o buffer visível, fallback para escrita direta quando `FBIOPAN_DISPLAY` falha; 7 testes novos e 192 verdes | `src/platform/fb.rs`, `AGENTS.md` |
-| 2026-10-28 | Empacotamento e release v1.1.1 | Versão 1.1.1, snapshots atualizados, `install.sh` com extração/instalação e grupo `video`, pacote `tar.gz` + `.sha256` em `dist/`; 192 testes e portões verdes | `Cargo.toml`, `Cargo.lock`, `install.sh`, `README.md`, `docs/06-roadmap.md`, `docs/13-release-notes-v1.1.1.md`, `tests/snapshots/**`, `dist/velha-classica-1.1.1-*`, `AGENTS.md` |
+| 2026-10-28 | Empacotamento e release v1.1.1 | Versão 1.1.1, snapshots atualizados, `install.sh` com extração/instalação e grupo `video`, pacote `tar.gz` + `.sha256` em `dist/`; tag `v1.1.1` em `c8a6125` publicada com pacote, `.sha256` e `install.sh`; 192 testes e portões verdes | `Cargo.toml`, `Cargo.lock`, `install.sh`, `README.md`, `docs/06-roadmap.md`, `docs/13-release-notes-v1.1.1.md`, `tests/snapshots/**`, `dist/velha-classica-1.1.1-*`, `AGENTS.md` |
 
 ## 11. Fases
 
