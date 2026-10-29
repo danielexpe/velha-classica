@@ -14,7 +14,7 @@
 > segue pendente. Restam spot-checks de 2P, `Ctrl+C`/SIGTERM, troca de VT e
 > formatos 24/16 bpp.
 > **Branch:** `main`
-> **Último commit:** `b02ae88 chore: adiciona script de diagnóstico do framebuffer`
+> **Último commit:** `5983503 fix: desbloqueia framebuffer blank/DPMS e empacota v1.1.2`
 > **Remote:** `origin` (SSH) → https://github.com/danielexpe/velha-classica (público).
 
 ## 1. Retomada rápida
@@ -51,7 +51,7 @@ a captura com texto; a validação manual no console segue pendente.
 | Fase 0 — Planejamento | Concluída |
 | Fase 1 — Fundação | Concluída |
 | Especificações | Criadas e aprovadas pelo usuário em escopo |
-| Repositório Git | Inicializado em `main`; último commit `c8a6125` |
+| Repositório Git | Inicializado em `main`; último commit `5983503` |
 | Remote | `origin` SSH: `git@github.com:danielexpe/velha-classica.git` (público) |
 | Código Rust | Presente; `cargo test` com 192 testes verdes |
 | `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.1.2; workspace com `xtask` |
@@ -327,7 +327,7 @@ Regras de escrita:
 | 2026-10-28 | Empacotamento e release v1.1.1 | Versão 1.1.1, snapshots atualizados, `install.sh` com extração/instalação e grupo `video`, pacote `tar.gz` + `.sha256` em `dist/`; tag `v1.1.1` em `c8a6125` publicada com pacote, `.sha256` e `install.sh`; 192 testes e portões verdes | `Cargo.toml`, `Cargo.lock`, `install.sh`, `README.md`, `docs/06-roadmap.md`, `docs/13-release-notes-v1.1.1.md`, `tests/snapshots/**`, `dist/velha-classica-1.1.1-*`, `AGENTS.md` |
 | 2026-10-28 | Diagnóstico para o segundo hardware | `testes_debug.sh` coleta VT, fbdev, blank, DRM, `fbset`, `strace` e teste de escrita direta; adicionado como asset da release v1.1.1 | `testes_debug.sh`, `docs/13-release-notes-v1.1.1.md`, `AGENTS.md` |
 | 2026-10-28 | Diagnóstico revela blank/DPMS | No segundo computador (`i915drmfb`, sem ypan), `fb0/blank: 4` antes do app; `FBIOBLANK` direto muda para 0 e o app nunca desbloqueava. Causa raiz da tela em branco confirmada | `testes_debug.txt`, `AGENTS.md` |
-| 2026-10-28 | Correção v1.1.2 | `Device::unblank` chama `FBIOBLANK`/`FB_BLANK_UNBLANK` após `KD_GRAPHICS`; versão 1.1.2, snapshots, notas e pacote com `install.sh` + `testes_debug.sh`; 192 testes e portões verdes | `src/platform/fb.rs`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/06-roadmap.md`, `docs/12-v1.1-release-checklist.md`, `docs/14-release-notes-v1.1.2.md`, `testes_debug.sh`, `tests/snapshots/**`, `AGENTS.md` |
+| 2026-10-28 | Correção v1.1.2 e release | `Device::unblank` chama `FBIOBLANK`/`FB_BLANK_UNBLANK` após `KD_GRAPHICS`; versão 1.1.2, snapshots, notas e pacote com `install.sh` + `testes_debug.sh`; tag `v1.1.2` em `5983503` publicada; 192 testes e portões verdes | `src/platform/fb.rs`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/06-roadmap.md`, `docs/12-v1.1-release-checklist.md`, `docs/14-release-notes-v1.1.2.md`, `testes_debug.sh`, `tests/snapshots/**`, `AGENTS.md` |
 
 ## 11. Fases
 
