@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP="velha-classica"
-VERSION="1.1.1"
+VERSION="1.1.2"
 PKG="${APP}-${VERSION}-x86_64-unknown-linux-gnu"
 PREFIX="${PREFIX:-/usr/local}"
 SKIP_GROUP="${SKIP_GROUP:-0}"

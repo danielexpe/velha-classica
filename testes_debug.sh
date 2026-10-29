@@ -151,6 +151,7 @@ run_app_test() {
     blank_state
     printf '\n--- processos velha-classica restantes ---\n'
     pgrep -a velha-classica 2>/dev/null || echo "nenhum"
+    restore_console
 }
 
 run_probe_test() {
@@ -347,7 +348,10 @@ try:
         row += b"\x00" * (stride - row_bytes)
         start = (var.yoffset + y) * stride
         mapping[start : start + stride] = row
-    mapping.flush()
+    try:
+        mapping.flush()
+    except OSError as error:
+        print(f"aviso: mmap.flush() falhou (não fatal): {error}")
     marker = (var.yoffset * stride, bytes(mapping[var.yoffset * stride : var.yoffset * stride + 16]))
     print(f"escrita visível: offset={marker[0]} primeiros bytes={marker[1].hex()}")
     print("aguardando 4 segundos com as faixas RGB na tela...")
@@ -385,8 +389,8 @@ except Exception as error:
     print(f"TESTE 2 falhou: {type(error).__name__}: {error}")
 finally:
     try:
-        if ttyfd is not None and previous_mode is not None:
-            fcntl.ioctl(ttyfd, KDSETMODE, previous_mode)
+        if ttyfd is not None:
+            fcntl.ioctl(ttyfd, KDSETMODE, KD_TEXT)
             os.write(ttyfd, b"\x1b[0m\x1b[?25h\x1b[2J\x1b[H")
     except OSError as error:
         print(f"restauração KD_TEXT falhou: {error}")

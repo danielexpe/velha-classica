@@ -229,6 +229,11 @@ Critérios de saída (v1.1):
 > Patch v1.1.1 (2026-10-28): correção do double buffer/`yoffset`, validação de
 > `smem_len` com fallback de pan e `install.sh` com acesso ao grupo `video`.
 > Notas em `docs/13-release-notes-v1.1.1.md`.
+>
+> Patch v1.1.2 (2026-10-28): desbloqueio do framebuffer (`FBIOBLANK`/
+> `FB_BLANK_UNBLANK`) ao entrar em `KD_GRAPHICS`, corrigindo a tela em branco
+> quando o console chega com `blank`/DPMS desligado. Notas em
+> `docs/14-release-notes-v1.1.2.md`.
 
 ## 10. Fase 7 — Backlog pós-v1.1
 

@@ -1,6 +1,6 @@
 [package]
 name = "velha-classica"
-version = "1.1.1"
+version = "1.1.2"
 edition = "2021"
 rust-version = "1.88"
 description = "Classic tic-tac-toe for the Linux terminal with a wood and paper look"

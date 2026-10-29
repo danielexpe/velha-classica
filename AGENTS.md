@@ -4,16 +4,17 @@
 > Leia-o inteiro no início de cada sessão antes de qualquer alteração.
 > Ele deve ser atualizado ao final de cada tarefa relevante.
 >
-> **Última atualização:** 2026-10-28 (v1.1.1 com correção de `yoffset` e instalador)
-> **Status atual:** v1.1.1 implementada, empacotada em `dist/` e publicada no
-> GitHub Releases. Corrige o double buffer do framebuffer (buffer ancorado no
-> `yoffset` visível, validação de `smem_len`, fallback de pan) e adiciona
-> `install.sh` com instalação system-wide e acesso ao grupo `video`.
+> **Última atualização:** 2026-10-28 (v1.1.2 com desbloqueio de blank/DPMS)
+> **Status atual:** v1.1.2 implementada, empacotada em `dist/` e publicada no
+> GitHub Releases. Corrige a tela em branco quando o console chega ao backend fb
+> com `blank`/DPMS desligado: `FBIOBLANK`/`FB_BLANK_UNBLANK` após
+> `KD_GRAPHICS`. Mantém a correção de `yoffset`, o `install.sh` e o
+> `testes_debug.sh`.
 > 192 testes e portões verdes. A validação da correção no segundo computador
 > segue pendente. Restam spot-checks de 2P, `Ctrl+C`/SIGTERM, troca de VT e
 > formatos 24/16 bpp.
 > **Branch:** `main`
-> **Último commit:** `c8a6125 fix: corrige double buffer do framebuffer e adiciona instalador v1.1.1`
+> **Último commit:** `b02ae88 chore: adiciona script de diagnóstico do framebuffer`
 > **Remote:** `origin` (SSH) → https://github.com/danielexpe/velha-classica (público).
 
 ## 1. Retomada rápida
@@ -53,23 +54,23 @@ a captura com texto; a validação manual no console segue pendente.
 | Repositório Git | Inicializado em `main`; último commit `c8a6125` |
 | Remote | `origin` SSH: `git@github.com:danielexpe/velha-classica.git` (público) |
 | Código Rust | Presente; `cargo test` com 192 testes verdes |
-| `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.1.1; workspace com `xtask` |
+| `Cargo.toml` / `Cargo.lock` | crate `velha-classica` 1.1.2; workspace com `xtask` |
 | Toolchain | rustup stable 1.99.1; MSRV declarada 1.88 |
 | Dependências | `clap`, `crossterm`, `ratatui`, `ratatui-image`, `image`, `tiny-skia`, `fontdue`, `libc`, `thiserror`, `libloading` (opcional) |
 | CLI | idioma, backend, `--fb-device`, seed, cor, protocolo de imagem, flags e captura |
 | Núcleo | `board`, `rules`, `score` e `state::game` com testes |
 | TUI | 1P/2P; IA; imagem com fallback half-blocks/legado; animações |
 | Layout | Wide/Compact/Minimal; resize preserva o estado |
-| Snapshots | 10 arquivos em `tests/snapshots/` (comparador próprio, sem `insta`); versão v1.1.1 |
+| Snapshots | 10 arquivos em `tests/snapshots/` (comparador próprio, sem `insta`); versão v1.1.2 |
 | Restauração | Guards de raw mode/alternate screen/cursor + `KD_TEXT`/mmap + panic hook e sinais |
 | Assets | 16 SVGs, 16 PNGs e manifesto; `xtask assets --check` verde |
 | Fontes | EB Garamond + Inter (OFL 1.1), estáticas e embutidas |
 | Áudio | Sintetizado em runtime; ALSA via `libloading`; silencioso sem device |
 | Captura | `--capture-frame` gera PNG 1344 × 756 com arte e texto (estado de resultado) |
-| Release | tag `v1.1.1` + assets em https://github.com/danielexpe/velha-classica/releases/tag/v1.1.1 (v1.1.0 e v1.0.0 preservadas em `dist/`) |
-| SHA-256 do release | `ee526bc667fba9abc5061c75473ce6f050883040d28c871a196cde8738fa9400` (v1.1.1) |
+| Release | tag `v1.1.2` + assets em https://github.com/danielexpe/velha-classica/releases/tag/v1.1.2 (v1.1.1, v1.1.0 e v1.0.0 preservadas em `dist/`) |
+| SHA-256 do release | `4416593a411c0855fc5a712937867a61a09db27710da2bc643e1c2dc05cd4fe4` (v1.1.2) |
 | Instalador | `install.sh` no pacote e como asset da release; instala em `/usr/local` e adiciona o usuário ao grupo `video` |
-| Diagnóstico | `testes_debug.sh` (asset da release) gera `testes_debug.txt` com fbdev, VT, blank, DRM, strace e teste de escrita direta |
+| Diagnóstico | `testes_debug.sh` no pacote e como asset; gera `testes_debug.txt` com fbdev, VT, blank, DRM, strace e teste de escrita direta |
 | Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
 | Framebuffer | Validado no console: 1920 × 1080, 32 bpp, 1P, áudio e saída pelo menu; pan/`yoffset` corrigidos mas pendentes no segundo hardware; 2P/Ctrl+C/SIGTERM/24/16 bpp pendentes |
 | Bloqueios | Nenhum; grupo `video` e VT validados (Q-003/Q-004). Konsole não testado |
@@ -177,6 +178,7 @@ Portões: `cargo fmt --check`,
 | [docs/11-release-notes-v1.1.md](docs/11-release-notes-v1.1.md) | Notas da v1.1 |
 | [docs/12-v1.1-release-checklist.md](docs/12-v1.1-release-checklist.md) | Checklist e matriz manual do framebuffer |
 | [docs/13-release-notes-v1.1.1.md](docs/13-release-notes-v1.1.1.md) | Notas da v1.1.1 (correção de pan e instalador) |
+| [docs/14-release-notes-v1.1.2.md](docs/14-release-notes-v1.1.2.md) | Notas da v1.1.2 (desbloqueio de blank/DPMS) |
 
 Em caso de conflito: primeiro este arquivo para **estado operacional**; depois
 `docs/` para **especificação**. Se a especificação mudar, atualize o documento
@@ -324,6 +326,8 @@ Regras de escrita:
 | 2026-10-28 | Correção de double buffer no fb | Buffer de pan ancorado no `yoffset` atual, validação de `yoffset`/`line_length`/`smem_len`, mapeamento que cobre o buffer visível, fallback para escrita direta quando `FBIOPAN_DISPLAY` falha; 7 testes novos e 192 verdes | `src/platform/fb.rs`, `AGENTS.md` |
 | 2026-10-28 | Empacotamento e release v1.1.1 | Versão 1.1.1, snapshots atualizados, `install.sh` com extração/instalação e grupo `video`, pacote `tar.gz` + `.sha256` em `dist/`; tag `v1.1.1` em `c8a6125` publicada com pacote, `.sha256` e `install.sh`; 192 testes e portões verdes | `Cargo.toml`, `Cargo.lock`, `install.sh`, `README.md`, `docs/06-roadmap.md`, `docs/13-release-notes-v1.1.1.md`, `tests/snapshots/**`, `dist/velha-classica-1.1.1-*`, `AGENTS.md` |
 | 2026-10-28 | Diagnóstico para o segundo hardware | `testes_debug.sh` coleta VT, fbdev, blank, DRM, `fbset`, `strace` e teste de escrita direta; adicionado como asset da release v1.1.1 | `testes_debug.sh`, `docs/13-release-notes-v1.1.1.md`, `AGENTS.md` |
+| 2026-10-28 | Diagnóstico revela blank/DPMS | No segundo computador (`i915drmfb`, sem ypan), `fb0/blank: 4` antes do app; `FBIOBLANK` direto muda para 0 e o app nunca desbloqueava. Causa raiz da tela em branco confirmada | `testes_debug.txt`, `AGENTS.md` |
+| 2026-10-28 | Correção v1.1.2 | `Device::unblank` chama `FBIOBLANK`/`FB_BLANK_UNBLANK` após `KD_GRAPHICS`; versão 1.1.2, snapshots, notas e pacote com `install.sh` + `testes_debug.sh`; 192 testes e portões verdes | `src/platform/fb.rs`, `Cargo.toml`, `Cargo.lock`, `README.md`, `docs/06-roadmap.md`, `docs/12-v1.1-release-checklist.md`, `docs/14-release-notes-v1.1.2.md`, `testes_debug.sh`, `tests/snapshots/**`, `AGENTS.md` |
 
 ## 11. Fases
 
@@ -362,10 +366,12 @@ Regras de escrita:
 - Imagem: detecção por ambiente + `--image-protocol`; não consultar stdio.
 - Áudio: ALSA dinâmico; sem device é silêncio. `--no-default-features` remove.
 - A captura `--capture-frame` usa `App::preview` e inclui texto (resultado 2P).
-- Release v1.1.1: `dist/velha-classica-1.1.1-...tar.gz`, SHA-256
-  `ee526bc667fba9abc5061c75473ce6f050883040d28c871a196cde8738fa9400`;
-  assets incluem o pacote, `.sha256` e `install.sh`. A v1.1.0 permanece em
-  `dist/` (SHA-256
+- Release v1.1.2: `dist/velha-classica-1.1.2-...tar.gz`, SHA-256
+  `4416593a411c0855fc5a712937867a61a09db27710da2bc643e1c2dc05cd4fe4`;
+  assets incluem o pacote, `.sha256`, `install.sh` e `testes_debug.sh`. A v1.1.1
+  permanece em `dist/` (SHA-256
+  `ee526bc667fba9abc5061c75473ce6f050883040d28c871a196cde8738fa9400`), a
+  v1.1.0 (SHA-256
   `cced01c99d20044dd773aa76fce830277484c5509e512343d761f922df5930cd`) e a
   v1.0.0 também (SHA-256
   `f3b3e9d75e98d41f703ac20cb90f6953b32d0a0bd423ea9629486a019ca34caa`).
@@ -376,7 +382,7 @@ Regras de escrita:
   `~/.local/wezterm.app` (`wezterm` 20240203). GNOME Terminal também validado.
 - Snapshots de TUI ficam em `tests/snapshots/`; regenere com
   `UPDATE_SNAPSHOTS=1 cargo test` e revise o diff antes de commitar.
-- Ao retomar, rode `git status`; o remoto `origin` já existe (GitHub público), `main` o rastreia e a tag `v1.1.1` está publicada.
+- Ao retomar, rode `git status`; o remoto `origin` já existe (GitHub público), `main` o rastreia e a tag `v1.1.2` está publicada.
   Se o usuário pedir, faça um commit coerente e atualize o hash na seção 2.
 - Se houver dúvida sobre uma decisão, consulte `docs/07-decisions-and-risks.md`
   antes de perguntar; se ainda não estiver registrada, pergunte e registre.

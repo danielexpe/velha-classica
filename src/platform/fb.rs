@@ -15,11 +15,13 @@ const TTY_PATH: &str = "/dev/tty";
 const FBIOGET_VSCREENINFO: libc::c_ulong = 0x4600;
 const FBIOGET_FSCREENINFO: libc::c_ulong = 0x4602;
 const FBIOPAN_DISPLAY: libc::c_ulong = 0x4606;
+const FBIOBLANK: libc::c_ulong = 0x4611;
 
 const KDGETMODE: libc::c_ulong = 0x4B3B;
 const KDSETMODE: libc::c_ulong = 0x4B3A;
 const KD_TEXT: libc::c_int = 0x00;
 const KD_GRAPHICS: libc::c_int = 0x01;
+const FB_BLANK_UNBLANK: libc::c_int = 0x00;
 
 const CURSOR_HIDE: &[u8] = b"\x1b[?25l\x1b[2J\x1b[H";
 const CURSOR_SHOW: &[u8] = b"\x1b[0m\x1b[?25h\x1b[2J\x1b[H";
@@ -403,6 +405,14 @@ impl Device {
         self.info
     }
 
+    pub fn unblank(&self) {
+        unsafe {
+            // SAFETY: the descriptor is a valid framebuffer. Drivers that lack
+            // blanking support simply return an error, which is non-fatal here.
+            libc::ioctl(self.file.as_raw_fd(), FBIOBLANK, FB_BLANK_UNBLANK);
+        }
+    }
+
     pub fn present(&mut self, rgba: &[u8]) -> Result<(), FbError> {
         let DeviceInfo { width, height, .. } = self.info;
         let expected = width as usize * height as usize * 4;
@@ -583,6 +593,7 @@ impl Session {
     pub fn open(device: &Path) -> Result<Self, FbError> {
         let device = Device::open(device)?;
         let console = Console::enter()?;
+        device.unblank();
 
         if let Err(error) = enable_raw_mode() {
             drop(console);

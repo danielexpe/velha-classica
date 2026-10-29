@@ -2,7 +2,7 @@
 
 Jogo da velha para terminal Linux com visual de mesa de madeira e papel.
 
-> **Versão 1.1.1:** jogo completo no terminal e no console Linux via framebuffer
+> **Versão 1.1.2:** jogo completo no terminal e no console Linux via framebuffer
 > (`/dev/fb0`), com 1P/2P, IA em três níveis, arte original, animações, áudio
 > sintetizado, interface pt-BR/inglês e instalador com acesso ao framebuffer.
 
@@ -57,9 +57,9 @@ Também é possível instalar manualmente a partir do pacote:
 
 ```bash
 cd dist
-sha256sum -c velha-classica-1.1.1-x86_64-unknown-linux-gnu.tar.gz.sha256
-tar xzf velha-classica-1.1.1-x86_64-unknown-linux-gnu.tar.gz
-cd velha-classica-1.1.1-x86_64-unknown-linux-gnu
+sha256sum -c velha-classica-1.1.2-x86_64-unknown-linux-gnu.tar.gz.sha256
+tar xzf velha-classica-1.1.2-x86_64-unknown-linux-gnu.tar.gz
+cd velha-classica-1.1.2-x86_64-unknown-linux-gnu
 install -m755 velha-classica ~/.local/bin/
 ```
 
@@ -301,8 +301,11 @@ registrados em [docs/12-v1.1-release-checklist.md](docs/12-v1.1-release-checklis
 
 A v1.1.1 corrige o double buffer em VTs cujo driver usa `yoffset` pan: o buffer
 não visível é escolhido a partir do `yoffset` real, `smem_len` é validado e há
-fallback para escrita direta se `FBIOPAN_DISPLAY` falhar. A validação no segundo
-computador segue pendente.
+fallback para escrita direta se `FBIOPAN_DISPLAY` falhar.
+
+A v1.1.2 corrige a tela em branco quando o console chega ao app com
+`blank`/DPMS desligado: o backend fb chama `FBIOBLANK`/`FB_BLANK_UNBLANK` ao
+entrar em `KD_GRAPHICS`. A validação no segundo computador segue pendente.
 
 ## Problemas comuns
 
@@ -372,6 +375,7 @@ As especificações completas estão em [`docs/`](docs/):
 - [Notas de release v1.1.0](docs/11-release-notes-v1.1.md)
 - [Checklist de release v1.1.0](docs/12-v1.1-release-checklist.md)
 - [Notas de release v1.1.1](docs/13-release-notes-v1.1.1.md)
+- [Notas de release v1.1.2](docs/14-release-notes-v1.1.2.md)
 
 ## Licença
 
