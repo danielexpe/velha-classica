@@ -69,6 +69,7 @@ a captura com texto; a validação manual no console segue pendente.
 | Release | tag `v1.1.1` + assets em https://github.com/danielexpe/velha-classica/releases/tag/v1.1.1 (v1.1.0 e v1.0.0 preservadas em `dist/`) |
 | SHA-256 do release | `ee526bc667fba9abc5061c75473ce6f050883040d28c871a196cde8738fa9400` (v1.1.1) |
 | Instalador | `install.sh` no pacote e como asset da release; instala em `/usr/local` e adiciona o usuário ao grupo `video` |
+| Diagnóstico | `testes_debug.sh` (asset da release) gera `testes_debug.txt` com fbdev, VT, blank, DRM, strace e teste de escrita direta |
 | Licenças | código MIT; arte CC BY 4.0; fontes OFL 1.1 |
 | Framebuffer | Validado no console: 1920 × 1080, 32 bpp, 1P, áudio e saída pelo menu; pan/`yoffset` corrigidos mas pendentes no segundo hardware; 2P/Ctrl+C/SIGTERM/24/16 bpp pendentes |
 | Bloqueios | Nenhum; grupo `video` e VT validados (Q-003/Q-004). Konsole não testado |
@@ -322,6 +323,7 @@ Regras de escrita:
 | 2026-10-25 | Empacotamento v1.1.0 | `dist/velha-classica-1.1.0-...tar.gz` + `.sha256`; smoke em `/tmp` sem assets (`--version` e PNG 1344 × 756) | `dist/velha-classica-1.1.0-*`, `docs/06-roadmap.md`, `docs/11-release-notes-v1.1.md`, `AGENTS.md` |
 | 2026-10-28 | Correção de double buffer no fb | Buffer de pan ancorado no `yoffset` atual, validação de `yoffset`/`line_length`/`smem_len`, mapeamento que cobre o buffer visível, fallback para escrita direta quando `FBIOPAN_DISPLAY` falha; 7 testes novos e 192 verdes | `src/platform/fb.rs`, `AGENTS.md` |
 | 2026-10-28 | Empacotamento e release v1.1.1 | Versão 1.1.1, snapshots atualizados, `install.sh` com extração/instalação e grupo `video`, pacote `tar.gz` + `.sha256` em `dist/`; tag `v1.1.1` em `c8a6125` publicada com pacote, `.sha256` e `install.sh`; 192 testes e portões verdes | `Cargo.toml`, `Cargo.lock`, `install.sh`, `README.md`, `docs/06-roadmap.md`, `docs/13-release-notes-v1.1.1.md`, `tests/snapshots/**`, `dist/velha-classica-1.1.1-*`, `AGENTS.md` |
+| 2026-10-28 | Diagnóstico para o segundo hardware | `testes_debug.sh` coleta VT, fbdev, blank, DRM, `fbset`, `strace` e teste de escrita direta; adicionado como asset da release v1.1.1 | `testes_debug.sh`, `docs/13-release-notes-v1.1.1.md`, `AGENTS.md` |
 
 ## 11. Fases
 
@@ -367,6 +369,8 @@ Regras de escrita:
   `cced01c99d20044dd773aa76fce830277484c5509e512343d761f922df5930cd`) e a
   v1.0.0 também (SHA-256
   `f3b3e9d75e98d41f703ac20cb90f6953b32d0a0bd423ea9629486a019ca34caa`).
+- Diagnóstico do fb: rodar `testes_debug.sh` no VT afetado e analisar
+  `testes_debug.txt` (blank, `fbset -i`, vtconsole, DRM, strace e faixas RGB).
 - Terminais usados na validação manual, instalados em `~/.local`:
   `~/.local/kitty.app` (`kitty` 0.49.2), `~/.local/foot.app` (`foot` 1.16.2) e
   `~/.local/wezterm.app` (`wezterm` 20240203). GNOME Terminal também validado.

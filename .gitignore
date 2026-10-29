@@ -12,6 +12,7 @@
 *.log
 /captures/
 /tmp/
+/testes_debug.txt
 
 # Editores e sistema
 .idea/

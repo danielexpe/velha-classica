@@ -44,11 +44,25 @@ O destino padrão é `/usr/local`; use `--prefix` para outro local. O script
 adiciona o usuário ao grupo `video` e informa que é necessário sair e entrar
 novamente (ou usar `newgrp video`) para o acesso ao `/dev/fb0` valer.
 
+## Diagnóstico do framebuffer
+
+O asset `testes_debug.sh` coleta informações do VT, do fbdev, do driver DRM, do
+estado de blank/DPMS, executa o app sob `strace` e faz um teste de escrita
+direta com faixas RGB. Ele grava tudo em `testes_debug.txt` no diretório atual.
+
+```bash
+bash testes_debug.sh
+```
+
+Rode no próprio VT, com o mesmo usuário e o mesmo binário usados no jogo. O
+script não instala nada e restaura `KD_TEXT` ao terminar.
+
 ## Pacote
 
 - Nome: `velha-classica-1.1.1-x86_64-unknown-linux-gnu.tar.gz`.
 - Conteúdo: binário, `install.sh`, README, licenças (MIT/CC BY 4.0/OFL), notas e
   créditos.
+- Asset separado: `testes_debug.sh` para diagnóstico no hardware afetado.
 - O SHA-256 acompanha o pacote em `dist/*.sha256` e nos assets da release.
 
 ## Qualidade
